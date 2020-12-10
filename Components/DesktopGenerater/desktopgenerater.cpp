@@ -140,7 +140,10 @@ void DesktopGenerater::onExecParamChoose()
 void DesktopGenerater::onSaveAsFile()
 {
     onGeneraterContent();
-    QString fileName = QFileDialog::getSaveFileName(this, "保存到", fileFolderComb->currentData().toString());
+    QString fileName = QFileDialog::getSaveFileName(this, "保存到", fileFolderComb->currentData().toString(),"Desktop 描述文件 (*.desktop)");
+    if (!fileName.endsWith(".desktop")) {
+        fileName.append(".desktop");
+    }
     QFile file(fileName);
 
     if (!file.open(QFile::WriteOnly | QFile::Text)) {

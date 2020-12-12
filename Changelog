@@ -1,0 +1,19 @@
+/* ********************************************************************************/
+ * ChangeLog 模板：
+ * 2020年 12月 10日 星期四 14:47:00 CST     zinface <infacex@gmail.com>
+ *     * 发布 v${RELEASE} 版本，发版原因
+ *     * 变动文件：
+ *         变动说明
+ *
+ * ********************************************************************************/
+
+2020年 12月 12日 星期六 11:16:24 CST     zinface <infacex@gmail.com>
+    * 发布 v0.1-20201212 版本，发布 z-tools 工具箱，基础改进版
+    * 变动组件：
+        DesktopGenrater: desktop 图标生成器， Automatically add the suffix ".desktop"
+
+
+2020年 12月 10日 星期四 14:47:00 CST     zinface <infacex@gmail.com>
+    * 发布 v0.1-20201210 版本，发布 z-tools 工具箱，基础版
+    * 变动组件：
+        DesktopGenrater: desktop 图标生成器，提供基于Linux平台的desktop文件自动化生成工具

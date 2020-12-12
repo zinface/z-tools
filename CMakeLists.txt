@@ -24,9 +24,10 @@ add_subdirectory(Components)
 
 include_directories(
     src
+    Components/template
 )
 set(QRC_SOURCES
-    ""
+    Components/template/resources/resources.qrc
 )
 
 add_executable(${PROJECT_NAME}
@@ -38,5 +39,5 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     Qt5::Core Qt5::Widgets Qt5::Network
-
+    template
 )

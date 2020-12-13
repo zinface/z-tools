@@ -7,6 +7,8 @@
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
+
+class SpeedWidget;
 QT_END_NAMESPACE
 
 class MainWindow : public QWidget

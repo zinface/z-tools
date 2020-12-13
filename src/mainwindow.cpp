@@ -5,12 +5,15 @@
 #include <QStackedWidget>
 #include <QTableView>
 #include <QVBoxLayout>
+#include <apkmanager.h>
 
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
   ,m_mainLayout(new QVBoxLayout(this))
   ,m_tabWidget(new QTabWidget(this))
 
 {
+
+    m_tabWidget->addTab(new ApkManager, "apk文件查看器");
 
     m_mainLayout->addWidget(m_tabWidget);
     setLayout(m_mainLayout);

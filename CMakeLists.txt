@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
 
-project(z-tools VERSION 0.1 LANGUAGES CXX)
+project(base-apk-view VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -24,6 +24,7 @@ add_subdirectory(Components)
 
 include_directories(
     src
+    Components/ApkManager
 )
 set(QRC_SOURCES
     ""
@@ -39,4 +40,5 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     Qt5::Core Qt5::Widgets Qt5::Network
 
+    ApkManager
 )

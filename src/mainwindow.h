@@ -7,6 +7,8 @@
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
+
+class ServerScan;
 QT_END_NAMESPACE
 
 class MainWindow : public QWidget

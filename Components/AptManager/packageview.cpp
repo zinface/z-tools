@@ -1,0 +1,20 @@
+#include "packageslistdelegate.h"
+#include "packageview.h"
+#include "packageviewmodel.h"
+
+#include <QHeaderView>
+
+PackageView::PackageView(QWidget *parent) : QListView(parent)
+  ,m_model(new PackageViewModel)
+  ,m_packagesListDelegate(new PackagesListDelegate)
+{
+    setModel(m_model);
+    setItemDelegate(m_packagesListDelegate);
+
+    setVerticalScrollMode(ScrollPerItem);
+//    setSelectionMode(NoSelection);
+//    setAutoScroll(false);
+//    setMouseTracking(true);
+
+    connect(this,&PackageView::setPackages, m_model, &PackageViewModel::setPackages);
+}

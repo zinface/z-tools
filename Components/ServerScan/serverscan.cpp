@@ -34,7 +34,7 @@ void ServerScan::onScanStart()
     m_model->setStringList(QStringList());
     QStringList result;
     result << QString("server:" + server) << "port:" + port;
-    ScanWorkerThread *m_ScanWorker = new ScanWorkerThread[254];
+    ScanWorkerThread *m_ScanWorker = new ScanWorkerThread[255];
     for (int i = 1; i < 255; i++) {
 //        m_ScanWorker[i].start();
         m_ScanWorker[i].setWorkParam(QString(server+"."+QString::number(i)), port.toInt());

@@ -182,7 +182,7 @@ void DesktopGenerater::onGeneraterContent()
     foreach(const QString str, text){
         s.append(str + "\n");
     }
-
+    s.append("\n# Generated from the DesktopGenerater component of the z-Tools toolkit");
     contentText->setText(s);
 }
 

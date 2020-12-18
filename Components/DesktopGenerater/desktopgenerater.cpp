@@ -175,7 +175,7 @@ void DesktopGenerater::onGeneraterContent()
            << QString("Name=%1").arg(contentName->text())
            << QString("Comment=%1").arg(contentComment->text())
            << QString("Type=%1").arg(contentTypeComb->currentText())
-           << QString("Exec=%1").arg(contentExec->text())
+           << QString("Exec=%1 %2").arg(contentExec->text()).arg((contentExec->text().trimmed().isEmpty()?"":m_currentParam))
            << QString("Icon=%1").arg(contentIcon->text())
            << QString("Categories=%1").arg(contentCategoriesComb->currentText());
     QString s;

@@ -21,3 +21,6 @@ Linux toolbox under development
 * make packae
 
 *You get the file "\*. deb" or "\*.tar.gz"*
+
+## License
+

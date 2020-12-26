@@ -79,19 +79,23 @@ void DesktopGenerater::onIconFileChoose()
 
 void DesktopGenerater::onContentIconChanged()
 {
+    const auto ratio = qApp->devicePixelRatio();
     QSize size(32,32);
     QString content = contentIcon->text();
     QFile file(content);
     if (file.exists()) {
-        QPixmap p;
-        if (p.load(content)){
-            p = p.scaled(size,Qt::IgnoreAspectRatio);
-            contentIconPreview->setPixmap(p);
+        QPixmap icon;
+        if (icon.load(content)){
+            icon = icon.scaled(size,Qt::IgnoreAspectRatio);
+            icon.setDevicePixelRatio(ratio);
+            contentIconPreview->setPixmap(icon);
         }else{
             contentIconPreview->clear();
         }
     } else {
-        contentIconPreview->setPixmap(QIcon::fromTheme(contentIcon->text()).pixmap(32,32));
+        QPixmap icon = QIcon::fromTheme(contentIcon->text()).pixmap(32,32);
+        icon.setDevicePixelRatio(ratio);
+        contentIconPreview->setPixmap(icon);
     }
 }
 

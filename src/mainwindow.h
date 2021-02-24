@@ -7,6 +7,7 @@
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
+class NetworkInfo;
 QT_END_NAMESPACE
 
 class MainWindow : public QWidget

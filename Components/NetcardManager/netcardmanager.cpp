@@ -78,7 +78,7 @@ void NetcardManager::createNetworkInfomation()
     ifaceHWLab = new QLabel("硬件:");
     ifaceIPv4Lab = new QLabel("IPV4:");
     ifaceIPv6Lab = new QLabel("IPV6:");
-    ifaceNetMaskLab = new QLabel("网关:");
+    ifaceNetMaskLab = new QLabel("掩码:");
     ifaceBroadcastLab = new QLabel("广播:");
     ifaceIndexLab = new QLabel("序号:");
     ifaceStatusLab = new QLabel("状态:");

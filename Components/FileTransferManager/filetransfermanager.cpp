@@ -36,6 +36,7 @@ FileTransferManager::FileTransferManager(QWidget *parent) : QWidget(parent)
 
 FileTransferManager::~FileTransferManager()
 {
+    smap.clear();
     tss.close();
     tsc.disconnect();
     tsc.close();

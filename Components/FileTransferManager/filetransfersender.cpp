@@ -14,15 +14,16 @@
 #include <QVBoxLayout>
 
 FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
-  ,listWidget(new QListWidget)
+  ,fileListWidget(new QListWidget)
   ,addFileBtn(new QPushButton("添加"))
   ,delFileBtn(new QPushButton("删除"))
   ,clrFileBtn(new QPushButton("清空"))
+  ,currentLab(new QLabel("当前进度:"))
+  ,totalLab(new QLabel("全部进度:"))
   ,listenPort(new QLabel("....."))
   ,statusBar(new QLabel("....."))
   ,clientStatus(new QLabel("客户端连接数: 0"))
-  ,currentLab(new QLabel("当前进度:"))
-  ,totalLab(new QLabel("全部进度:"))
+  ,filesQueueStatus(new QLabel("文件传输队列: 0"))
 {
 //    qApp->setStyle(QStyleFactory::create("fusion"));
 
@@ -41,7 +42,11 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
     connect(delFileBtn, &QPushButton::clicked,this,&FileTransferSender::delFile);
     connect(clrFileBtn, &QPushButton::clicked,this,&FileTransferSender::clrFile);
 
+    connect(this, &FileTransferSender::filesAppended, this, &FileTransferSender::onfilesAppended);
+    connect(this, &FileTransferSender::filesDeleted, this, &FileTransferSender::onfilesDeleted);
+    connect(this, &FileTransferSender::filesCleanded, this, &FileTransferSender::onfilesCleanded);
     connect(this, &FileTransferSender::filesChanged, this, &FileTransferSender::onFileListChanged);
+    connect(this, &FileTransferSender::emitFilesQueueChange, this, &FileTransferSender::onFilesQueueChange);
 
     connect(this, &FileTransferSender::clientChanged,this,&FileTransferSender::onClientChanged);
     QTimer *t = new  QTimer;
@@ -91,25 +96,26 @@ void FileTransferSender::addFile()
         return;
     }
 
-    listWidget->addItems(openFileNames);
-    emit filesAppended();
+    fileListWidget->addItems(openFileNames);
+    emit filesAppended(openFileNames);
     emit filesChanged();
 }
 
 void FileTransferSender::delFile()
 {
-    int row = listWidget->currentRow();
+    int row = fileListWidget->currentRow();
     if (row < 0) {
         return;
     }
-    delete listWidget->takeItem(row);
-    emit filesDeleted();
+    QListWidgetItem *localTakeItem = fileListWidget->takeItem(row);
+    emit filesDeleted(QString(localTakeItem->text()));
     emit filesChanged();
+    delete localTakeItem;
 }
 
 void FileTransferSender::clrFile()
 {
-    int count = listWidget->count();
+    int count = fileListWidget->count();
     if (0 == count) {
         return;
     }
@@ -120,20 +126,39 @@ void FileTransferSender::clrFile()
     }
 
     for (int i = 0; i < count; i++) {
-        delete listWidget->takeItem(0);
+        delete fileListWidget->takeItem(0);
     }
     emit filesCleanded();
     emit filesChanged();
 }
 
+void FileTransferSender::onfilesAppended(QStringList &files)
+{
+    m_fileQueue.append(files);
+    emit emitFilesQueueChange();
+}
+
+void FileTransferSender::onfilesDeleted(QString file)
+{
+    m_fileQueue.removeOne(file);
+    emit emitFilesQueueChange();
+}
+
+void FileTransferSender::onfilesCleanded()
+{
+    m_fileQueue.clear();
+    emit emitFilesQueueChange();
+}
+
 void FileTransferSender::onFileListChanged()
 {
-    if (listWidget->count() > 0) {
-        currentProgressBar.setFormat(QStringLiteral("%1 : %p%").arg(listWidget->item(0)->text()));
+    if (fileListWidget->count() > 0) {
+        currentProgressBar.setFormat(QStringLiteral("%1 : %p%").arg(fileListWidget->item(0)->text()));
     }
-    if (listWidget->count() == 0) {
+    if (fileListWidget->count() == 0) {
         currentProgressBar.setFormat(QStringLiteral("%p%"));
     }
+
 }
 
 void FileTransferSender::onTimerout()
@@ -142,20 +167,25 @@ void FileTransferSender::onTimerout()
     currentProgressBar.setValue(value);
 }
 
+void FileTransferSender::onFilesQueueChange()
+{
+    filesQueueStatus->setText(QString("文件传输队列: %1").arg(m_fileQueue.count()));
+}
+
 void FileTransferSender::createFileTransferSender()
 {
     QGroupBox *senderBox = new QGroupBox("File Sender");
-    QHBoxLayout *fileCtlsLayout = new QHBoxLayout;
+    QHBoxLayout *fileCtlBtnsLayout = new QHBoxLayout;
     QHBoxLayout *currentProgressLayout = new QHBoxLayout;
     QHBoxLayout *totalProgressLayout = new QHBoxLayout;
     QVBoxLayout *senderBoxLayout = new QVBoxLayout;
 
-    fileCtlsLayout->addWidget(addFileBtn);
-    fileCtlsLayout->addWidget(delFileBtn);
-    fileCtlsLayout->addWidget(clrFileBtn);
+    fileCtlBtnsLayout->addWidget(addFileBtn);
+    fileCtlBtnsLayout->addWidget(delFileBtn);
+    fileCtlBtnsLayout->addWidget(clrFileBtn);
 
-    senderBoxLayout->addLayout(fileCtlsLayout);
-    senderBoxLayout->addWidget(listWidget);
+    senderBoxLayout->addLayout(fileCtlBtnsLayout);
+    senderBoxLayout->addWidget(fileListWidget);
 
     senderBox->setLayout(senderBoxLayout);
 
@@ -186,6 +216,7 @@ void FileTransferSender::createFileTransferSender()
     mainLayout->addWidget(line2);
     mainLayout->addWidget(statusBar);
     mainLayout->addWidget(clientStatus);
+    mainLayout->addWidget(filesQueueStatus);
     statusBar->setText(statusBar->text() + " - " + listenPort->text());
     setLayout(mainLayout);
 }

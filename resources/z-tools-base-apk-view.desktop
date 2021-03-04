@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=zTools-baseApkView
+Comment=致力生产工具，简单明确需求
+Type=Application
+Exec=/opt/zTools/bin/z-tools-base-apk-view
+Icon=/opt/zTools/Components/BaseApkView/resources/icon/z-Tools.svg
+Categories=Development
+
+# Generated from the DesktopGenerater component of the z-Tools toolkit

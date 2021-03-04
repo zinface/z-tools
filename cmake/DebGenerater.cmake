@@ -16,7 +16,7 @@ set(CPACK_DEBIAN_FILE_NAME            "${PROJECT_NAME}_${PROJECT_VERSION}-${BUIL
 set(CPACK_DEBIAN_PACKAGE_NAME         "${PROJECT_NAME}")
 set(CPACK_DEBIAN_PACKAGE_VERSION      "${PROJECT_VERSION}-${BUILD_TIME}")
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${ARCHITECTURE}")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS      "")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS      "libqapt3")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY     "optional")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER   "Individual developer <zinfacex@gmail.com>")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION  "Linux toolbox under development")
@@ -27,11 +27,11 @@ install(PROGRAMS
     DESTINATION /opt/zTools/bin
 )
 install(FILES
-    ${CMAKE_SOURCE_DIR}/resources/z-tools.svg
-    DESTINATION /opt/zTools/resources/icon
+    ${CMAKE_SOURCE_DIR}/resources/z-Tools.svg
+    DESTINATION /opt/zTools/Components/APTManager/resources/icon
 )
 install(FILES
-    ${CMAKE_SOURCE_DIR}/resources/z-tools.desktop
+    ${CMAKE_SOURCE_DIR}/resources/z-tools-aptmanager.desktop
     DESTINATION /usr/share/applications
 )
 

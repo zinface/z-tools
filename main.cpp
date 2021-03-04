@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName("z-ToolBox");
+    a.setApplicationName("z-Tools-NetCardManager");
     MainWindow wm;
     wm.show();
     QDesktopWidget *desktop = QApplication::desktop();

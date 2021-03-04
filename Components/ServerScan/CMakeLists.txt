@@ -8,6 +8,7 @@ find_package(Qt5Network)
 
 add_library(${MODULE_NAME} serverscan.cpp serverscan.h
     scanworkerthread.cpp scanworkerthread.h
+    scanworkerpool.cpp scanworkerpool.h
 )
 
 target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets Qt5::Network)

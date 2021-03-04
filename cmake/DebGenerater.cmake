@@ -27,11 +27,11 @@ install(PROGRAMS
     DESTINATION /opt/zTools/bin
 )
 install(FILES
-    ${CMAKE_SOURCE_DIR}/resources/z-tools.svg
-    DESTINATION /opt/zTools/resources/icon
+    ${CMAKE_SOURCE_DIR}/resources/z-Tools.svg
+    DESTINATION /opt/zTools/Components/ServerScan/resources/icon
 )
 install(FILES
-    ${CMAKE_SOURCE_DIR}/resources/z-tools.desktop
+    ${CMAKE_SOURCE_DIR}/resources/z-tools-scanport.desktop
     DESTINATION /usr/share/applications
 )
 

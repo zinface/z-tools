@@ -31,7 +31,7 @@ DesktopGenerater::DesktopGenerater(QWidget *parent) : QWidget(parent)
     connect(saveAsFile, &QPushButton::clicked, this, &DesktopGenerater::onSaveAsFile);
     connect(copyClipper, &QPushButton::clicked, this, &DesktopGenerater::onCopyClipper);
 
-    setFixedWidth(560);
+    setFixedWidth(500);
 }
 
 void DesktopGenerater::onFolderChoose()

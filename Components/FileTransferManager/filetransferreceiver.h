@@ -1,6 +1,7 @@
 #ifndef FILETRANSFERRECEIVER_H
 #define FILETRANSFERRECEIVER_H
 
+#include <QFile>
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
@@ -21,10 +22,25 @@ private:
     QLabel *clientStatus;
 
 private slots:
+    void onConfigFileSavePath();
+    void onUpdateFileSavePath();
+
     void onConnect();
     void connected();
     void disconnected();
 
+private slots:
+    void onReadyRead();
+
+
+private:
+    QDataStream m_stream;
+    qint64 m_fileSize;
+    QString m_fileName;
+    QFile m_file;
+    qint64 m_fileBytesReceivedSize;
+
+    QString savePath;
 
 private:
     QListWidget *listWidget;
@@ -34,10 +50,8 @@ private:
     QPushButton *saveFileBtn;
 
 
-
 private:
     void createFileTransferReceiver();
-
 
 };
 

@@ -1,11 +1,13 @@
 #include "filetransfersender.h"
 
 #include <QApplication>
+#include <QDragEnterEvent>
 #include <QFileDialog>
 #include <QGroupBox>
 #include <QLabel>
 #include <QListWidget>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QStyleFactory>
@@ -15,32 +17,41 @@
 
 FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
   ,fileListWidget(new QListWidget)
+  ,m_readBlock(4096)
+  ,m_currentFileSize(0)
+  ,m_totalFileSize(0)
+  ,m_currentFileBytesWritten(0)
+  ,m_totalFileBytesWritten(0)
   ,addFileBtn(new QPushButton("添加"))
   ,delFileBtn(new QPushButton("删除"))
   ,clrFileBtn(new QPushButton("清空"))
+  ,sendFileBtn(new QPushButton("发送"))
   ,currentLab(new QLabel("当前进度:"))
   ,totalLab(new QLabel("全部进度:"))
   ,listenPort(new QLabel("....."))
-  ,statusBar(new QLabel("....."))
+  ,listenStatus(new QLabel("....."))
   ,clientStatus(new QLabel("客户端连接数: 0"))
   ,filesQueueStatus(new QLabel("文件传输队列: 0"))
 {
 //    qApp->setStyle(QStyleFactory::create("fusion"));
 
     if (tcpServer.listen(QHostAddress::Any, 8888)) {
-        statusBar->setText(QStringLiteral("状态：正在监听"));
+        listenStatus->setText(QStringLiteral("状态：正在监听"));
     } else {
-        statusBar->setText(QStringLiteral("状态：监听失败"));
+        listenStatus->setText(QStringLiteral("状态：监听失败"));
     }
     listenPort->setText(QString::number(tcpServer.serverPort()));
 
     createFileTransferSender();
+
+    setAcceptDrops(true);
 
     connect(&tcpServer, &QTcpServer::newConnection, this, &FileTransferSender::onNewConnection);
 
     connect(addFileBtn, &QPushButton::clicked,this,&FileTransferSender::addFile);
     connect(delFileBtn, &QPushButton::clicked,this,&FileTransferSender::delFile);
     connect(clrFileBtn, &QPushButton::clicked,this,&FileTransferSender::clrFile);
+    connect(sendFileBtn, &QPushButton::clicked,this,&FileTransferSender::sendFile);
 
     connect(this, &FileTransferSender::filesAppended, this, &FileTransferSender::onfilesAppended);
     connect(this, &FileTransferSender::filesDeleted, this, &FileTransferSender::onfilesDeleted);
@@ -49,10 +60,6 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
     connect(this, &FileTransferSender::emitFilesQueueChange, this, &FileTransferSender::onFilesQueueChange);
 
     connect(this, &FileTransferSender::clientChanged,this,&FileTransferSender::onClientChanged);
-    QTimer *t = new  QTimer;
-    t->setInterval(1000);
-    connect(t, &QTimer::timeout, this, &FileTransferSender::onTimerout);
-    t->start();
 }
 
 void FileTransferSender::onNewConnection()
@@ -60,6 +67,7 @@ void FileTransferSender::onNewConnection()
     QTcpSocket *localNextPendingConnection = tcpServer.nextPendingConnection();
 //    localNextPendingConnection
     m_tcpMap.insert(QString::number(conn_cnt++), localNextPendingConnection);
+    connect(localNextPendingConnection,&QTcpSocket::bytesWritten, this, &FileTransferSender::onBytesWritten);
     connect(localNextPendingConnection, &QTcpSocket::readyRead, this, &FileTransferSender::onReadyRead);
     connect(localNextPendingConnection, &QTcpSocket::disconnected, this, &FileTransferSender::onDisconnected);
     emit clientChanged();
@@ -96,8 +104,17 @@ void FileTransferSender::addFile()
         return;
     }
 
-    fileListWidget->addItems(openFileNames);
-    emit filesAppended(openFileNames);
+    QStringList files;
+
+    foreach(QString file, openFileNames){
+        if(!compareQListWidgetItem(file)) {
+            files << file;
+        }
+    }
+
+    fileListWidget->addItems(files);
+
+    emit filesAppended(files);
     emit filesChanged();
 }
 
@@ -132,15 +149,42 @@ void FileTransferSender::clrFile()
     emit filesChanged();
 }
 
+void FileTransferSender::sendFile()
+{
+    if (fileListWidget->count() == 0) {
+        return;
+    }
+
+    if (m_fileQueue.isEmpty()) {
+        for (int i = 0; i < fileListWidget->count(); i++) {
+            m_fileQueue.append(fileListWidget->item(i)->text());
+            m_totalFileSize += QFileInfo(fileListWidget->item(i)->text()).size();
+            emit emitFilesQueueChange();
+        }
+        m_currentFileBytesWritten = 0;
+        m_totalFileBytesWritten = 0;
+    }
+
+    send();
+}
+
 void FileTransferSender::onfilesAppended(QStringList &files)
 {
     m_fileQueue.append(files);
+    foreach(QString file, files) {
+        QFileInfo info(file);
+        m_totalFileSize += info.size();
+    }
     emit emitFilesQueueChange();
 }
 
 void FileTransferSender::onfilesDeleted(QString file)
 {
-    m_fileQueue.removeOne(file);
+    if (m_fileQueue.contains(file)) {
+        m_fileQueue.removeOne(file);
+        QFileInfo info(file);
+        m_totalFileSize -= info.size();
+    }
     emit emitFilesQueueChange();
 }
 
@@ -152,24 +196,76 @@ void FileTransferSender::onfilesCleanded()
 
 void FileTransferSender::onFileListChanged()
 {
-    if (fileListWidget->count() > 0) {
-        currentProgressBar.setFormat(QStringLiteral("%1 : %p%").arg(fileListWidget->item(0)->text()));
-    }
-    if (fileListWidget->count() == 0) {
-        currentProgressBar.setFormat(QStringLiteral("%p%"));
-    }
-
-}
-
-void FileTransferSender::onTimerout()
-{
-    totalProgressBar.setValue(value++);
-    currentProgressBar.setValue(value);
+//    if (fileListWidget->count() > 0) {
+//        currentProgressBar.setFormat(QStringLiteral("%1 : %p%").arg(fileListWidget->item(0)->text()));
+//    }
+//    if (fileListWidget->count() == 0) {
+//        currentProgressBar.setFormat(QStringLiteral("%p%"));
+//    }
 }
 
 void FileTransferSender::onFilesQueueChange()
 {
     filesQueueStatus->setText(QString("文件传输队列: %1").arg(m_fileQueue.count()));
+}
+
+void FileTransferSender::onBytesWritten(const qint64 &bytes)
+{
+    Q_UNUSED(bytes);
+
+    QByteArray array = m_file.read(m_readBlock);
+    if (array.isEmpty()) {
+        reset();
+        return;
+    }
+
+    int size = array.size();
+    m_stream.writeRawData(array.constData(), size);
+    updateProgressBar(size);
+}
+
+void FileTransferSender::send()
+{
+    if (m_tcpMap.isEmpty()){
+        return;
+    }
+
+    QString localDequeue = m_fileQueue.takeFirst();
+    QFileInfo info(localDequeue);
+
+    m_file.setFileName(localDequeue);
+    if (!m_file.open(QIODevice::ReadOnly)) {
+        return;
+    }
+
+    m_currentFileSize = m_file.size();
+    currentProgressBar.setFormat(QStringLiteral("%1 : %p%").arg(m_file.fileName()));
+
+    m_stream.setDevice(m_tcpMap.first());
+    m_stream.setVersion(QDataStream::Qt_5_0);
+    m_stream << m_file.size() << info.fileName();
+
+    QByteArray array = m_file.read(m_readBlock);
+    int size = array.size();
+
+    m_stream.writeRawData(array.constData(), size);
+    sendFileBtn->setEnabled(false);
+    updateProgressBar(size);
+    emit emitFilesQueueChange();
+}
+
+void FileTransferSender::reset()
+{
+    m_file.close();
+    sendFileBtn->setEnabled(true);
+
+    m_currentFileBytesWritten = 0;
+    if (m_fileQueue.isEmpty()) {
+        m_totalFileSize = 0;
+        m_totalFileBytesWritten = 0;
+    } else {
+        send();
+    }
 }
 
 void FileTransferSender::createFileTransferSender()
@@ -180,9 +276,18 @@ void FileTransferSender::createFileTransferSender()
     QHBoxLayout *totalProgressLayout = new QHBoxLayout;
     QVBoxLayout *senderBoxLayout = new QVBoxLayout;
 
+    /*************************************/
+    QFrame *vline;
+    vline = new QFrame();
+    vline->setFrameShape(QFrame::VLine);
+    vline->setFrameShadow(QFrame::Sunken);
+    /*************************************/
+
     fileCtlBtnsLayout->addWidget(addFileBtn);
     fileCtlBtnsLayout->addWidget(delFileBtn);
     fileCtlBtnsLayout->addWidget(clrFileBtn);
+    fileCtlBtnsLayout->addWidget(vline);
+    fileCtlBtnsLayout->addWidget(sendFileBtn);
 
     senderBoxLayout->addLayout(fileCtlBtnsLayout);
     senderBoxLayout->addWidget(fileListWidget);
@@ -191,11 +296,11 @@ void FileTransferSender::createFileTransferSender()
 
     currentProgressLayout->addWidget(currentLab);
     currentProgressLayout->addWidget(&currentProgressBar);
-    currentProgressBar.setMaximum(100);
+//    currentProgressBar.setMaximum(100);
 
     totalProgressLayout->addWidget(totalLab);
     totalProgressLayout->addWidget(&totalProgressBar);
-    totalProgressBar.setMaximum(100);
+//    totalProgressBar.setMaximum(100);
 
     /*************************************/
     QFrame *line;
@@ -214,9 +319,62 @@ void FileTransferSender::createFileTransferSender()
     mainLayout->addLayout(currentProgressLayout);
     mainLayout->addLayout(totalProgressLayout);
     mainLayout->addWidget(line2);
-    mainLayout->addWidget(statusBar);
+    mainLayout->addWidget(listenStatus);
     mainLayout->addWidget(clientStatus);
     mainLayout->addWidget(filesQueueStatus);
-    statusBar->setText(statusBar->text() + " - " + listenPort->text());
+    listenStatus->setText(listenStatus->text() + " - " + listenPort->text());
     setLayout(mainLayout);
+}
+
+void FileTransferSender::updateProgressBar(int size)
+{
+    m_currentFileBytesWritten += size;
+    currentProgressBar.setValue((double(m_currentFileBytesWritten)/m_currentFileSize)*100);
+
+    m_totalFileBytesWritten += size;
+    totalProgressBar.setValue((double(m_totalFileBytesWritten)/m_totalFileSize)*100);
+}
+
+bool FileTransferSender::compareQListWidgetItem(QString b)
+{
+    QStringList list;
+    for (int i = 0; i < fileListWidget->count(); i++) {
+        list << fileListWidget->item(i)->text();
+    }
+    return compareQStringList(list, b);
+}
+
+void FileTransferSender::dragMoveEvent(QDragMoveEvent *e)
+{
+    this->activateWindow();
+}
+
+void FileTransferSender::dragEnterEvent(QDragEnterEvent *e)
+{
+    this->activateWindow();
+
+    const QMimeData *mine = e->mimeData();
+    if (!mine->hasUrls()) return e->ignore();
+
+    e->accept();
+}
+
+void FileTransferSender::dropEvent(QDropEvent *e)
+{
+    const QMimeData *mine = e->mimeData();
+
+    QStringList files;
+    foreach (QUrl url, mine->urls()) {
+        QString localFile = url.toLocalFile();
+        QFileInfo info(localFile);
+
+        if (info.isFile()) {
+            if(!compareQListWidgetItem(localFile)) {
+                files << localFile;
+            }
+        }
+    }
+    fileListWidget->addItems(files);
+    emit filesAppended(files);
+    emit filesChanged();
 }

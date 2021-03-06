@@ -24,6 +24,8 @@ FileTransferReceiver::FileTransferReceiver(QWidget *parent) : QWidget(parent)
 
     connect(connectBtn, &QPushButton::clicked, this, &FileTransferReceiver::onConnect);
     connect(saveFileBtn, &QPushButton::clicked, this, &FileTransferReceiver::onConfigFileSavePath);
+
+    setFixedSize(500,500);
 }
 
 void FileTransferReceiver::onConfigFileSavePath()

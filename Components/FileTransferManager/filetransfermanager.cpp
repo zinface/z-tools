@@ -30,8 +30,8 @@ FileTransferManager::FileTransferManager(QWidget *parent) : QWidget(parent)
     connect(&tss, &QTcpServer::newConnection, this, &FileTransferManager::onNewConnection);
     connect(sendText, &QTextEdit::textChanged, this, &FileTransferManager::onSendChanged);
 
-    setFixedSize(500,480);
     setWindowTitle(QApplication::applicationName() + QStringLiteral("文件传输管理"));
+    setFixedSize(500,480);
 }
 
 FileTransferManager::~FileTransferManager()

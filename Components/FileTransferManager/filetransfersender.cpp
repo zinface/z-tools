@@ -8,6 +8,7 @@
 #include <QListWidget>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QNetworkInterface>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QStyleFactory>
@@ -35,6 +36,9 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
 {
 //    qApp->setStyle(QStyleFactory::create("fusion"));
 
+    QRegExp rxIp("((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)");
+    QRegExpValidator v(rxIp);
+
     if (tcpServer.listen(QHostAddress::Any, 8888)) {
         listenStatus->setText(QStringLiteral("状态：正在监听"));
     } else {
@@ -43,6 +47,16 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
     listenPort->setText(QString::number(tcpServer.serverPort()));
 
     createFileTransferSender();
+
+    QList<QHostAddress> localAllAddresses = QNetworkInterface::allAddresses();
+    foreach(QHostAddress address, localAllAddresses){
+        QString ipAddr = address.toString();
+        int pos = 0;
+        // use the first IP address
+        if (v.validate(ipAddr,pos) == QRegExpValidator::Acceptable){
+            listenStatus->setText(listenStatus->text() +" - "+ address.toString());
+        }
+    }
 
     setAcceptDrops(true);
 
@@ -60,6 +74,8 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
     connect(this, &FileTransferSender::emitFilesQueueChange, this, &FileTransferSender::onFilesQueueChange);
 
     connect(this, &FileTransferSender::clientChanged,this,&FileTransferSender::onClientChanged);
+
+    setFixedSize(500,500);
 }
 
 void FileTransferSender::onNewConnection()

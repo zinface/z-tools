@@ -4,42 +4,27 @@
 #include <QSysInfo>
 #include <QTextStream>
 
-int AptUtils::GetInstalledPackagesCount(const QApt::Backend *backend)
+AptUtils::AptUtils(QObject *parent)
 {
-    return backend->installedCount();
+    Q_UNUSED(parent);
+
+    m_backend.init();
+    m_backend.reloadCache();
+    plist.append(m_backend.availablePackages());
 }
 
-int AptUtils::GetMirrorsPackagesCount(const QApt::Backend *backend)
+int AptUtils::GetInstalledPackagesCount()
 {
-    return backend->packageCount();
-
+     return m_backend.installedCount();
 }
 
-QApt::PackageList AptUtils::GetPackageList(const QApt::Backend *backend)
+int AptUtils::GetMirrorsPackagesCount()
 {
-    return GetPackageListArchitecture(backend, "amd64");
+    return m_backend.packageCount();
 }
 
-QApt::PackageList AptUtils::GetPackageListArchitecture(const QApt::Backend *backend, const QString &text)
+QApt::PackageList AptUtils::GetPackageList()
 {
-    QApt::PackageList plist;
-    foreach(const QApt::Package *package,  backend->availablePackages()) {
-//        if (!package->architecture().compare("amd64"))
-            plist.append((QApt::Package*)package);
-    }
-    return plist;
-}
-
-QApt::PackageList AptUtils::GetPackageListContians(const QApt::Backend *backend, const QString &text)
-{
-    QTextStream cout(stdout);
-
-    QApt::PackageList plist;
-    foreach(const QApt::Package *package,  GetPackageList(backend)) {
-        if (QString(package->name()).contains(text)) {
-            plist.append((QApt::Package*)package);
-        }
-    }
     return plist;
 }
 

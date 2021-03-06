@@ -19,6 +19,10 @@ signals:
     void appendPackage(const QApt::Package &package);
     void setPackages(const QApt::PackageList &packages);
 
+    void setInstallCategory(int i);
+    void setArchCategory(int i);
+    void setPackageName(QString text);
+
 private:
     PackageViewModel *m_model;
     PackagesListDelegate *m_packagesListDelegate;

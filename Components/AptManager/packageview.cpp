@@ -17,4 +17,7 @@ PackageView::PackageView(QWidget *parent) : QListView(parent)
 //    setMouseTracking(true);
 
     connect(this,&PackageView::setPackages, m_model, &PackageViewModel::setPackages);
+    connect(this,&PackageView::setInstallCategory, m_model, &PackageViewModel::installStatusCategoryChange);
+    connect(this,&PackageView::setArchCategory, m_model, &PackageViewModel::packageArchCategoryChange);
+    connect(this,&PackageView::setPackageName, m_model, &PackageViewModel::packageNameChange);
 }

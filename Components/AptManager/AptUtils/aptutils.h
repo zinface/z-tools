@@ -14,19 +14,25 @@
 //    class Package;
 //}
 
-class AptUtils
+class AptUtils : public QObject
 {
+    Q_OBJECT
+public:
+    explicit AptUtils(QObject *parent = nullptr);
+
 
 public:
-    static int GetInstalledPackagesCount(const QApt::Backend *backend);
-    static int GetMirrorsPackagesCount(const QApt::Backend *backend);
+    // 已经安装数量
+    int GetInstalledPackagesCount();
+    // 软件源数数量
+    int GetMirrorsPackagesCount();
 
-    static QApt::PackageList GetPackageList(const QApt::Backend *backend);
-    static QApt::PackageList GetPackageListArchitecture(const QApt::Backend *backend, const QString& text);
-    static QApt::PackageList GetPackageListContians(const QApt::Backend *backend, const QString& text);
+    // 所有软件包
+    QApt::PackageList GetPackageList();
 
-//    static QApt::PackageList GetPackageListContians(const QApt::Backend *backend, const QString& text);
-
+private:
+    QApt::PackageList plist;
+    QApt::Backend m_backend;
 };
 
 #endif // APTUTILS_H

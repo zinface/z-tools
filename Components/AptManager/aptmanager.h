@@ -4,6 +4,8 @@
 #include <QWidget>
 
 #include <QApt/Backend>
+
+#include <AptUtils/aptutils.h>
 //#include <QApt/Transaction>
 
 QT_BEGIN_NAMESPACE
@@ -11,8 +13,8 @@ class QLineEdit;
 class QPushButton;
 class QLabel;
 class QTableWidget;
+class QComboBox;
 
-class AptUtils;
 class PackageView;
 QT_END_NAMESPACE
 
@@ -28,17 +30,32 @@ signals:
 
 public slots:
     void onSearchPackage();
+    void onPackageChange();
+    void onCategoryChange();
+    void onArchCategoryChange();
 
 private:
-    void initUi();
-    QLineEdit *mSearchLine;
-    QPushButton *mSearchButton;
+    /******* 类别控制 *******/
+    QLabel *m_packageCategoryLab;
+    QComboBox *m_packageArchCategory;
+    QComboBox *m_packageCategory;
 
+private:
+    /******** 搜索框 和 按钮 ******/
+    QLabel *mSearchLab;
+    QLineEdit *mSearchEdit;
+    QPushButton *mSearchBtn;
+
+private:
+    /******* 结果展示Widget ******/
     PackageView *m_packageView;
 
-    QLabel *m_packageStatusBarLabel;
+private:
+    QLabel *m_statusBar;
 
-    QApt::Backend *m_backend;
+private:
+    void createAptManager();
+    AptUtils mAptUtil;
 };
 
 #endif // SEARCHPACKAGE_H

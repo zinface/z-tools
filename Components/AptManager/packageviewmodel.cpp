@@ -3,7 +3,10 @@
 #include <QDebug>
 
 PackageViewModel::PackageViewModel(QObject *parent) : QAbstractListModel (parent)
+  ,currentArch(ANY_ARCH)
+  ,currentCategory(ALL)
 {
+//    connect(this, &PackageViewModel::statusChanged, this, setPackages())
 }
 
 int PackageViewModel::rowCount(const QModelIndex &parent) const
@@ -35,11 +38,68 @@ QVariant PackageViewModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-
-
 void PackageViewModel::setPackages(const QApt::PackageList packages)
 {
+    old_data = packages;
+    updateModel();
+}
+
+void PackageViewModel::updateModel()
+{
     m_data.clear();
-    m_data = packages;
+    QApt::PackageList plist;
+
+    foreach(auto item, old_data) {
+        if (currentPackage.isEmpty() || QString(item->name()).contains(currentPackage)){
+            switch (currentCategory) {
+            case ALL:
+                plist.append(item);
+                break;
+            case ONLY_INSTALLER:
+                if (item->isInstalled()) {
+                    plist.append(item);
+                };break;
+            case ONLY_UNINSTALLER:
+                if (!item->isInstalled()) {
+                    plist.append(item);
+                };break;
+            }
+        }
+    }
+
+    foreach(auto item, plist) {
+        switch (currentArch) {
+        case ANY_ARCH:
+            m_data.append(item);
+            break;
+        case ONLY_I386:
+            if (item->architecture().compare("i386") == 0) {
+                m_data.append(item);
+            };break;
+        case ONLY_AMD64:
+            if (item->architecture().compare("amd64") == 0) {
+                m_data.append(item);
+            };break;
+        }
+    }
+
     emit layoutChanged();
+}
+
+void PackageViewModel::installStatusCategoryChange(int i)
+{
+    currentCategory = i;
+    updateModel();
+}
+
+void PackageViewModel::packageArchCategoryChange(int i)
+{
+    currentArch = i;
+    updateModel();
+}
+
+void PackageViewModel::packageNameChange(QString text)
+{
+    currentPackage = text;
+    updateModel();
 }

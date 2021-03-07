@@ -4,9 +4,14 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMainWindow>
+#include <QStyleFactory>
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_MACOS
+//    qDebug() << QStyleFactory::keys(); // Optional supported theme styles
+    qApp->setStyle(QStyleFactory::create("fusion"));
+#endif
     QApplication a(argc, argv);
     a.setApplicationName("z-Tools-FileTransfer");
     MainWindow wm;

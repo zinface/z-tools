@@ -84,6 +84,7 @@ void FileTransferReceiver::connected()
 
 void FileTransferReceiver::disconnected()
 {
+    tcpSocket.close();
     m_stream.setDevice(nullptr);
     m_stream.setVersion(QDataStream::Qt_5_0);
     onUpdateFileSavePath();

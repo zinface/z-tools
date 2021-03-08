@@ -113,6 +113,8 @@ void AptManager::createAptManager()
     m_packageArchCategory->addItem("未指定", PackageViewModel::ANY_ARCH);
     m_packageArchCategory->addItem("i386", PackageViewModel::ONLY_I386);
     m_packageArchCategory->addItem("amd64", PackageViewModel::ONLY_AMD64);
+    m_packageArchCategory->addItem("arm64", PackageViewModel::ONLY_ARM64);
+
 
     m_packageCategory->addItem("全部", PackageViewModel::ALL);
     m_packageCategory->addItem("已安装", PackageViewModel::ONLY_INSTALLER);

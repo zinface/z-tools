@@ -41,6 +41,7 @@ public:
         ANY_ARCH,
         ONLY_I386,
         ONLY_AMD64,
+        ONLY_ARM64,
     };
 
     /***** 安装状态 *****/

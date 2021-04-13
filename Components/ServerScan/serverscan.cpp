@@ -106,13 +106,39 @@ void ServerScan::onScanStart()
     QStringList localStartIpSplit = startIp.split(".");
     QStringList localEndIpSplit = endIp.split(".");
 
+    // 如果起始和结束地址都为该格式： aaa.bbb.ccc.ddd
     if (localStartIpSplit.count() == 4 && localEndIpSplit.count() == 4) {
         QString prefixIp = QString("%1.%2.%3").arg(localStartIpSplit[0]).arg(localStartIpSplit[1]).arg(localStartIpSplit[2]);
-        QString beginIp = localStartIpSplit[3];
-        QString endIp = localEndIpSplit[3];
 
-        for(int i = beginIp.toInt(); i <= endIp.toInt(); i++) {
-            servers.append(QString("%1.%2").arg(prefixIp).arg(i));
+        QString beginGroupIp = localStartIpSplit[2];
+        QString endGroupIp = localEndIpSplit[2];
+
+        if (beginGroupIp.compare(endGroupIp,Qt::CaseSensitive) != 0) {
+            QString beginIp = localStartIpSplit[3];
+            QString endIp = localEndIpSplit[3];
+
+            for (int g = beginGroupIp.toInt(); g<endGroupIp.toInt(); g++) {
+                if (g == beginGroupIp.toInt()) {
+                    for(int i = beginIp.toInt(); i <= 254; i++) {
+                        servers.append(QString("%1.%2").arg(QString("%1.%2.%3").arg(localStartIpSplit[0]).arg(localStartIpSplit[1]).arg(g)).arg(i));
+                    }
+                } else if (g == endGroupIp.toInt()) {
+                    for(int i = 1; i <= endIp.toInt(); i++) {
+                        servers.append(QString("%1.%2").arg(QString("%1.%2.%3").arg(localStartIpSplit[0]).arg(localStartIpSplit[1]).arg(g)).arg(i));
+                    }
+                } else {
+                    for(int i = 1; i <= 254; i++) {
+                        servers.append(QString("%1.%2").arg(QString("%1.%2.%3").arg(localStartIpSplit[0]).arg(localStartIpSplit[1]).arg(g)).arg(i));
+                    }
+                }
+            }
+        } else {
+            QString beginIp = localStartIpSplit[3];
+            QString endIp = localEndIpSplit[3];
+
+            for(int i = beginIp.toInt(); i <= endIp.toInt(); i++) {
+                servers.append(QString("%1.%2").arg(prefixIp).arg(i));
+            }
         }
     } else if(localStartIpSplit.count() == 4){
         QString prefixIp = QString("%1.%2.%3").arg(localStartIpSplit[0]).arg(localStartIpSplit[1]).arg(localStartIpSplit[2]);
@@ -153,7 +179,9 @@ void ServerScan::onScanThreadNumChanged(int num)
 
 void ServerScan::remoteStartChanged()
 {
-    m_remoteEnd->setText(m_remoteStart->text());
+    if (m_remoteStart->text().startsWith(m_remoteEnd->text())){
+        m_remoteEnd->setText(m_remoteStart->text());
+    }
 }
 
 void ServerScan::createServerScan()

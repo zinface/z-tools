@@ -1,3 +1,4 @@
+#include "fileiteminfo.h"
 #include "filetransfersender.h"
 
 #include <QApplication>
@@ -15,9 +16,12 @@
 #include <QTcpSocket>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <filesendermodel.h>
+#include <filesenderview.h>
+#include <QtMath>
 
 FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
-  ,fileListWidget(new QListWidget)
+  ,fileListView(new FileSenderView)
   ,m_readBlock(4096)
   ,m_currentFileSize(0)
   ,m_totalFileSize(0)
@@ -33,6 +37,7 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
   ,listenStatus(new QLabel("....."))
   ,clientStatus(new QLabel("客户端连接数: 0"))
   ,filesQueueStatus(new QLabel("文件传输队列: 0"))
+  ,currentSendSpeed(new QLabel("当前传输速度：0.00 Kb/s"))
 {
 //    qApp->setStyle(QStyleFactory::create("fusion"));
 
@@ -70,7 +75,13 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
     connect(this, &FileTransferSender::filesAppended, this, &FileTransferSender::onfilesAppended);
     connect(this, &FileTransferSender::filesDeleted, this, &FileTransferSender::onfilesDeleted);
     connect(this, &FileTransferSender::filesCleanded, this, &FileTransferSender::onfilesCleanded);
+
+    connect(this, &FileTransferSender::filesAppended, fileListView, &FileSenderView::appendFilse);
+    connect(this, &FileTransferSender::filesDeleted, fileListView, &FileSenderView::filesDeleted);
+    connect(this, &FileTransferSender::filesCleanded, fileListView, &FileSenderView::filesCleanded);
+
     connect(this, &FileTransferSender::filesChanged, this, &FileTransferSender::onFileListChanged);
+
     connect(this, &FileTransferSender::emitFilesQueueChange, this, &FileTransferSender::onFilesQueueChange);
 
     connect(this, &FileTransferSender::clientChanged,this,&FileTransferSender::onClientChanged);
@@ -128,27 +139,23 @@ void FileTransferSender::addFile()
         }
     }
 
-    fileListWidget->addItems(files);
-
     emit filesAppended(files);
     emit filesChanged();
 }
 
 void FileTransferSender::delFile()
 {
-    int row = fileListWidget->currentRow();
-    if (row < 0) {
+    int row = fileListView->currentRow;
+    if (row < 0 || row >= fileListView->count()) {
         return;
     }
-    QListWidgetItem *localTakeItem = fileListWidget->takeItem(row);
-    emit filesDeleted(QString(localTakeItem->text()));
+    emit filesDeleted(fileListView->item(row)->filePath);
     emit filesChanged();
-    delete localTakeItem;
 }
 
 void FileTransferSender::clrFile()
 {
-    int count = fileListWidget->count();
+    int count = fileListView->count();
     if (0 == count) {
         return;
     }
@@ -158,28 +165,26 @@ void FileTransferSender::clrFile()
         return;
     }
 
-    for (int i = 0; i < count; i++) {
-        delete fileListWidget->takeItem(0);
-    }
     emit filesCleanded();
     emit filesChanged();
 }
 
 void FileTransferSender::sendFile()
 {
-    if (fileListWidget->count() == 0) {
+    if (fileListView->count() == 0) {
         return;
     }
-
+    timer.restart();
     if (m_fileQueue.isEmpty()) {
-        for (int i = 0; i < fileListWidget->count(); i++) {
-            m_fileQueue.append(fileListWidget->item(i)->text());
-            m_totalFileSize += QFileInfo(fileListWidget->item(i)->text()).size();
+        for (int i = 0; i < fileListView->count(); i++) {
+            m_fileQueue.append(fileListView->item(i)->filePath);
+            m_totalFileSize += QFileInfo(fileListView->item(i)->filePath).size();
             emit emitFilesQueueChange();
         }
         m_currentFileBytesWritten = 0;
         m_totalFileBytesWritten = 0;
     }
+
 
     send();
 }
@@ -212,12 +217,13 @@ void FileTransferSender::onfilesCleanded()
 
 void FileTransferSender::onFileListChanged()
 {
-//    if (fileListWidget->count() > 0) {
-//        currentProgressBar.setFormat(QStringLiteral("%1 : %p%").arg(fileListWidget->item(0)->text()));
-//    }
-//    if (fileListWidget->count() == 0) {
-//        currentProgressBar.setFormat(QStringLiteral("%p%"));
-//    }
+    if (fileListView->count() > 0) {
+        currentProgressBar.setFormat(QStringLiteral("%1 : %p%").arg(fileListView->item(0)->filePath));
+    }
+    if (fileListView->count() == 0) {
+        currentProgressBar.setFormat(QStringLiteral("%p%"));
+    }
+    fileListView->getModel()->layoutChanged();
 }
 
 void FileTransferSender::onFilesQueueChange()
@@ -268,6 +274,7 @@ void FileTransferSender::send()
     sendFileBtn->setEnabled(false);
     updateProgressBar(size);
     emit emitFilesQueueChange();
+
 }
 
 void FileTransferSender::reset()
@@ -306,7 +313,8 @@ void FileTransferSender::createFileTransferSender()
     fileCtlBtnsLayout->addWidget(sendFileBtn);
 
     senderBoxLayout->addLayout(fileCtlBtnsLayout);
-    senderBoxLayout->addWidget(fileListWidget);
+//    senderBoxLayout->addWidget(fileListWidget);
+    senderBoxLayout->addWidget(fileListView);
 
     senderBox->setLayout(senderBoxLayout);
 
@@ -337,7 +345,19 @@ void FileTransferSender::createFileTransferSender()
     mainLayout->addWidget(line2);
     mainLayout->addWidget(listenStatus);
     mainLayout->addWidget(clientStatus);
-    mainLayout->addWidget(filesQueueStatus);
+    QHBoxLayout *bottomWidgetsLayout = new QHBoxLayout;
+    bottomWidgetsLayout->addWidget(filesQueueStatus, Qt::AlignLeft | Qt::AlignVCenter);
+
+    QSizePolicy sizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+//    sizePolicy.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
+
+    currentSendSpeed->setSizePolicy(sizePolicy);
+    bottomWidgetsLayout->addWidget(currentSendSpeed, Qt::AlignRight | Qt::AlignVCenter);
+    mainLayout->addLayout(bottomWidgetsLayout);
+//    mainLayout->addWidget(filesQueueStatus);
+//    mainLayout->addWidget(currentSendSpeed);
     listenStatus->setText(listenStatus->text() + " - " + listenPort->text());
     setLayout(mainLayout);
 }
@@ -349,19 +369,24 @@ void FileTransferSender::updateProgressBar(int size)
 
     m_totalFileBytesWritten += size;
     totalProgressBar.setValue((double(m_totalFileBytesWritten)/m_totalFileSize)*100);
+
+    // 当前传输速度：0.00 Kb/s
+    double speed = (double)m_totalFileBytesWritten/timer.elapsed();
+    currentSendSpeed->setText(QString("当前传输速度：%1 %2").arg(QString::number(speed/ (1024*1024/1000),'f',3)).arg("Mb/s"));
 }
 
 bool FileTransferSender::compareQListWidgetItem(QString b)
 {
     QStringList list;
-    for (int i = 0; i < fileListWidget->count(); i++) {
-        list << fileListWidget->item(i)->text();
+    for (int i = 0; i < fileListView->count(); i++) {
+        list << fileListView->item(i)->filePath;
     }
     return compareQStringList(list, b);
 }
 
 void FileTransferSender::dragMoveEvent(QDragMoveEvent *e)
 {
+    Q_UNUSED(e);
     this->activateWindow();
 }
 
@@ -390,7 +415,6 @@ void FileTransferSender::dropEvent(QDropEvent *e)
             }
         }
     }
-    fileListWidget->addItems(files);
     emit filesAppended(files);
     emit filesChanged();
 }

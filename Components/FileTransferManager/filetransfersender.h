@@ -1,15 +1,20 @@
 #ifndef FILETRANSFERSENDER_H
 #define FILETRANSFERSENDER_H
 
+#include <QElapsedTimer>
 #include <QFile>
 #include <QProgressBar>
 #include <QQueue>
 #include <QTcpServer>
+#include <QTime>
+#include <QTimer>
 #include <QWidget>
 
 class QLabel;
 class QListWidget;
 class QPushButton;
+class FileSenderView;
+class FileSenderModel;
 
 class FileTransferSender : public QWidget
 {
@@ -64,7 +69,7 @@ private:
     QDataStream m_stream;
 
 private:
-    QListWidget *fileListWidget;
+    FileSenderView *fileListView;
     qint64 m_readBlock;
     qint64 m_currentFileSize;
     qint64 m_totalFileSize;
@@ -86,6 +91,7 @@ private:
     QLabel *listenStatus;
     QLabel *clientStatus;
     QLabel *filesQueueStatus;
+    QLabel *currentSendSpeed;
 
 private:
     void createFileTransferSender();
@@ -108,6 +114,9 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
     void dropEvent(QDropEvent *event);
+
+public:
+    QElapsedTimer timer;
 };
 
 #endif // FILETRANSFERSENDER_H

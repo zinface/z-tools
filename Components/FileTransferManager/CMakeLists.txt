@@ -15,15 +15,17 @@ target_link_libraries(FileItemInfo Qt5::Core Qt5::Widgets Qt5::Network)
 
 include_directories(
     FileSender
+    ScanPort
 )
 
+add_subdirectory(ScanPort)
 add_subdirectory(FileSender)
 
 add_library(${MODULE_NAME}
     filetransfermanager.cpp filetransfermanager.h
     filetransfersender.cpp filetransfersender.h
     filetransferreceiver.cpp filetransferreceiver.h
-    fileiteminfo.cpp fileiteminfo.h
+    filetransferrecivermanualhostdialog.cpp filetransferrecivermanualhostdialog.h
 )
 
-target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets Qt5::Network FileSender)
+target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets Qt5::Network FileSender ScanPort)

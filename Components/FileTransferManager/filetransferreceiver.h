@@ -2,11 +2,16 @@
 #define FILETRANSFERRECEIVER_H
 
 #include <QFile>
-#include <QLabel>
-#include <QListWidget>
-#include <QPushButton>
 #include <QTcpSocket>
 #include <QWidget>
+
+class QComboBox;
+class QLabel;
+class QLineEdit;
+class QListWidget;
+class QProgressBar;
+class QPushButton;
+class ScanWorkerPool;
 
 class FileTransferReceiver : public QWidget
 {
@@ -32,7 +37,6 @@ private slots:
 private slots:
     void onReadyRead();
 
-
 private:
     QDataStream m_stream;
     qint64 m_fileSize;
@@ -45,13 +49,24 @@ private:
 private:
     QListWidget *listWidget;
 
+    QComboBox *remoteSwitchBox;
     QLineEdit *remoteEdit;
     QPushButton *connectBtn;
     QPushButton *saveFileBtn;
+    QProgressBar *scanProgressBar;
 
+private:
+    ScanWorkerPool *pool;
 
 private:
     void createFileTransferReceiver();
+    void scanLocalHost();
+
+private slots:
+    void onUseRemoteSwitch();
+    void onScanAvilable(QString host, int port);
+    void onScanFinished();
+    void onScanThreadChanged();
 
 };
 

@@ -12,6 +12,7 @@ class QListWidget;
 class QProgressBar;
 class QPushButton;
 class ScanWorkerPool;
+class FileReceiverView;
 
 class FileTransferReceiver : public QWidget
 {
@@ -47,7 +48,8 @@ private:
     QString savePath;
 
 private:
-    QListWidget *listWidget;
+//    QListWidget *listWidget;
+    FileReceiverView *filelistView;
 
     QComboBox *remoteSwitchBox;
     QLineEdit *remoteEdit;

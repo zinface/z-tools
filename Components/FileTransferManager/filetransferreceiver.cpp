@@ -15,6 +15,7 @@
 #include <QPushButton>
 #include <QThread>
 #include <QVBoxLayout>
+#include <filereceiverview.h>
 #include <qmessagebox.h>
 #include <scanworkerpool.h>
 
@@ -23,7 +24,7 @@ FileTransferReceiver::FileTransferReceiver(QWidget *parent) : QWidget(parent)
   ,clientStatus(new QLabel("服务器断开连接!"))
   ,m_fileSize(0)
   ,m_fileBytesReceivedSize(0)
-  ,listWidget(new QListWidget)
+  ,filelistView(new FileReceiverView)
   ,remoteSwitchBox(new QComboBox)
   ,remoteEdit(new QLineEdit)
   ,connectBtn(new QPushButton("选中"))
@@ -40,7 +41,6 @@ FileTransferReceiver::FileTransferReceiver(QWidget *parent) : QWidget(parent)
     connect(saveFileBtn, &QPushButton::clicked, this, &FileTransferReceiver::onConfigFileSavePath);
     connect(pool, &QThread::finished, this, &FileTransferReceiver::onScanFinished);
     connect(pool, &ScanWorkerPool::onTaskThreadChanged, this, &FileTransferReceiver::onScanThreadChanged);
-
     setFixedSize(500,500);
 }
 
@@ -68,6 +68,7 @@ void FileTransferReceiver::onConnect()
 {
     if (savePath.isEmpty()){
         statusBar->setText("请设置存储目录!");
+        onConfigFileSavePath();
         return;
     }
 
@@ -84,7 +85,7 @@ void FileTransferReceiver::onConnect()
     } else {
         statusBar->setText(QString("目标地址已设置 - %1!").arg(hostAddress.toString()));
     }
-
+    tcpSocket.close();
     tcpSocket.connectToHost(hostAddress, 8888);
     connect(&tcpSocket, &QTcpSocket::connected, this, &FileTransferReceiver::connected);
     connect(&tcpSocket, &QTcpSocket::readyRead, this, &FileTransferReceiver::onReadyRead);
@@ -118,7 +119,7 @@ void FileTransferReceiver::onReadyRead()
         if (!m_file.open(QIODevice::WriteOnly)) {
             return;
         }
-        listWidget->addItem(m_file.fileName());
+        filelistView->appendFile(m_fileName, m_fileSize);
     } else {
         qint64 size = qMin(tcpSocket.bytesAvailable(), m_fileSize - m_fileBytesReceivedSize);
         QByteArray array(size, 0);
@@ -188,7 +189,7 @@ void FileTransferReceiver::createFileTransferReceiver()
     receiverBoxLayout->addLayout(remoteCtlsLayout);
     receiverBoxLayout->addWidget(scanProgressBar);
     scanProgressBar->setVisible(false);
-    receiverBoxLayout->addWidget(listWidget);
+    receiverBoxLayout->addWidget(filelistView);
 
     receiverBox->setLayout(receiverBoxLayout);
 

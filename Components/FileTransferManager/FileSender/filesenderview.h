@@ -22,7 +22,6 @@ public slots:
     FileItemInfo *item(int i);
     FileSenderModel *getModel();
 
-
 public:
     int currentRow = -1;
 

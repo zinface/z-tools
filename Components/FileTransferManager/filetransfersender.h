@@ -21,6 +21,7 @@ class FileTransferSender : public QWidget
     Q_OBJECT
 public:
     explicit FileTransferSender(QWidget *parent = nullptr);
+     ~FileTransferSender();
 
 private slots:
     /***** tcpClient *****/

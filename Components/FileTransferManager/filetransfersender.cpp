@@ -89,6 +89,14 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
     setFixedSize(500,500);
 }
 
+FileTransferSender::~FileTransferSender()
+{
+    foreach(QString key, m_tcpMap.keys()) {
+        QTcpSocket *localTake = m_tcpMap.take(key);
+        localTake->close();
+    }
+}
+
 void FileTransferSender::onNewConnection()
 {
     QTcpSocket *localNextPendingConnection = tcpServer.nextPendingConnection();

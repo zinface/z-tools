@@ -19,8 +19,10 @@
 #include <filesendermodel.h>
 #include <filesenderview.h>
 #include <QtMath>
+#include <filetransfermanager.h>
 
 FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
+  ,manager(new FileTransferManager)
   ,fileListView(new FileSenderView)
   ,m_readBlock(4096)
   ,m_currentFileSize(0)
@@ -44,12 +46,14 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
     QRegExp rxIp("((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)");
     QRegExpValidator v(rxIp);
 
-    if (tcpServer.listen(QHostAddress::Any, 8888)) {
+    manager->setManagerTask(QString(), 8888);
+
+    if (manager->state()) {
         listenStatus->setText(QStringLiteral("状态：正在监听"));
     } else {
         listenStatus->setText(QStringLiteral("状态：监听失败"));
     }
-    listenPort->setText(QString::number(tcpServer.serverPort()));
+    listenPort->setText(QString::number(8888));
 
     createFileTransferSender();
 
@@ -64,8 +68,6 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
     }
 
     setAcceptDrops(true);
-
-    connect(&tcpServer, &QTcpServer::newConnection, this, &FileTransferSender::onNewConnection);
 
     connect(addFileBtn, &QPushButton::clicked,this,&FileTransferSender::addFile);
     connect(delFileBtn, &QPushButton::clicked,this,&FileTransferSender::delFile);
@@ -84,51 +86,26 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
 
     connect(this, &FileTransferSender::emitFilesQueueChange, this, &FileTransferSender::onFilesQueueChange);
 
-    connect(this, &FileTransferSender::clientChanged,this,&FileTransferSender::onClientChanged);
+    connect(manager, &FileTransferManager::onRemoteFetchFileList, this, &FileTransferSender::onClientFetchFileList);
 
     setFixedSize(500,500);
 }
 
 FileTransferSender::~FileTransferSender()
 {
-    foreach(QString key, m_tcpMap.keys()) {
-        QTcpSocket *localTake = m_tcpMap.take(key);
-        localTake->close();
+
+}
+
+void FileTransferSender::onClientChanged(int count)
+{
+    clientStatus->setText(QString("客户端连接数: %1").arg(count));
+}
+
+void FileTransferSender::onClientFetchFileList(QTcpSocket *c)
+{
+    for (int i=0; i<fileListView->count(); i++) {
+        manager->broadCaseAction(c, FileTransferManager::S_APPEND, fileListView->item(i)->fileName, fileListView->item(i)->filesize);
     }
-}
-
-void FileTransferSender::onNewConnection()
-{
-    QTcpSocket *localNextPendingConnection = tcpServer.nextPendingConnection();
-//    localNextPendingConnection
-    m_tcpMap.insert(QString::number(conn_cnt++), localNextPendingConnection);
-    connect(localNextPendingConnection,&QTcpSocket::bytesWritten, this, &FileTransferSender::onBytesWritten);
-    connect(localNextPendingConnection, &QTcpSocket::readyRead, this, &FileTransferSender::onReadyRead);
-    connect(localNextPendingConnection, &QTcpSocket::disconnected, this, &FileTransferSender::onDisconnected);
-    emit clientChanged();
-//    connect(localNextPendingConnection, &QTcpSocket::disconnected, localNextPendingConnection, &QObject::deleteLater);
-}
-
-void FileTransferSender::onReadyRead()
-{
-
-}
-
-void FileTransferSender::onDisconnected()
-{
-    foreach (QString key, m_tcpMap.keys()) {
-        QTcpSocket *socket = m_tcpMap[key];
-        if (socket->state() == QTcpSocket::UnconnectedState) {
-            m_tcpMap.remove(key);
-            socket->deleteLater();
-        }
-    }
-    emit clientChanged();
-}
-
-void FileTransferSender::onClientChanged()
-{
-    clientStatus->setText(QString("客户端连接数: %1").arg(m_tcpMap.count()));
 }
 
 void FileTransferSender::addFile()
@@ -193,33 +170,37 @@ void FileTransferSender::sendFile()
         m_totalFileBytesWritten = 0;
     }
 
-
     send();
 }
 
-void FileTransferSender::onfilesAppended(QStringList &files)
+void FileTransferSender::onfilesAppended(QStringList &filepaths)
 {
-    m_fileQueue.append(files);
-    foreach(QString file, files) {
-        QFileInfo info(file);
+    m_fileQueue.append(filepaths);
+    foreach(QString filepath, filepaths) {
+        QFileInfo info(filepath);
         m_totalFileSize += info.size();
+        manager->pushFileAppend(info.fileName(), info.size());
     }
     emit emitFilesQueueChange();
 }
 
-void FileTransferSender::onfilesDeleted(QString file)
+void FileTransferSender::onfilesDeleted(QString filepath)
 {
-    if (m_fileQueue.contains(file)) {
-        m_fileQueue.removeOne(file);
-        QFileInfo info(file);
+    QString filename;
+    if (m_fileQueue.contains(filepath)) {
+        m_fileQueue.removeOne(filepath);
+        QFileInfo info(filepath);
+        filename = info.fileName();
         m_totalFileSize -= info.size();
     }
+    manager->pushFileDeleted(filename);
     emit emitFilesQueueChange();
 }
 
 void FileTransferSender::onfilesCleanded()
 {
     m_fileQueue.clear();
+    manager->pushFileClaer();
     emit emitFilesQueueChange();
 }
 
@@ -256,9 +237,9 @@ void FileTransferSender::onBytesWritten(const qint64 &bytes)
 
 void FileTransferSender::send()
 {
-    if (m_tcpMap.isEmpty()){
-        return;
-    }
+//    if (m_tcpMap.isEmpty()){
+//        return;
+//    }
 
     QString localDequeue = m_fileQueue.takeFirst();
     QFileInfo info(localDequeue);
@@ -271,7 +252,7 @@ void FileTransferSender::send()
     m_currentFileSize = m_file.size();
     currentProgressBar.setFormat(QStringLiteral("%1 : %p%").arg(m_file.fileName()));
 
-    m_stream.setDevice(m_tcpMap.first());
+//    m_stream.setDevice(m_tcpMap.first());
     m_stream.setVersion(QDataStream::Qt_5_0);
     m_stream << m_file.size() << info.fileName();
 

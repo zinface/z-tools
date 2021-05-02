@@ -22,6 +22,7 @@ void FileItemInfo::setSize(qint64 size)
     double val = 0;
     QString rate = autoRateUnits(size, unit, val);
     this->fileSize = QString::number(val, 'f', 2) + rate;
+    this->filesize = size;
 }
 
 void FileItemInfo::setFileUploadStat(int state)

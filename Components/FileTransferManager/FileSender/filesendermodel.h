@@ -21,7 +21,8 @@ public:
 public:
     void appendFile(const QString &filePath);
     void appendFilse(const QStringList &filePaths);
-    void filesDeleted(QString file);
+
+    void filesDeleted(QString filepath);
     void filesCleanded();
 
     //

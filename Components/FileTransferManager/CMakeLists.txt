@@ -17,17 +17,18 @@ include_directories(
     FileSender
     ScanPort
     FileReceiver
+    FileSessionManager
 )
 
 add_subdirectory(ScanPort)
 add_subdirectory(FileSender)
 add_subdirectory(FileReceiver)
+add_subdirectory(FileSessionManager)
 
 add_library(${MODULE_NAME}
-    filetransfermanager.cpp filetransfermanager.h
     filetransfersender.cpp filetransfersender.h
     filetransferreceiver.cpp filetransferreceiver.h
     filetransferrecivermanualhostdialog.cpp filetransferrecivermanualhostdialog.h
 )
 
-target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets Qt5::Network FileSender ScanPort FileReceiver)
+target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets Qt5::Network FileSender ScanPort FileReceiver FileSessionManager)

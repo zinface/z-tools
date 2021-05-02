@@ -18,13 +18,25 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
 public:
-    void appendFile(const QString &fileName, qint64 filesize);
-    void appendFile(const QString &fileName);
-    void appendFilse(const QStringList &files);
+    // file names
+    void appendFile(const QString &filename, qint64 filesize);
+    void appendFile(const QString &filename);
+    void appendFilse(const QStringList &filenames);
+
+    // file names
+    void deleteFile(const QString &fileName);
+    void deleteFiles(const QStringList &fileNames);
+
+    void clearFile();
+
+    void setFileSize(const QString &fileName, qint64 filesize);
 
     int count();
 
+
+    void setSavePath(QString &savePath);
 private:
+    QString savePath;
     QFile mfile;
     QList<FileItemInfo*> files;
 };

@@ -13,12 +13,18 @@ public:
     explicit FileReceiverView(QWidget *parent = nullptr);
 
 public slots:
-
     void appendFile(const QString &fileName, qint64 filesize);
-    void appendFile(const QString &fileName);
-    void appendFilse(const QStringList &files);
+
+    void deleteFile(const QString &fileName);
+
+    void clearFile();
+
+    void setFileSize(const QString &fileName, qint64 filesize);
+
     void onclicked(const QModelIndex &index);
     FileReceiverModel *getMode();
+
+    void setSavePath(QString &savePath);
 
 public:
     int currentRow = -1;

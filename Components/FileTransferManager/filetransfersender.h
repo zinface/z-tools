@@ -15,6 +15,8 @@ class QListWidget;
 class QPushButton;
 class FileSenderView;
 class FileSenderModel;
+class FileSessionAdapter;
+class FileTransferManager;
 
 class FileTransferSender : public QWidget
 {
@@ -24,11 +26,9 @@ public:
      ~FileTransferSender();
 
 private slots:
-    /***** tcpClient *****/
-    void onNewConnection();
-    void onReadyRead();
-    void onDisconnected();
-    void onClientChanged();
+    /***** manager -> clients *****/
+    void onClientChanged(int count);
+    void onClientFetchFileList(QTcpSocket *c);
 
     /***** fileCtlBtns ******/
     void addFile();
@@ -37,8 +37,8 @@ private slots:
     void sendFile();
 
     /***** fileListWidget *****/
-    void onfilesAppended(QStringList& files);
-    void onfilesDeleted(QString file);
+    void onfilesAppended(QStringList& filepaths);
+    void onfilesDeleted(QString filepath);
     void onfilesCleanded();
     void onFileListChanged();
 
@@ -53,17 +53,15 @@ private slots:
 signals:
     void clientChanged();
 
-    void filesAppended(QStringList& files);
-    void filesDeleted(QString file);
+    void filesAppended(QStringList& filepaths);
+    void filesDeleted(QString filepath);
     void filesCleanded();
 
     void filesChanged();
     void emitFilesQueueChange();
 
 private:
-    int conn_cnt = 0;
-    QTcpServer tcpServer;
-    QMap<QString, QTcpSocket*> m_tcpMap;
+    FileTransferManager *manager;
 
     QQueue<QString> m_fileQueue;
     QFile m_file;

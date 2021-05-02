@@ -13,6 +13,8 @@ class QProgressBar;
 class QPushButton;
 class ScanWorkerPool;
 class FileReceiverView;
+class FileSessionAdapter;
+class FileTransferManager;
 
 class FileTransferReceiver : public QWidget
 {
@@ -22,7 +24,9 @@ public:
 
 
 private:
-    QTcpSocket tcpSocket;
+//    QTcpSocket tcpSocket;
+//    FileSessionAdapter *adapter;
+    FileTransferManager *manager;
 
     QLabel *statusBar;
     QLabel *clientStatus;
@@ -35,14 +39,10 @@ private slots:
     void connected();
     void disconnected();
 
-private slots:
-    void onReadyRead();
-
 private:
     QDataStream m_stream;
     qint64 m_fileSize;
     QString m_fileName;
-    QFile m_file;
     qint64 m_fileBytesReceivedSize;
 
     QString savePath;
@@ -52,10 +52,14 @@ private:
     FileReceiverView *filelistView;
 
     QComboBox *remoteSwitchBox;
-    QLineEdit *remoteEdit;
+//    QLineEdit *remoteEdit;
     QPushButton *connectBtn;
     QPushButton *saveFileBtn;
     QProgressBar *scanProgressBar;
+
+    QPushButton *receiveFileBtn;
+    QProgressBar *currentProgressBar;
+    QProgressBar *totalProgressBar;
 
 private:
     ScanWorkerPool *pool;

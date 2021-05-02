@@ -14,8 +14,8 @@ public:
     explicit FileSenderView(QWidget *parent = nullptr);
 
 public slots:
-    void appendFilse(const QStringList &files);
-    void filesDeleted(QString file);
+    void appendFilse(const QStringList &filepaths);
+    void filesDeleted(QString filepath);
     void filesCleanded();
     void onclicked(const QModelIndex &index);
     int count();

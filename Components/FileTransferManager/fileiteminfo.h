@@ -56,6 +56,7 @@ public:
     QString fileName;
     QString filePath;
     QString fileSize;
+    qint64 filesize;
     FileUploadStat _upstate;
     FileDonwloadStat _downstate;
 

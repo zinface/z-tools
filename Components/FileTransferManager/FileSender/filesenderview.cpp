@@ -13,14 +13,14 @@ FileSenderView::FileSenderView(QWidget *parent) : QListView(parent)
     connect(this, &QListView::clicked, this, &FileSenderView::onclicked);
 }
 
-void FileSenderView::appendFilse(const QStringList &files)
+void FileSenderView::appendFilse(const QStringList &filepaths)
 {
-    this->mfileSenderModel->appendFilse(files);
+    this->mfileSenderModel->appendFilse(filepaths);
 }
 
-void FileSenderView::filesDeleted(QString file)
+void FileSenderView::filesDeleted(QString filepath)
 {
-    this->mfileSenderModel->filesDeleted(file);
+    this->mfileSenderModel->filesDeleted(filepath);
 }
 
 void FileSenderView::filesCleanded()

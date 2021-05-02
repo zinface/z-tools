@@ -55,17 +55,17 @@ void FileSenderModel::appendFilse(const QStringList &filePaths)
     emit layoutChanged();
 }
 
-void FileSenderModel::filesDeleted(QString file)
+void FileSenderModel::filesDeleted(QString filepath)
 {
     foreach(FileItemInfo *info, files) {
-        if (info->filePath == file) {
+        if (info->filePath == filepath) {
             files.removeOne(info);
             delete info;
-            QTextStream(stdout) << QString("删除 ") << file << QString(" 成功!\n");
+            QTextStream(stdout) << QString("删除 ") << filepath << QString(" 成功!\n");
             return;
         }
     }
-     QTextStream(stdout) << QString("删除 ") << file << QString(" 失败!\n");
+     QTextStream(stdout) << QString("删除 ") << filepath << QString(" 失败!\n");
 }
 
 void FileSenderModel::filesCleanded()

@@ -1,5 +1,6 @@
 #include "sessionmanager.h"
 #include "filetransfermanager.h"
+#include "filetransfertaskmanager.h"
 
 #include <QAbstractSocket>
 #include <QApplication>
@@ -13,6 +14,7 @@
 FileTransferManager::FileTransferManager(QObject *parent) : QObject(parent)
   , adapter(new SessionManager)
   ,_manager_work(SessionManager::SERVER)
+  ,taskManager(new FileTransferTaskManager)
 {
     connect(adapter, &SessionManager::newConnectSocket, this, &FileTransferManager::newConnectSocket);
     connect(adapter, &SessionManager::clientCountChanged, this, &FileTransferManager::clientCountChanged);
@@ -63,17 +65,48 @@ void FileTransferManager::pushFileDeleted(QString filename)
     broadCaseAction(nullptr, S_DELETE, filename);
 }
 
-
 void FileTransferManager::pushFileClaer()
 {
     broadCaseAction(nullptr, S_CLEANR, QString());
+}
+
+/**
+ * 响应下载任务，远程连接，文件名，文件大小，文件路径
+ * @brief FileTransferManager::broadCaseAction
+ * @param c
+ * @param e
+ * @param fileName
+ * @param filePath
+ * @param fileSize
+ */
+void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString fileName, qint64 fileSize, QString filePath)
+{
+    // OP_UPLOAD, remoteSocket, fileName, fileSize, filePath
+    FileTransferTask *task = new FileTransferTask;
+    task->setTaskParam(FileTransferTask::UPLOAD, c, fileName, fileSize, filePath);
+    taskManager->addFileTask(task);
 }
 
 void FileTransferManager::fetchFileListAction()
 {
     QDataStream stream(adapter->c());
     stream.setVersion(QDataStream::Qt_5_0);
-    stream << qint8(OP_ALL) << QString();
+    stream << qint8(OP_ALL);
+}
+
+/**
+ * 创建下载任务，远程主机地址/端口，远程文件名，远程文件大小，下载储存路径
+ * @brief FileTransferManager::fetchFileItemInfoAction
+ * @param fileinfo
+ */
+void FileTransferManager::fetchFileItemInfoAction(const FileItemInfo &fileinfo)
+{
+    // Action: Download
+    // OP_DOWNLOAD, remoteAddress, remotePort, fileName, fileSize, fileSavePath
+    FileTransferTask *task = new FileTransferTask();
+    connect(task, &FileTransferTask::onTotalWriteBytes, &fileinfo, &FileItemInfo::onTotalWriteBytes);
+    task->setTaskParam(FileTransferTask::DOWNLOAD, adapter->ra(), adapter->rp(), fileinfo.fileName, fileinfo.filesize, this->savePath);
+    taskManager->addFileTask(task);
 }
 
 void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString filename)
@@ -111,45 +144,42 @@ void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString fi
 void FileTransferManager::onNewAction(QTcpSocket *c)
 {
     QDataStream stream(c);
-    QTextStream(stdout) << QString("FileTransferManager: 接收：%1\n").arg(c->bytesAvailable());
     stream.setVersion(QDataStream::Qt_5_0);
+
     qint8 action;
     QString filename;
     QStringList filenames;
     qint64 filesize(0);
 
     stream >> action;
+
     switch (action) {
 
     case OP_ALL:
         emit onRemoteFetchFileList(c);
-        QTextStream(stdout) << QString("FileTransferManager:指令：OP_ALL: ") << filename << filesize << "\n";
         break;
 
-    case OP_DOWN:
-        stream >> filename >> filesize;
+    case OP_DOWNLOAD:
+        stream >> filename;
+        emit onRemoteFetchFile(c, filename);
         break;
 
     case S_APPEND:
         stream >> filename >> filesize;
         emit onRemoteFileAppend(filename, filesize);
-        QTextStream(stdout) << QString("FileTransferManager:指令：S_APPEND: ") << filename << filesize << "\n";
         break;
 
     case S_DELETE:
         stream >> filename;
         emit onRemoteFileDelete(filename);
-        QTextStream(stdout) << QString("FileTransferManager:指令：S_DELETE: ") << filename << "\n";
         break;
 
     case S_CLEANR:
         stream >> filename;
         emit onRemoteFileClear();
-        QTextStream(stdout) << QString("FileTransferManager:指令：S_CLEANR: ") << "\n";
         break;
     }
 
-    QTextStream(stdout) << QString("FileTransferManager:剩余尾部字节：") << c->bytesAvailable() << "\n";
     while(c->bytesAvailable() > 0) {
         onNewAction(c);
     }

@@ -87,6 +87,8 @@ FileTransferSender::FileTransferSender(QWidget *parent) : QWidget(parent)
     connect(this, &FileTransferSender::emitFilesQueueChange, this, &FileTransferSender::onFilesQueueChange);
 
     connect(manager, &FileTransferManager::onRemoteFetchFileList, this, &FileTransferSender::onClientFetchFileList);
+    connect(manager, &FileTransferManager::onRemoteFetchFile, this, &FileTransferSender::onClientFetchFile);
+    connect(manager, &FileTransferManager::clientCountChanged, this, &FileTransferSender::onClientChanged);
 
     setFixedSize(500,500);
 }
@@ -105,6 +107,16 @@ void FileTransferSender::onClientFetchFileList(QTcpSocket *c)
 {
     for (int i=0; i<fileListView->count(); i++) {
         manager->broadCaseAction(c, FileTransferManager::S_APPEND, fileListView->item(i)->fileName, fileListView->item(i)->filesize);
+    }
+}
+
+void FileTransferSender::onClientFetchFile(QTcpSocket *c, QString filename)
+{
+    for (int i=0; i<fileListView->count(); i++) {
+       if (fileListView->item(i)->fileName == filename) {
+           manager->broadCaseAction(c, FileTransferManager::OP_UPLOAD, fileListView->item(i)->fileName, fileListView->item(i)->filesize, fileListView->item(i)->filePath);
+           return;
+       }
     }
 }
 
@@ -156,21 +168,21 @@ void FileTransferSender::clrFile()
 
 void FileTransferSender::sendFile()
 {
-    if (fileListView->count() == 0) {
-        return;
-    }
-    timer.restart();
-    if (m_fileQueue.isEmpty()) {
-        for (int i = 0; i < fileListView->count(); i++) {
-            m_fileQueue.append(fileListView->item(i)->filePath);
-            m_totalFileSize += QFileInfo(fileListView->item(i)->filePath).size();
-            emit emitFilesQueueChange();
-        }
-        m_currentFileBytesWritten = 0;
-        m_totalFileBytesWritten = 0;
-    }
+//    if (fileListView->count() == 0) {
+//        return;
+//    }
+//    timer.restart();
+//    if (m_fileQueue.isEmpty()) {
+//        for (int i = 0; i < fileListView->count(); i++) {
+//            m_fileQueue.append(fileListView->item(i)->filePath);
+//            m_totalFileSize += QFileInfo(fileListView->item(i)->filePath).size();
+//            emit emitFilesQueueChange();
+//        }
+//        m_currentFileBytesWritten = 0;
+//        m_totalFileBytesWritten = 0;
+//    }
 
-    send();
+//    send();
 }
 
 void FileTransferSender::onfilesAppended(QStringList &filepaths)
@@ -300,6 +312,7 @@ void FileTransferSender::createFileTransferSender()
     fileCtlBtnsLayout->addWidget(clrFileBtn);
     fileCtlBtnsLayout->addWidget(vline);
     fileCtlBtnsLayout->addWidget(sendFileBtn);
+    sendFileBtn->setEnabled(false);
 
     senderBoxLayout->addLayout(fileCtlBtnsLayout);
 //    senderBoxLayout->addWidget(fileListWidget);
@@ -329,9 +342,9 @@ void FileTransferSender::createFileTransferSender()
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(senderBox);
     mainLayout->addWidget(line);
-    mainLayout->addLayout(currentProgressLayout);
-    mainLayout->addLayout(totalProgressLayout);
-    mainLayout->addWidget(line2);
+//    mainLayout->addLayout(currentProgressLayout);
+//    mainLayout->addLayout(totalProgressLayout);
+//    mainLayout->addWidget(line2);
     mainLayout->addWidget(listenStatus);
     mainLayout->addWidget(clientStatus);
     QHBoxLayout *bottomWidgetsLayout = new QHBoxLayout;

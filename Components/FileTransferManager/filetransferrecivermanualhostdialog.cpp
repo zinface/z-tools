@@ -25,6 +25,7 @@ FileTransferReciverManualHostDialog::FileTransferReciverManualHostDialog(QWidget
     connect(testBtn, &QPushButton::clicked, this, &FileTransferReciverManualHostDialog::onTestBtnChoose);
     connect(pool, &ScanWorkerPool::finished, this, &FileTransferReciverManualHostDialog::onTestFinished);
     connect(hostEdit, &QLineEdit::textChanged, this, &FileTransferReciverManualHostDialog::onTestBtnChoose);
+    setWindowTitle("寻找目标");
 }
 
 void FileTransferReciverManualHostDialog::createFileTransferReciverManualHostDialog()

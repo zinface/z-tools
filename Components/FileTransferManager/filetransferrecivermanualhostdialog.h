@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QWidget>
+#include <QMutex>
 
 class QLabel;
 class QLineEdit;

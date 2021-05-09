@@ -1,7 +1,9 @@
 #include "filereceivermodel.h"
+
 #include "../fileiteminfo.h"
 
 #include <QDir>
+#include <QTextStream>
 
 FileReceiverModel::FileReceiverModel(QObject *parent)
 {
@@ -20,14 +22,18 @@ QVariant FileReceiverModel::data(const QModelIndex &index, int role) const
     const int r = index.row();
     const FileItemInfo *file = this->files.at(r);
     switch (role) {
-        case FileItemInfo::FileSenderNameRole:
+        case FileItemInfo::FileReceiverNameRole:
             return file->fileName;
-        case FileItemInfo::FileSenderSizeRole:
+        case FileItemInfo::FileReceiverSizeStringRole:
             return file->fileSize;
-        case FileItemInfo::FileSenderPathRole:
+        case FileItemInfo::FileReceiverSizeRole:
+            return file->filesize;
+        case FileItemInfo::FileReceiverPathRole:
             return  file->filePath;
-        case FileItemInfo::FileSenderUploadRole:
-            return file->_upstate;
+        case FileItemInfo::FileReceiverDownloadRole:
+            return file->_downstate;
+        case FileItemInfo::FileReceiverDownloadSize:
+            return file->_totalBytes;
     }
 
     return QVariant();
@@ -39,8 +45,10 @@ void FileReceiverModel::appendFile(const QString &filename, qint64 filesize)
     file->setName(filename);
     file->setSize(filesize);
     file->setpath(QDir(savePath).absoluteFilePath(filename));
+    file->setFileDownloadStat(QFile(file->filePath).exists()?QFile(file->filePath).size() == file->filesize?FileItemInfo::DOWNLOADED:FileItemInfo::SIZEWARRING:FileItemInfo::NOT_DOWNLOAD);
 
-    file->setFileDownloadStat(QFile(file->filePath).exists()?FileItemInfo::DOWNLOADED:FileItemInfo::NOT_DOWNLOAD);
+    connect(file, &FileItemInfo::onBytesChanged, this, &FileReceiverModel::downloadByteChanged);
+    QTextStream(stdout) << filename << ":" << file->filePath << ":" << (QFile(file->filePath).exists()?"DOWNLOADED":"NOT_DOWNLOAD") << "\n";
     this->files.append(file);
     emit layoutChanged();
 }
@@ -95,7 +103,17 @@ int FileReceiverModel::count()
     return this->files.count();
 }
 
+FileItemInfo *FileReceiverModel::item(int i)
+{
+    return this->files.at(i);
+}
+
 void FileReceiverModel::setSavePath(QString &savePath)
 {
     this->savePath = savePath;
+}
+
+void FileReceiverModel::downloadByteChanged()
+{
+    emit this->layoutChanged();
 }

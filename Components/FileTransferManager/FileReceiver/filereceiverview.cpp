@@ -11,6 +11,7 @@ FileReceiverView::FileReceiverView(QWidget *parent) : QListView(parent)
     this->setModel(mfileReciverModel);
 
     connect(this, &QListView::clicked, this, &FileReceiverView::onclicked);
+    connect(this->mfileReceiverItemDelegate, &FileReceiverItemDelegate::downloadItem, this, &FileReceiverView::onDownloadFile);
 }
 
 void FileReceiverView::appendFile(const QString &fileName, qint64 filesize)
@@ -45,4 +46,21 @@ FileReceiverModel *FileReceiverView::getMode() {
 void FileReceiverView::setSavePath(QString &savePath)
 {
     this->mfileReciverModel->setSavePath(savePath);
+}
+
+FileItemInfo *FileReceiverView::item(int i)
+{
+    return this->mfileReciverModel->item(i);
+}
+
+void FileReceiverView::onDownloadFile(const QModelIndex index)
+{
+    QString filename = index.data(FileItemInfo::FileReceiverNameRole).toString();
+    if (this->item(index.row())->_downstate == FileItemInfo::DOWNLOADED || this->item(index.row())->_downstate == FileItemInfo::DOWNLOADING) {
+        return;
+    }
+    this->item(index.row())->setFileDownloadStat(FileItemInfo::DOWNLOADING);
+    emit this->downloadFile(filename);
+    emit this->downloadFileItemInfo(*this->item(index.row()));
+    emit this->mfileReciverModel->layoutChanged();
 }

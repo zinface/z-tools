@@ -5,6 +5,8 @@
 #include <QTcpSocket>
 #include <QWidget>
 
+#include "fileiteminfo.h"
+
 class QComboBox;
 class QLabel;
 class QLineEdit;
@@ -30,10 +32,12 @@ private:
 
     QLabel *statusBar;
     QLabel *clientStatus;
+    QLabel *saveStatus;
 
 private slots:
     void onConfigFileSavePath();
     void onUpdateFileSavePath();
+    void onUpdateConnectStatus();
 
     void onConnect();
     void connected();
@@ -73,6 +77,9 @@ private slots:
     void onScanAvilable(QString host, int port);
     void onScanFinished();
     void onScanThreadChanged();
+
+//    void onDownloadFile(const QString filename);
+    void onDownloadFileItemInfo(const FileItemInfo &fileinfo);
 
 };
 

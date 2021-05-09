@@ -29,6 +29,7 @@ private slots:
     /***** manager -> clients *****/
     void onClientChanged(int count);
     void onClientFetchFileList(QTcpSocket *c);
+    void onClientFetchFile(QTcpSocket *c, QString filename);
 
     /***** fileCtlBtns ******/
     void addFile();

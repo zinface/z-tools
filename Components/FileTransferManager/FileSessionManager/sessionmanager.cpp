@@ -7,6 +7,8 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
   ,conn_cnt(0)
   ,server(new QTcpServer)
   ,client(new QTcpSocket)
+  ,m_remoteAddress("")
+  ,m_remotePort(0)
   ,_workState(UNLISTENED)
 {
     connect(server, &QTcpServer::newConnection, this, &SessionManager::onNewConnectSocket);
@@ -39,6 +41,8 @@ void SessionManager::SettingHost(QString host, int port, SessionManager::Session
         _workState = UNCONNECTED;
         client->close();
         client->connectToHost(host,port);
+        this->m_remoteAddress = host;
+        this->m_remotePort = port;
         break;
     }
 }

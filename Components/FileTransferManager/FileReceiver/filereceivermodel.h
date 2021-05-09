@@ -32,13 +32,17 @@ public:
     void setFileSize(const QString &fileName, qint64 filesize);
 
     int count();
-
+    FileItemInfo *item(int i);
 
     void setSavePath(QString &savePath);
+
 private:
     QString savePath;
     QFile mfile;
     QList<FileItemInfo*> files;
+
+public slots:
+    void downloadByteChanged();
 };
 
 #endif // FILERECIEVERMODEL_H

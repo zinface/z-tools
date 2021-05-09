@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.0.0)
 
-project(z-tools-filetransfer VERSION 0.2 LANGUAGES CXX)
+project(z-tools-filetransfer VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+add_compile_options("-static")
 
 find_package(Qt5Core)
 find_package(Qt5Widgets)
@@ -32,7 +33,7 @@ include_directories(
     Components/FileTransferManager
 )
 set(QRC_SOURCES
-    ""
+    "resources/images.qrc"
 )
 
 add_executable(${PROJECT_NAME}

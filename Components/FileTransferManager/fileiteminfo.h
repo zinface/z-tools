@@ -20,11 +20,14 @@ public:
 public:
     enum FileUploadStat {
         NOT_UPLOAD,
+        UPLOADING,
         UPLOADED
     };
 
     enum FileDonwloadStat {
         NOT_DOWNLOAD,
+        SIZEWARRING,
+        DOWNLOADING,
         DOWNLOADED
     };
 
@@ -39,7 +42,9 @@ public:
         FileReceiverNameRole,
         FileReceiverPathRole,
         FileReceiverSizeRole,
-        FileReceiverDownloadRole
+        FileReceiverSizeStringRole,
+        FileReceiverDownloadRole,
+        FileReceiverDownloadSize
     };
 
     enum RateUnit {
@@ -60,10 +65,19 @@ public:
     FileUploadStat _upstate;
     FileDonwloadStat _downstate;
 
+    qint64 _totalBytes = 0;
+
 public:
     /* 自动计算值和解出值单位 */
     static QString autoRateUnits(qint64 speed, RateUnit &unit, double &val);
     static QString convertRateUnits(RateUnit &unit);
+
+
+public slots:
+    void onTotalWriteBytes(qint64 bytes);
+
+signals:
+    void onBytesChanged();
 };
 
 #endif // FILEITEMINFO_H

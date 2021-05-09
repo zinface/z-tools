@@ -18,12 +18,14 @@ include_directories(
     ScanPort
     FileReceiver
     FileSessionManager
+    FileTaskManager
 )
 
 add_subdirectory(ScanPort)
 add_subdirectory(FileSender)
 add_subdirectory(FileReceiver)
 add_subdirectory(FileSessionManager)
+add_subdirectory(FileTaskManager)
 
 add_library(${MODULE_NAME}
     filetransfersender.cpp filetransfersender.h

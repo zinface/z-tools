@@ -2,9 +2,12 @@
 #define FILETRANSFERMANAGER_H
 
 #include "sessionmanager.h"
+#include "../fileiteminfo.h"
 
 #include <QObject>
 #include <QTcpSocket>
+
+class FileTransferTaskManager;
 
 class FileTransferManager : public QObject
 {
@@ -15,13 +18,15 @@ public:
 
     enum FullEvent{
         OP_ALL = 1,
-        OP_DOWN,
+        OP_UPLOAD,
+        OP_DOWNLOAD,
         S_APPEND,
         S_DELETE,
         S_CLEANR,
     };
 
     void setManagerTask(QString host, int port, SessionManager::SessionManagerWorkType type = SessionManager::SERVER);
+    void setSavePath(QString path) {this->savePath = path;}
 
     bool state();
     bool serverState();
@@ -33,15 +38,23 @@ public:
     void pushFileDeleted(QStringList filenames);
     void pushFileClaer();
 
+    // Reply Action
+    void broadCaseAction(QTcpSocket *c, FullEvent e, QString fileName, qint64 fileSize, QString filePath);
     void broadCaseAction(QTcpSocket *c, FullEvent e, QString filename);
     void broadCaseAction(QTcpSocket *c, FullEvent e, QString filename, qint64 filesize);
 
     // Client Actions
-    void fetchFileListAction();
+    void fetchFileListAction();              // Base Action
+    void fetchFileItemInfoAction(const FileItemInfo &fileinfo);  // Donwload
+
+
 
 private:
     SessionManager *adapter;
     SessionManager::SessionManagerWorkType _manager_work;
+
+    FileTransferTaskManager *taskManager;
+    QString savePath;
 
 private slots:
     void onNewAction(QTcpSocket *c);
@@ -51,6 +64,7 @@ signals:
     void clientCountChanged(int count);
     void newConnectSocket(QTcpSocket *c);
     void onRemoteFetchFileList(QTcpSocket *c);
+    void onRemoteFetchFile(QTcpSocket *c, QString filename);
 
     void connected();
     void readRead();

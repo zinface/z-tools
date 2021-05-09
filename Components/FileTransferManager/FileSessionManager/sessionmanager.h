@@ -27,8 +27,10 @@ public:
 
     void SettingHost(QString host, int port, SessionManagerWorkType type = SERVER);
     QMap<QString, QTcpSocket*> clients() { return  this->clientMap; }
-    QTcpServer* s(){ return this->server;}
+    QTcpServer* s(){ return this->server; }
     QTcpSocket* c(){ return this->client; }
+    QString ra(){ return this->m_remoteAddress; };
+    int rp(){ return this->m_remotePort; };
 
     // Server Public Function
     SessionManagerWorkState serverState();
@@ -64,6 +66,9 @@ private:
 
     QTcpServer *server;
     QTcpSocket *client;
+
+    QString m_remoteAddress;
+    int m_remotePort;
 
     SessionManagerWorkState _workState;
 };

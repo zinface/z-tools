@@ -22,8 +22,9 @@
 
 FileTransferReceiver::FileTransferReceiver(QWidget *parent) : QWidget(parent)
   ,manager(new FileTransferManager)
-  ,statusBar(new QLabel("服务器待连接."))
-  ,clientStatus(new QLabel("服务器断开连接!"))
+  ,statusBar(new QLabel("目标地址: 未指定"))
+  ,clientStatus(new QLabel("状态: 服务器已断开连接!"))
+  ,saveStatus(new QLabel("存储位置: 未设置"))
   ,m_fileSize(0)
   ,m_fileBytesReceivedSize(0)
   ,filelistView(new FileReceiverView)
@@ -53,6 +54,10 @@ FileTransferReceiver::FileTransferReceiver(QWidget *parent) : QWidget(parent)
     connect(manager, &FileTransferManager::connected, this, &FileTransferReceiver::onUpdateFileSavePath);
     connect(manager, &FileTransferManager::disconnected, this, &FileTransferReceiver::onUpdateFileSavePath);
 
+//    connect(filelistView, &FileReceiverView::downloadFile, manager, &FileTransferManager::fetchFileAction);
+    connect(filelistView, &FileReceiverView::downloadFileItemInfo, manager, &FileTransferManager::fetchFileItemInfoAction);
+//    connect(filelistView, &FileReceiverView::downloadFileItemInfo, this, &FileTransferReceiver::onDownloadFileItemInfo);
+
     setFixedSize(500,500);
 }
 
@@ -62,16 +67,22 @@ void FileTransferReceiver::onConfigFileSavePath()
     if (!srcDirPath.isEmpty()) {
         savePath = srcDirPath;
         filelistView->setSavePath(savePath);
+        manager->setSavePath(savePath);
     }
     onUpdateFileSavePath();
 }
 
 void FileTransferReceiver::onUpdateFileSavePath()
 {
+    saveStatus->setText(QString("存储位置: %1").arg(savePath));
+}
+
+void FileTransferReceiver::onUpdateConnectStatus()
+{
     if (manager->state()) {
-        clientStatus->setText(QString("服务器连接成功! - 存储地址为：%1").arg(savePath));
+        clientStatus->setText(QString("状态: 服务器连接成功!"));
     } else {
-        clientStatus->setText(QString("服务器断开连接! - 存储地址为：%1").arg(savePath));
+        clientStatus->setText(QString("状态: 服务器已断开连接!"));
     }
 }
 
@@ -94,7 +105,7 @@ void FileTransferReceiver::onConnect()
         statusBar->setText("目标网络地址错误!");
         return;
     } else {
-        statusBar->setText(QString("目标地址已设置 - %1!").arg(hostAddress.toString()));
+        statusBar->setText(QString("目标地址:  %1!").arg(hostAddress.toString()));
     }
 
     manager->setManagerTask(address, 8888, SessionManager::CLIENT);
@@ -102,14 +113,15 @@ void FileTransferReceiver::onConnect()
 
 void FileTransferReceiver::connected()
 {
+    onUpdateConnectStatus();
     filelistView->clearFile();
-    onUpdateFileSavePath();
     manager->fetchFileListAction();
 }
 
 void FileTransferReceiver::disconnected()
 {
-    onUpdateFileSavePath();
+    onUpdateConnectStatus();
+    this->filelistView->clearFile();
 }
 
 void FileTransferReceiver::onUseRemoteSwitch()
@@ -150,6 +162,12 @@ void FileTransferReceiver::onScanThreadChanged()
 {
     scanProgressBar->setValue(scanProgressBar->maximum() - pool->count());
 }
+
+void FileTransferReceiver::onDownloadFileItemInfo(const FileItemInfo &fileinfo)
+{
+    QTextStream(stdout) << QString("FileTransferReceiver::onDownloadFileItemInfo: OP_DOWNLOAD: ") << fileinfo.fileName << "\n";
+}
+
 
 void FileTransferReceiver::createFileTransferReceiver()
 {
@@ -201,12 +219,13 @@ void FileTransferReceiver::createFileTransferReceiver()
     QVBoxLayout *mainLayout = new QVBoxLayout;
 
     mainLayout->addWidget(receiverBox);
-    mainLayout->addWidget(line);
-    mainLayout->addLayout(currentProgressLayout);
-    mainLayout->addLayout(totalProgressLayout);
+//    mainLayout->addWidget(line);
+//    mainLayout->addLayout(currentProgressLayout);
+//    mainLayout->addLayout(totalProgressLayout);
     mainLayout->addWidget(line2);
     mainLayout->addWidget(statusBar);
     mainLayout->addWidget(clientStatus);
+    mainLayout->addWidget(saveStatus);
     setLayout(mainLayout);
 }
 

@@ -1,4 +1,5 @@
 #include "fileiteminfo.h"
+#include <QTextStream>
 #include <QtMath>
 
 FileItemInfo::FileItemInfo(QObject *parent) : QObject(parent)
@@ -79,6 +80,15 @@ QString FileItemInfo::convertRateUnits(FileItemInfo::RateUnit &unit)
     default:
         return QString("");
     }
+}
+
+void FileItemInfo::onTotalWriteBytes(qint64 bytes)
+{
+    this->_totalBytes = bytes;
+    if (this->_totalBytes == this->filesize) {
+        this->_downstate = DOWNLOADED;
+    }
+    emit onBytesChanged();
 }
 
 

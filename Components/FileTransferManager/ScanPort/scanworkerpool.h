@@ -14,6 +14,7 @@ public:
 
 public:
     void setMaxTaskTogether(int count = 5);
+    void setWaitForFinished(bool waitQueuefinished = false);
     void addThreadTask(ScanWorkerThread *thread);
 
     void doStart();
@@ -28,6 +29,7 @@ public slots:
 private:
     int taskTogetherRuns = 5;
     bool currentTaskRunning = false;
+    bool waitQueuefinished = false;
     QMutex taskfinishMutex;
     QMutex taskMutex;
     QQueue<ScanWorkerThread*> taskQueue;

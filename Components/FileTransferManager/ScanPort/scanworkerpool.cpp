@@ -3,12 +3,18 @@
 ScanWorkerPool::ScanWorkerPool(QObject *parent) : QThread(parent)
   ,taskTogetherRuns(5)
   ,currentTaskRunning(false)
+  ,waitQueuefinished(false)
 {
 
 }
 
 void ScanWorkerPool::setMaxTaskTogether(int count) {
     this->taskTogetherRuns = count;
+}
+
+void ScanWorkerPool::setWaitForFinished(bool waitQueuefinished)
+{
+    this->waitQueuefinished = waitQueuefinished;
 }
 
 void ScanWorkerPool::addThreadTask(ScanWorkerThread *thread) {
@@ -29,6 +35,9 @@ void ScanWorkerPool::onTaskQueueItemFinish(ScanWorkerThread *s){
     tasks.removeOne(s);
     delete s;
     emit onTaskThreadChanged();
+    if (this->tasks.count() == 0) {
+        this->waitQueuefinished = false;
+    }
     taskfinishMutex.unlock();
 }
 
@@ -39,8 +48,8 @@ void ScanWorkerPool::run() {
     taskMutex.lock();
     currentTaskRunning = true;
     taskMutex.unlock();
-    while (!taskQueue.isEmpty()) {
-        if (tasks.count() < taskTogetherRuns) {
+    while (!taskQueue.isEmpty() || this->waitQueuefinished) {
+        if (tasks.count() < taskTogetherRuns && taskQueue.count() > 0) {
             ScanWorkerThread *localTakeFirst = taskQueue.takeFirst();
             tasks.append(localTakeFirst);
             localTakeFirst->start();

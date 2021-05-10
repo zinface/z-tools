@@ -241,7 +241,7 @@ void FileTransferReceiver::scanLocalHost()
         if (ipAddr == "127.0.0.1") continue;
         if (v.validate(ipAddr,pos) == QRegExpValidator::Acceptable){
             QStringList localSplit = ipAddr.split(".");
-            QString prefixIp = QString("%1.%2.%3").arg(localSplit[0]).arg(localSplit[1]).arg(localSplit[3]);
+            QString prefixIp = QString("%1.%2.%3").arg(localSplit[0]).arg(localSplit[1]).arg(localSplit[2]);
             for(int i = 1; i < 255; i++) {
                 if (ipAddr == QString("%1.%2").arg(prefixIp).arg(i)) continue;
                 ScanWorkerThread *localScanWorkerThread = new ScanWorkerThread(QString("%1.%2").arg(prefixIp).arg(i), 8888);
@@ -255,5 +255,6 @@ void FileTransferReceiver::scanLocalHost()
     remoteSwitchBox->addItem("127.0.0.1(本机)", "127.0.0.1");
     scanProgressBar->setMaximum(pool->count());
     pool->setMaxTaskTogether(60);
+    pool->setWaitForFinished(true);
     pool->doStart();
 }

@@ -109,7 +109,6 @@ void FileTransferTask::onReadyRead()
 void FileTransferTask::onWriteBytes(qint64 bytes)
 {
     this->_mtotalSize += bytes;
-    _mfile.seek(this->_mtotalSize);
     QByteArray array = _mfile.read(_readBlock);
     if (array.isEmpty()) {
         return;

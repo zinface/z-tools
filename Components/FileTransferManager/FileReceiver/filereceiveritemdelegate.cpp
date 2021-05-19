@@ -19,9 +19,9 @@ void FileReceiverItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
     const QString filename = index.data(FileItemInfo::FileReceiverNameRole).toString();
     const QString filepath = index.data(FileItemInfo::FileReceiverPathRole).toString();
     const QString fileSize = index.data(FileItemInfo::FileReceiverSizeStringRole).toString();
-    const qint64 filesize = index.data(FileItemInfo::FileReceiverSizeRole).toInt();
+    const qint64 filesize = static_cast<qint64>(index.data(FileItemInfo::FileReceiverSizeRole).toLongLong());
     const FileItemInfo::FileDonwloadStat downState = (FileItemInfo::FileDonwloadStat)index.data(FileItemInfo::FileReceiverDownloadRole).toInt();
-    const qint64 downloadsize = index.data(FileItemInfo::FileReceiverDownloadSize).toInt();
+    const qint64 downloadsize = static_cast<qint64>(index.data(FileItemInfo::FileReceiverDownloadSize).toLongLong());
     painter->save();
 
     // item 矩形区域
@@ -99,7 +99,7 @@ void FileReceiverItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
         double max(filesize), min(0);
         double value = downloadsize;
         double arcStep = 360.0 / (max - min) * value;
-
+        
         // 绘制值
         QPainterPath basePath;
         basePath.moveTo(progressBar.center());

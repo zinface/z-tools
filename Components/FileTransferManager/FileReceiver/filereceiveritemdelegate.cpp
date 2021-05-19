@@ -2,6 +2,7 @@
 #include "../fileiteminfo.h"
 
 #include <QDragEnterEvent>
+#include <QPainterPath>
 #include <QPainter>
 #include <QStyledItemDelegate>
 #include <QTextStream>

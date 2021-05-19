@@ -1,5 +1,6 @@
 #include "filesenderitemdelegate.h"
 
+#include <QPainterPath>
 #include <QPainter>
 #include <QTextStream>
 #include "../fileiteminfo.h"

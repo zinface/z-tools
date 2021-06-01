@@ -27,6 +27,7 @@ add_subdirectory(FileSender)
 add_subdirectory(FileReceiver)
 add_subdirectory(FileSessionManager)
 add_subdirectory(FileTaskManager)
+add_subdirectory(FileCommands)
 
 add_library(${MODULE_NAME}
     filetransfersender.cpp filetransfersender.h

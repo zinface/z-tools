@@ -39,6 +39,9 @@ public:
     SessionManagerWorkState clientState();
 
 private slots:
+    void onStateChanged(QAbstractSocket::SocketState state);
+    void onError(QAbstractSocket::SocketError error);
+
     // Server Function
     void onNewConnectSocket();
     void onReadyRead();
@@ -59,6 +62,11 @@ signals:
     void connected();
     void readRead();
     void disconnected();
+
+    /** Socket Signals **/
+    void ClientSocketConnected();
+    void ClientSocketConnecting();
+    void ClientSocketUnConnected();
 
 private:
     int conn_cnt = 0;

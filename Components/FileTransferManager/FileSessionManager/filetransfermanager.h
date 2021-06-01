@@ -27,6 +27,7 @@ public:
 
     void setManagerTask(QString host, int port, SessionManager::SessionManagerWorkType type = SessionManager::SERVER);
     void setSavePath(QString path) {this->savePath = path;}
+    void setMaxTaskToggetherRunningCount(int count = 5);
 
     bool state();
     bool serverState();
@@ -45,9 +46,8 @@ public:
 
     // Client Actions
     void fetchFileListAction();              // Base Action
+    void fetchFileAction(const QString filename, qint64 filesize, const QString savePath);       // CLI Action
     void fetchFileItemInfoAction(const FileItemInfo &fileinfo);  // Donwload
-
-
 
 private:
     SessionManager *adapter;
@@ -74,6 +74,12 @@ signals:
     void onRemoteFileAppend(const QString &filename, qint64 filesize);
     void onRemoteFileDelete(const QString &filename);
     void onRemoteFileClear();
+
+
+    /** Session Signals **/
+    void ClientSocketConnected();
+    void ClientSocketConnecting();
+    void ClientSocketUnConnected();
 
 };
 

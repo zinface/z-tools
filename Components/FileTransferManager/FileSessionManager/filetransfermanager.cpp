@@ -1,6 +1,8 @@
 #include "sessionmanager.h"
 #include "filetransfermanager.h"
 #include "filetransfertaskmanager.h"
+#include "filedownloadtask.h"
+#include "fileuploadtask.h"
 
 #include <QAbstractSocket>
 #include <QApplication>
@@ -23,6 +25,10 @@ FileTransferManager::FileTransferManager(QObject *parent) : QObject(parent)
     connect(adapter, &SessionManager::connected, this, &FileTransferManager::connected);
     connect(adapter, &SessionManager::readRead, this, &FileTransferManager::readRead);
     connect(adapter, &SessionManager::disconnected, this, &FileTransferManager::disconnected);
+
+    connect(adapter, &SessionManager::ClientSocketConnected, this,&FileTransferManager::ClientSocketConnected);
+    connect(adapter, &SessionManager::ClientSocketConnecting, this,&FileTransferManager::ClientSocketConnecting);
+    connect(adapter, &SessionManager::ClientSocketUnConnected, this,&FileTransferManager::ClientSocketUnConnected);
 }
 
 FileTransferManager::~FileTransferManager()
@@ -34,6 +40,11 @@ void FileTransferManager::setManagerTask(QString host, int port, SessionManager:
 {
     adapter->SettingHost(host, port, type);
     this->_manager_work = type;
+}
+
+void FileTransferManager::setMaxTaskToggetherRunningCount(int count)
+{
+    taskManager->setMaxTaskToggether(count);
 }
 
 bool FileTransferManager::state()
@@ -81,17 +92,54 @@ void FileTransferManager::pushFileClaer()
  */
 void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString fileName, qint64 fileSize, QString filePath)
 {
+    // Action: UpLoad
     // OP_UPLOAD, remoteSocket, fileName, fileSize, filePath
+    FileUploadTask *uploadTask = new FileUploadTask();
+    uploadTask->setTaskParam(FileTransferTask::UPLOAD, c, fileName, fileSize, filePath);
+
     FileTransferTask *task = new FileTransferTask;
-    task->setTaskParam(FileTransferTask::UPLOAD, c, fileName, fileSize, filePath);
+    task->setTaskParam(FileTransferTask::UPLOAD);
+
+    connect(task, &FileTransferTask::startUpload, uploadTask, &FileUploadTask::onStartUpload);
+    connect(uploadTask, &FileUploadTask::onFinished, task, &FileTransferTask::finishDownload);
+    connect(uploadTask, &FileUploadTask::onFinished, uploadTask, &FileUploadTask::deleteLater);
+
     taskManager->addFileTask(task);
+    taskManager->doStart();
 }
 
+/**
+ * 主动拉取文件列表动作
+ * @brief FileTransferManager::fetchFileListAction
+ */
 void FileTransferManager::fetchFileListAction()
 {
     QDataStream stream(adapter->c());
     stream.setVersion(QDataStream::Qt_5_0);
     stream << qint8(OP_ALL);
+}
+
+/**
+ * 创建下载任务，远程主机地址/端口，远程文件名，远程文件大小，下载储存路径
+ * @brief FileTransferManager::fetchFileAction
+ * @param filename
+ * @param filesize
+ * @param savePath
+ */
+void FileTransferManager::fetchFileAction(const QString filename, qint64 filesize, const QString savePath)
+{
+    FileDownloadTask *downloadTask = new FileDownloadTask;
+    downloadTask->setTaskParam(FileTransferTask::DOWNLOAD, adapter->ra(), adapter->rp(), filename, filesize, savePath);
+
+    FileTransferTask *task = new FileTransferTask;
+    task->setTaskParam(FileTransferTask::DOWNLOAD);
+
+    connect(task, &FileTransferTask::startDownload, downloadTask, &FileDownloadTask::Connect);
+    connect(downloadTask, &FileDownloadTask::onFinished, task, &FileTransferTask::finishDownload);
+    connect(downloadTask, &FileDownloadTask::onFinished, downloadTask, &FileDownloadTask::deleteLater);
+
+    taskManager->addFileTask(task);
+    taskManager->doStart();
 }
 
 /**
@@ -103,10 +151,19 @@ void FileTransferManager::fetchFileItemInfoAction(const FileItemInfo &fileinfo)
 {
     // Action: Download
     // OP_DOWNLOAD, remoteAddress, remotePort, fileName, fileSize, fileSavePath
+    FileDownloadTask *downloadTask = new FileDownloadTask();
+    downloadTask->setTaskParam(FileTransferTask::DOWNLOAD, adapter->ra(), adapter->rp(), fileinfo.fileName, fileinfo.filesize, this->savePath);
+    connect(downloadTask, &FileDownloadTask::onTotalWriteBytes, &fileinfo, &FileItemInfo::onTotalWriteBytes);
+
     FileTransferTask *task = new FileTransferTask();
-    connect(task, &FileTransferTask::onTotalWriteBytes, &fileinfo, &FileItemInfo::onTotalWriteBytes);
-    task->setTaskParam(FileTransferTask::DOWNLOAD, adapter->ra(), adapter->rp(), fileinfo.fileName, fileinfo.filesize, this->savePath);
+    task->setTaskParam(FileTransferTask::DOWNLOAD);
+
+    connect(task, &FileTransferTask::startDownload, downloadTask, &FileDownloadTask::Connect);
+    connect(downloadTask, &FileDownloadTask::onFinished, task, &FileTransferTask::finishDownload);
+    connect(downloadTask, &FileDownloadTask::onFinished, downloadTask, &FileDownloadTask::deleteLater);
+
     taskManager->addFileTask(task);
+    taskManager->doStart();
 }
 
 void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString filename)
@@ -143,6 +200,7 @@ void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString fi
 
 void FileTransferManager::onNewAction(QTcpSocket *c)
 {
+    c->waitForReadyRead(10);
     QDataStream stream(c);
     stream.setVersion(QDataStream::Qt_5_0);
 
@@ -186,32 +244,3 @@ void FileTransferManager::onNewAction(QTcpSocket *c)
 }
 
 
-/**
-//void FileTransferManager::onSocketError(QAbstractSocket::SocketError error)
-//{
-//    switch (error) {
-//    case QAbstractSocket::ConnectionRefusedError:
-//        QMessageBox::critical(this, QStringLiteral("错误"), QStringLiteral("%1").arg(m_cSocket->errorString()));
-//        qDebug() << __FUNCTION__ << "QAbstractSocket::ConnectionRefusedError";
-//        break;
-//    case QAbstractSocket::RemoteHostClosedError:
-//        qDebug() << __FUNCTION__ << "QAbstractSocket::RemoteHostClosedError";
-////        ui->plainTextEditLog->appendPlainText(QStringLiteral("文件传输终止！"));
-////        reset();
-//        break;
-//    case QAbstractSocket::HostNotFoundError:
-//        QMessageBox::critical(this, QStringLiteral("错误"), QStringLiteral("%1").arg(m_cSocket->errorString()));
-//        qDebug() << __FUNCTION__ << "QAbstractSocket::HostNotFoundError";
-//        break;
-//    case QAbstractSocket::SocketTimeoutError:
-//        QMessageBox::critical(this, QStringLiteral("错误"), QStringLiteral("%1").arg(m_cSocket->errorString()));
-//        qDebug() << __FUNCTION__ << "QAbstractSocket::SocketTimeoutError";
-//        break;
-//    case QAbstractSocket::AddressInUseError:
-//        qDebug() << __FUNCTION__ << "QAbstractSocket::AddressInUseError";
-//        break;
-//    default:
-//        break;
-//    }
-//}
-*/

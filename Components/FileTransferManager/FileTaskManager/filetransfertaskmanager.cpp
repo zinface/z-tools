@@ -1,7 +1,11 @@
 #include "filetransfertask.h"
 #include "filetransfertaskmanager.h"
 
+#include <filedownloadtask.h>
+
 FileTransferTaskManager::FileTransferTaskManager(QObject *parent) : QThread(parent)
+  , taskTogetherRuns(5)
+  , currentTaskRuning(false)
 {
 
 }
@@ -18,13 +22,13 @@ void FileTransferTaskManager::setMaxTaskToggether(int count)
 
 void FileTransferTaskManager::addFileTask(FileTransferTask *taskThread)
 {
-//    connect(taskThread, &FileTransferTask::)
+    connect(taskThread, &FileTransferTask::onFinished, this, &FileTransferTaskManager::onTaskQueueItemFinish);
     mTaskQueue.append(taskThread);
 }
 
 void FileTransferTaskManager::doStart()
 {
-    this->start();
+    if (!currentTaskRuning)this->start();
 }
 
 int FileTransferTaskManager::count()

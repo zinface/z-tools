@@ -19,6 +19,7 @@ include_directories(
     FileReceiver
     FileSessionManager
     FileTaskManager
+    FileTaskManager/FileTasks
 )
 
 add_subdirectory(ScanPort)

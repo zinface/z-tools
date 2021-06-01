@@ -12,9 +12,15 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
   ,_workState(UNLISTENED)
 {
     connect(server, &QTcpServer::newConnection, this, &SessionManager::onNewConnectSocket);
+    connect(server, &QTcpServer::acceptError, this, &SessionManager::onError);
+
     connect(client, &QTcpSocket::connected, this, &SessionManager::onHostConnected);
     connect(client, &QTcpSocket::readyRead, this, &SessionManager::onHostReadyRead);
     connect(client, &QTcpSocket::disconnected, this, &SessionManager::onHostDisconnected);
+
+    connect(client, &QTcpSocket::stateChanged, this, &SessionManager::onStateChanged);
+    connect(client, QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error), this, &SessionManager::onError);
+
 }
 
 SessionManager::~SessionManager()
@@ -55,6 +61,62 @@ SessionManager::SessionManagerWorkState SessionManager::serverState()
 SessionManager::SessionManagerWorkState SessionManager::clientState()
 {
     return _workState;
+}
+
+void SessionManager::onStateChanged(QAbstractSocket::SocketState state)
+{
+//    QTextStream(stdout) << QString("Client: 连接状态改变\n");
+    // UnconnectedState,
+    // HostLookupState,
+    // ConnectingState,
+    // ConnectedState,
+    // BoundState,
+    // ListeningState,
+    // ClosingState
+    switch (state) {
+    case QAbstractSocket::UnconnectedState: QTextStream(stdout) << QString("Client: UnconnectedState\n");
+        emit ClientSocketUnConnected();
+        break;
+    case QAbstractSocket::HostLookupState: QTextStream(stdout) << QString("Client: HostLookupState\n");break;
+    case QAbstractSocket::ConnectingState: QTextStream(stdout) << QString("Client: ConnectingState\n");
+        emit ClientSocketConnecting();
+        break;
+    case QAbstractSocket::ConnectedState: QTextStream(stdout) << QString("Client: ConnectedState\n");
+        emit ClientSocketConnected();
+        break;
+    case QAbstractSocket::BoundState: QTextStream(stdout) << QString("Client: BoundState\n");break;
+    case QAbstractSocket::ListeningState: QTextStream(stdout) << QString("Client: ListeningState\n");break;
+    case QAbstractSocket::ClosingState: QTextStream(stdout) << QString("Client: ClosingState\n");break;
+    }
+
+}
+
+void SessionManager::onError(QAbstractSocket::SocketError error)
+{
+//    QTextStream(stdout) << QString("Client: 状态改变\n");
+    // ConnectionRefusedError,
+    // RemoteHostClosedError,
+    // HostNotFoundError,
+    // SocketAccessError,
+    // SocketResourceError,
+    // SocketTimeoutError,                     /* 5 */
+    // DatagramTooLargeError,
+    // NetworkError,
+    // AddressInUseError,
+    // SocketAddressNotAvailableError,
+    // UnsupportedSocketOperationError,        /* 10 */
+    // UnfinishedSocketOperationError,
+    // ProxyAuthenticationRequiredError,
+    // SslHandshakeFailedError,
+    // ProxyConnectionRefusedError,
+    // ProxyConnectionClosedError,             /* 15 */
+    // ProxyConnectionTimeoutError,
+    // ProxyNotFoundError,
+    // ProxyProtocolError,
+    // OperationError,
+    // SslInternalError,                       /* 20 */
+    // SslInvalidUserDataError,
+    // TemporaryError,
 }
 
 void SessionManager::onNewConnectSocket()
@@ -109,4 +171,35 @@ void SessionManager::onHostDisconnected()
     this->_workState = UNCONNECTED;
     emit disconnected();
 }
+
+
+/**
+//void FileTransferManager::onSocketError(QAbstractSocket::SocketError error)
+//{
+//    switch (error) {
+//    case QAbstractSocket::ConnectionRefusedError:
+//        QMessageBox::critical(this, QStringLiteral("错误"), QStringLiteral("%1").arg(m_cSocket->errorString()));
+//        qDebug() << __FUNCTION__ << "QAbstractSocket::ConnectionRefusedError";
+//        break;
+//    case QAbstractSocket::RemoteHostClosedError:
+//        qDebug() << __FUNCTION__ << "QAbstractSocket::RemoteHostClosedError";
+////        ui->plainTextEditLog->appendPlainText(QStringLiteral("文件传输终止！"));
+////        reset();
+//        break;
+//    case QAbstractSocket::HostNotFoundError:
+//        QMessageBox::critical(this, QStringLiteral("错误"), QStringLiteral("%1").arg(m_cSocket->errorString()));
+//        qDebug() << __FUNCTION__ << "QAbstractSocket::HostNotFoundError";
+//        break;
+//    case QAbstractSocket::SocketTimeoutError:
+//        QMessageBox::critical(this, QStringLiteral("错误"), QStringLiteral("%1").arg(m_cSocket->errorString()));
+//        qDebug() << __FUNCTION__ << "QAbstractSocket::SocketTimeoutError";
+//        break;
+//    case QAbstractSocket::AddressInUseError:
+//        qDebug() << __FUNCTION__ << "QAbstractSocket::AddressInUseError";
+//        break;
+//    default:
+//        break;
+//    }
+//}
+*/
 

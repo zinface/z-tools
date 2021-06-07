@@ -1,8 +1,14 @@
 #include "scanworkerpool.h"
 
 ScanWorkerPool::ScanWorkerPool(QObject *parent) : QThread(parent)
+    , taskPoolIsLock(false)
 {
-
+    connect(this, &ScanWorkerPool::onTaskThreadChanged, this, [=] {
+        if (taskPoolIsLock) {
+            taskPoolIsLock = false;
+            taskPoolIsFull.unlock();
+        }
+    });
 }
 
 void ScanWorkerPool::setMaxTaskTogether(int count) {
@@ -25,6 +31,7 @@ void ScanWorkerPool::doStart(){
 void ScanWorkerPool::onTaskQueueItemFinish(ScanWorkerThread *s){
     taskfinishMutex.lock();
     tasks.removeOne(s);
+    s->quit();
     delete s;
     taskfinishMutex.unlock();
     emit onTaskThreadChanged();
@@ -42,6 +49,9 @@ void ScanWorkerPool::run() {
             ScanWorkerThread *localTakeFirst = taskQueue.takeFirst();
             tasks.append(localTakeFirst);
             localTakeFirst->start();
+        }  else {
+            taskPoolIsFull.lock();
+            taskPoolIsLock = true;
         }
     }
     taskMutex.lock();

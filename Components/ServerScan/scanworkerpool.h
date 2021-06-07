@@ -35,6 +35,9 @@ private:
     QQueue<ScanWorkerThread*> taskQueue;
     QList<ScanWorkerThread*> tasks;
 
+    QMutex taskPoolIsFull;
+    bool taskPoolIsLock = false;
+
     // QThread interface
 protected:
     void run();

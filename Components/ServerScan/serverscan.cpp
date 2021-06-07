@@ -38,7 +38,7 @@ ServerScan::ServerScan(QWidget *parent) : QWidget(parent)
     mServerPort->setValidator(new QRegExpValidator(rxPort, this));
 
     pool.setMaxTaskTogether(50);
-    threadNumBox.setRange(1,300);
+    threadNumBox.setRange(1,999);
 
     QList<QHostAddress> localAllAddresses = QNetworkInterface::allAddresses();
 //    localAllAddresses.first();

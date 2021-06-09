@@ -27,6 +27,8 @@ public:
 
     void SettingHost(QString host, int port, SessionManagerWorkType type = SERVER);
     QMap<QString, QTcpSocket*> clients() { return  this->clientMap; }
+
+    void ConnectSocketSignal(QTcpSocket *c);
     QTcpServer* s(){ return this->server; }
     QTcpSocket* c(){ return this->client; }
     QString ra(){ return this->m_remoteAddress; };
@@ -56,7 +58,8 @@ signals:
     /** Server Signals******/
     void clientCountChanged(int count);
     void newConnectSocket(QTcpSocket *c);
-    void newAction(QTcpSocket *c);
+    void newAction(qint8 action, QTcpSocket *c);
+    void serverUnListenError();
 
     /** Client Signals******/
     void connected();
@@ -79,6 +82,7 @@ private:
     int m_remotePort;
 
     SessionManagerWorkState _workState;
+    SessionManagerWorkType _workType;
 };
 
 #endif // FILESESSIONADAPTER_H

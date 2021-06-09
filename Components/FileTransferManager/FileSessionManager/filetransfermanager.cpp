@@ -20,7 +20,7 @@ FileTransferManager::FileTransferManager(QObject *parent) : QObject(parent)
 {
     connect(adapter, &SessionManager::newConnectSocket, this, &FileTransferManager::newConnectSocket);
     connect(adapter, &SessionManager::clientCountChanged, this, &FileTransferManager::clientCountChanged);
-    connect(adapter, &SessionManager::newAction, this, &FileTransferManager::onNewAction);
+    connect(adapter, &SessionManager::newAction, this, &FileTransferManager::onNewAction, Qt::DirectConnection);
 
     connect(adapter, &SessionManager::connected, this, &FileTransferManager::connected);
     connect(adapter, &SessionManager::readRead, this, &FileTransferManager::readRead);
@@ -29,6 +29,8 @@ FileTransferManager::FileTransferManager(QObject *parent) : QObject(parent)
     connect(adapter, &SessionManager::ClientSocketConnected, this,&FileTransferManager::ClientSocketConnected);
     connect(adapter, &SessionManager::ClientSocketConnecting, this,&FileTransferManager::ClientSocketConnecting);
     connect(adapter, &SessionManager::ClientSocketUnConnected, this,&FileTransferManager::ClientSocketUnConnected);
+
+    connect(adapter, &SessionManager::serverUnListenError, this, &FileTransferManager::ServerUnListenError);
 }
 
 FileTransferManager::~FileTransferManager()
@@ -95,10 +97,13 @@ void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString fi
     // Action: UpLoad
     // OP_UPLOAD, remoteSocket, fileName, fileSize, filePath
     FileUploadTask *uploadTask = new FileUploadTask();
-    uploadTask->setTaskParam(FileTransferTask::UPLOAD, c, fileName, fileSize, filePath);
+    if (c == nullptr) {
+        uploadTask->setTaskParam(FileTransferTask::UPLOAD, this->adapter->ra(), this->adapter->rp(), fileName, fileSize, filePath);
+    } else {
+        uploadTask->setTaskParam(FileTransferTask::UPLOAD, c, fileName, fileSize, filePath);
+    }
 
-    FileTransferTask *task = new FileTransferTask;
-    task->setTaskParam(FileTransferTask::UPLOAD);
+    FileTransferTask *task = new FileTransferTask(FileTransferTask::UPLOAD);
 
     connect(task, &FileTransferTask::startUpload, uploadTask, &FileUploadTask::onStartUpload);
     connect(uploadTask, &FileUploadTask::onFinished, task, &FileTransferTask::finishDownload);
@@ -126,15 +131,18 @@ void FileTransferManager::fetchFileListAction()
  * @param filesize
  * @param savePath
  */
-void FileTransferManager::fetchFileAction(const QString filename, qint64 filesize, const QString savePath)
+void FileTransferManager::fetchFileAction(QTcpSocket *c, const QString filename, qint64 filesize, const QString savePath)
 {
     FileDownloadTask *downloadTask = new FileDownloadTask;
-    downloadTask->setTaskParam(FileTransferTask::DOWNLOAD, adapter->ra(), adapter->rp(), filename, filesize, savePath);
+    if (c == nullptr) {
+        downloadTask->setTaskParam(FileTransferTask::DOWNLOAD, adapter->ra(), adapter->rp(), filename, filesize, savePath);
+    } else {
+        downloadTask->setTaskParam(FileTransferTask::DOWNLOAD, c, filename, filesize, savePath);
+    }
 
-    FileTransferTask *task = new FileTransferTask;
-    task->setTaskParam(FileTransferTask::DOWNLOAD);
+    FileTransferTask *task = new FileTransferTask(FileTransferTask::DOWNLOAD);
 
-    connect(task, &FileTransferTask::startDownload, downloadTask, &FileDownloadTask::Connect);
+    connect(task, &FileTransferTask::startDownload, downloadTask, &FileDownloadTask::onStartDownload);
     connect(downloadTask, &FileDownloadTask::onFinished, task, &FileTransferTask::finishDownload);
     connect(downloadTask, &FileDownloadTask::onFinished, downloadTask, &FileDownloadTask::deleteLater);
 
@@ -155,15 +163,60 @@ void FileTransferManager::fetchFileItemInfoAction(const FileItemInfo &fileinfo)
     downloadTask->setTaskParam(FileTransferTask::DOWNLOAD, adapter->ra(), adapter->rp(), fileinfo.fileName, fileinfo.filesize, this->savePath);
     connect(downloadTask, &FileDownloadTask::onTotalWriteBytes, &fileinfo, &FileItemInfo::onTotalWriteBytes);
 
-    FileTransferTask *task = new FileTransferTask();
-    task->setTaskParam(FileTransferTask::DOWNLOAD);
+    FileTransferTask *task = new FileTransferTask(FileTransferTask::DOWNLOAD);
 
-    connect(task, &FileTransferTask::startDownload, downloadTask, &FileDownloadTask::Connect);
+    connect(task, &FileTransferTask::startDownload, downloadTask, &FileDownloadTask::onStartDownload);
     connect(downloadTask, &FileDownloadTask::onFinished, task, &FileTransferTask::finishDownload);
-    connect(downloadTask, &FileDownloadTask::onFinished, downloadTask, &FileDownloadTask::deleteLater);
+//    connect(downloadTask, &FileDownloadTask::onFinished, downloadTask, &FileDownloadTask::deleteLater);
 
     taskManager->addFileTask(task);
     taskManager->doStart();
+}
+
+void FileTransferManager::fetchWorkAction()
+{
+    QDataStream stream(adapter->c());
+    stream.setVersion(QDataStream::Qt_5_0);
+    stream << qint8(S_Work);
+}
+
+void FileTransferManager::broadCaseWorkAction(QTcpSocket *c, QString work)
+{
+    if (c->state() == QAbstractSocket::UnconnectedState) return;
+
+    QDataStream stream(c);
+    stream.setVersion(QDataStream::Qt_5_0);
+    stream << qint8(S_ReplyWork) << work;
+}
+
+/**
+ * 请求上传文件确认
+ * @brief FileTransferManager::fetchPushFileConfirm
+ * @param filename
+ * @param filesize
+ */
+void FileTransferManager::fetchPushFileConfirm(const QString filename, qint64 filesize)
+{
+    QDataStream stream(adapter->c());
+    stream.setVersion(QDataStream::Qt_5_0);
+    stream << qint8(S_Confirm) << filename << filesize;
+}
+
+/**
+ * 响应上传文件确认
+ * @brief FileTransferManager::broadCasePushFileConfirm
+ * @param c
+ * @param filename
+ * @param filesize
+ * @param savePath
+ */
+void FileTransferManager::broadCasePushFileConfirm(QTcpSocket *c, const QString filename, qint64 filesize, const QString savePath)
+{
+    if (c->state() == QAbstractSocket::UnconnectedState) return;
+
+    QDataStream stream(c);
+    stream.setVersion(QDataStream::Qt_5_0);
+    stream << qint8(S_ReplyConfirm) << filename << filesize;
 }
 
 void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString filename)
@@ -198,24 +251,32 @@ void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString fi
     }
 }
 
-void FileTransferManager::onNewAction(QTcpSocket *c)
+void FileTransferManager::onNewAction(qint8 action, QTcpSocket *c)
 {
     c->waitForReadyRead(10);
     QDataStream stream(c);
     stream.setVersion(QDataStream::Qt_5_0);
 
-    qint8 action;
     QString filename;
     QStringList filenames;
     qint64 filesize(0);
+    QString work;
 
-    stream >> action;
+    if (action == -1) {
+        stream >> action;
+    }
 
     switch (action) {
 
     case OP_ALL:
         emit onRemoteFetchFileList(c);
         break;
+
+    case OP_UPLOAD:
+        stream >> filesize >> filename;
+//         QTextStream(stdout) << QString("来自上传文件: %1, 大小: %2\n").arg(filename).arg(filesize);
+        emit onRemotePushFile(c, filename, filesize);
+        return;
 
     case OP_DOWNLOAD:
         stream >> filename;
@@ -236,10 +297,55 @@ void FileTransferManager::onNewAction(QTcpSocket *c)
         stream >> filename;
         emit onRemoteFileClear();
         break;
+
+    case S_Confirm:
+        stream >> filename >> filesize;
+        emit onRemotePushFileConfirm(c, filename, filesize);
+        break;
+
+    case S_ReplyConfirm:
+        stream >> filename >> filesize;
+        emit onReplyPushFileConfirm(filename, filesize);
+    case S_Work:
+        emit onRemoteFetchWork(c);
+        break;
+    case S_ReplyWork:
+        stream >> work;
+        emit onReplyFetchWork(work);
+        break;
     }
 
     while(c->bytesAvailable() > 0) {
-        onNewAction(c);
+        onNewAction(-1, c);
+    }
+}
+
+void FileTransferManager::newConnectSocket(QTcpSocket *c)
+{
+    qint8 action = -1;
+    c->waitForReadyRead();
+//    if (c->bytesAvailable() < sizeof (qint8));
+    if (c->bytesAvailable() >= (qint64)sizeof(qint8)) {
+        QDataStream(c) >> action;
+        switch (action) {
+        case OP_UPLOAD:
+            break;
+        case OP_ALL:
+        case OP_DOWNLOAD:
+        case S_APPEND:
+        case S_DELETE:
+        case S_CLEANR:
+        case S_Confirm:
+        case S_ReplyConfirm:
+        case S_Work:
+        case S_ReplyWork:
+        default:
+            adapter->ConnectSocketSignal(c);
+            break;
+        }
+        onNewAction(action, c);
+    } else {
+        adapter->ConnectSocketSignal(c);
     }
 }
 

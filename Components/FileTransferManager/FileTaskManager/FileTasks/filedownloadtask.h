@@ -10,14 +10,22 @@ class FileDownloadTask : public QObject
 {
     Q_OBJECT
 public:
-    explicit FileDownloadTask(QObject *parent = nullptr);
+    explicit FileDownloadTask(QObject *parent = nullptr, FileTransferTask::TaskRole mode = FileTransferTask::Master);
     ~FileDownloadTask();
+
+    // DOWNLOAD -> UPLOAD
+    // Type, IP, FileName, FileSize, FizeStartSize, FileMD5
+    // Master
     void setTaskParam(FileTransferTask::TaskType t, QString ipAddres, int ipPort, QString fileName, qint64 fileSize, QString fileSavePath);
+    // Slave
+    void setTaskParam(FileTransferTask::TaskType t, QTcpSocket *c, QString fileName, qint64 fileSize, QString fileSavePath);
 
 public slots:
     void onReadyRead();;
+    void onDisConnected();;
     void onConnected();;
     void Connect();;
+    void onStartDownload();
 
 signals:
     void onFinished();
@@ -25,6 +33,7 @@ signals:
 
 private:
     FileTransferTask::TaskType _t;
+    FileTransferTask::TaskRole _m;
     FileTransferTask::TASK_STATUS state;
 
     QString _ipAddress;
@@ -43,6 +52,7 @@ private:
 
 private:
     QTcpSocket *tcp;
+
 };
 
 #endif // FILEDOWNLOADTASK_H

@@ -4,8 +4,14 @@ ScanWorkerPool::ScanWorkerPool(QObject *parent) : QThread(parent)
   ,taskTogetherRuns(5)
   ,currentTaskRunning(false)
   ,waitQueuefinished(false)
+  ,taskPoolIsLock(false)
 {
-
+    connect(this, &ScanWorkerPool::onTaskThreadChanged, this, [=] {
+        if (taskPoolIsLock) {
+            taskPoolIsLock = false;
+            taskPoolIsFull.unlock();
+        }
+    });
 }
 
 void ScanWorkerPool::setMaxTaskTogether(int count) {
@@ -53,6 +59,14 @@ void ScanWorkerPool::run() {
             ScanWorkerThread *localTakeFirst = taskQueue.takeFirst();
             tasks.append(localTakeFirst);
             localTakeFirst->start();
+        } else {
+            taskPoolIsFull.lock();
+            taskPoolIsLock = true;
+            if (this->tasks.count() == 0 && taskPoolIsLock)
+            {
+                taskPoolIsLock = false;
+                taskPoolIsFull.unlock();
+            }
         }
     }
     taskMutex.lock();

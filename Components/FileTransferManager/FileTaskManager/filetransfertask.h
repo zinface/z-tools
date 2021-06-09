@@ -11,15 +11,10 @@ class FileTransferTask : public QThread
 {
     Q_OBJECT
 public:
-    explicit FileTransferTask();
-    ~FileTransferTask();
-
     enum TASK_STATUS {
         NOT_FINISHED = 0,
         FINISHED,
     };
-
-    TASK_STATUS state = NOT_FINISHED;
 
     enum TaskType {
         OTHER = 1,
@@ -27,19 +22,22 @@ public:
         DOWNLOAD,
     };
 
-    void setTaskParam(TaskType t);
+    enum TaskRole {
+        Master,
+        Slave
+    };
 
-    // UPLOAD -> DOWNLOAD
-    // Type, QTcpSocket, FileName, FileSize, FileMD5
-    void setTaskParam(TaskType t, QTcpSocket *c, QString fileName, qint64 fileSize, QString filePath);
-
-    // DOWNLOAD -> UPLOAD
-    // Type, IP, FileName, FileSize, FizeStartSize, FileMD5
-    void setTaskParam(TaskType t, QString ipAddres, int ipPort, QString fileName, qint64 fileSize, QString fileSavePath);
+public:
+    explicit FileTransferTask(TaskType t = OTHER);
+    ~FileTransferTask();
 
     TaskType taskType() {
         return this->_t;
     }
+
+    TASK_STATUS state = NOT_FINISHED;
+
+    static void showProgress(TaskType type, QString ipaddress, int port, QString filename, qint64 filesize, qint64 receiversize);
 
 public slots:
     void onStartUpload();

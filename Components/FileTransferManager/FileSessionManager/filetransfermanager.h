@@ -23,6 +23,10 @@ public:
         S_APPEND,
         S_DELETE,
         S_CLEANR,
+        S_Confirm,
+        S_ReplyConfirm,
+        S_Work,
+        S_ReplyWork
     };
 
     void setManagerTask(QString host, int port, SessionManager::SessionManagerWorkType type = SessionManager::SERVER);
@@ -46,8 +50,17 @@ public:
 
     // Client Actions
     void fetchFileListAction();              // Base Action
-    void fetchFileAction(const QString filename, qint64 filesize, const QString savePath);       // CLI Action
+    void fetchFileAction(QTcpSocket *c, const QString filename, qint64 filesize, const QString savePath);       // CLI Action
     void fetchFileItemInfoAction(const FileItemInfo &fileinfo);  // Donwload
+
+
+    // Master Actions
+    void fetchPushFileConfirm(const QString filename, qint64 filesize); // Base Action
+    void broadCasePushFileConfirm(QTcpSocket *c, const QString filename, qint64 filesize, const QString savePath);  // Upload Confirm
+
+    void fetchWorkAction();
+    void broadCaseWorkAction(QTcpSocket *c, QString work);
+    // Slave Actions
 
 private:
     SessionManager *adapter;
@@ -57,14 +70,20 @@ private:
     QString savePath;
 
 private slots:
-    void onNewAction(QTcpSocket *c);
+    void onNewAction(qint8 action, QTcpSocket *c);
+    void newConnectSocket(QTcpSocket *c);
 
 signals:
     /** Manager Signals******/
     void clientCountChanged(int count);
-    void newConnectSocket(QTcpSocket *c);
     void onRemoteFetchFileList(QTcpSocket *c);
     void onRemoteFetchFile(QTcpSocket *c, QString filename);
+    void onRemotePushFileConfirm(QTcpSocket *c, QString filename, qint64 filesize);
+    void onReplyPushFileConfirm(QString filename, qint64 filesize);
+    void onRemotePushFile(QTcpSocket *c, QString filename, qint64 filesize);
+
+    void onRemoteFetchWork(QTcpSocket *c);
+    void onReplyFetchWork(QString work);
 
     void connected();
     void readRead();
@@ -80,6 +99,7 @@ signals:
     void ClientSocketConnected();
     void ClientSocketConnecting();
     void ClientSocketUnConnected();
+    void ServerUnListenError();
 
 };
 

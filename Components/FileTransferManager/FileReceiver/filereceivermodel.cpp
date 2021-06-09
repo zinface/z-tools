@@ -48,7 +48,7 @@ void FileReceiverModel::appendFile(const QString &filename, qint64 filesize)
     file->setFileDownloadStat(QFile(file->filePath).exists()?QFile(file->filePath).size() == file->filesize?FileItemInfo::DOWNLOADED:FileItemInfo::SIZEWARRING:FileItemInfo::NOT_DOWNLOAD);
 
     connect(file, &FileItemInfo::onBytesChanged, this, &FileReceiverModel::downloadByteChanged);
-    QTextStream(stdout) << filename << ":" << file->filePath << ":" << (QFile(file->filePath).exists()?"DOWNLOADED":"NOT_DOWNLOAD") << "\n";
+//    QTextStream(stdout) << filename << ":" << file->filePath << ":" << (QFile(file->filePath).exists()?"DOWNLOADED":"NOT_DOWNLOAD") << "\n";
     this->files.append(file);
     emit layoutChanged();
 }

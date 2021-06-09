@@ -35,6 +35,8 @@ private:
     QQueue<FileTransferTask *> mTaskQueue;
     QList<FileTransferTask *> mTasks;
 
+    QMutex taskPoolIsFull;
+    bool taskPoolIsLock = false;
 
     // QThread interface
 protected:

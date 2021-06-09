@@ -6,8 +6,14 @@
 FileTransferTaskManager::FileTransferTaskManager(QObject *parent) : QThread(parent)
   , taskTogetherRuns(5)
   , currentTaskRuning(false)
+  , taskPoolIsLock(false)
 {
-
+    connect(this, &FileTransferTaskManager::onTaskThreadChanged, this, [=] {
+        if (taskPoolIsLock) {
+            taskPoolIsLock = false;
+            taskPoolIsFull.unlock();
+        }
+    });
 }
 
 FileTransferTaskManager::~FileTransferTaskManager()
@@ -40,6 +46,8 @@ void FileTransferTaskManager::onTaskQueueItemFinish(FileTransferTask *s)
 {
     taskfinishMutex.lock();
     mTasks.removeOne(s);
+    s->quit();
+    s->wait();
     delete s;
     emit onTaskThreadChanged();
     taskfinishMutex.unlock();
@@ -58,6 +66,14 @@ void FileTransferTaskManager::run()
             FileTransferTask *localTakeFirst = mTaskQueue.takeFirst();
             mTasks.append(localTakeFirst);
             localTakeFirst->start();
+        } else {
+            taskPoolIsFull.lock();
+            taskPoolIsLock = true;
+            if (this->mTasks.count() == 0 && taskPoolIsLock) {
+                taskPoolIsLock = false;
+                taskPoolIsFull.unlock();
+            }
+
         }
     }
     taskMutex.lock();

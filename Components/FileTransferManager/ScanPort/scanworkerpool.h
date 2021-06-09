@@ -5,6 +5,7 @@
 
 #include <QObject>
 #include <QQueue>
+#include <QMutex>
 
 class ScanWorkerPool : public QThread
 {
@@ -34,6 +35,9 @@ private:
     QMutex taskMutex;
     QQueue<ScanWorkerThread*> taskQueue;
     QList<ScanWorkerThread*> tasks;
+
+    QMutex taskPoolIsFull;
+    bool taskPoolIsLock = false;
 
     // QThread interface
 protected:

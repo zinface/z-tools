@@ -10,6 +10,7 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
   ,m_remoteAddress("")
   ,m_remotePort(0)
   ,_workState(UNLISTENED)
+  ,_workType(SERVER)
 {
     connect(server, &QTcpServer::newConnection, this, &SessionManager::onNewConnectSocket);
     connect(server, &QTcpServer::acceptError, this, &SessionManager::onError);
@@ -20,7 +21,6 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
 
     connect(client, &QTcpSocket::stateChanged, this, &SessionManager::onStateChanged);
     connect(client, QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error), this, &SessionManager::onError);
-
 }
 
 SessionManager::~SessionManager()
@@ -33,14 +33,19 @@ SessionManager::~SessionManager()
 
 void SessionManager::SettingHost(QString host, int port, SessionManager::SessionManagerWorkType type)
 {
+    QTextStream(stdout) << QString("Session: 工作状态改变\n");
+    this->_workType = type;
     switch (type) {
     case SessionManager::SERVER:
         _workState = UNLISTENED;
         server->close();
         if (server->listen(QHostAddress::Any, port)) {
             _workState = LISTENED;
+            QTextStream(stdout) << QString("Session: 工作状态Listened\n");
         } else {
             _workState = UNLISTENED;
+            QTextStream(stdout) << QString("Session: 工作状态UnListened\n");
+            emit serverUnListenError();
         }
         break;
     case SessionManager::CLIENT:
@@ -51,6 +56,15 @@ void SessionManager::SettingHost(QString host, int port, SessionManager::Session
         this->m_remotePort = port;
         break;
     }
+}
+
+void SessionManager::ConnectSocketSignal(QTcpSocket *c)
+{
+    clientMap.insert(QString::number(conn_cnt++), c);
+    connect(c, &QTcpSocket::readyRead, this, &SessionManager::onReadyRead);
+    connect(c, &QTcpSocket::disconnected, this, &SessionManager::onDisconnected);
+//    connect(c, &QTcpSocket::disconnected, c, &QObject::deleteLater);
+    emit clientCountChanged(clientMap.count());
 }
 
 SessionManager::SessionManagerWorkState SessionManager::serverState()
@@ -93,7 +107,12 @@ void SessionManager::onStateChanged(QAbstractSocket::SocketState state)
 
 void SessionManager::onError(QAbstractSocket::SocketError error)
 {
-//    QTextStream(stdout) << QString("Client: 状态改变\n");
+    switch (this->_workType) {
+    case SERVER:
+        break;
+    case CLIENT:
+        break;
+    }
     // ConnectionRefusedError,
     // RemoteHostClosedError,
     // HostNotFoundError,
@@ -122,11 +141,6 @@ void SessionManager::onError(QAbstractSocket::SocketError error)
 void SessionManager::onNewConnectSocket()
 {
     QTcpSocket *c = server->nextPendingConnection();
-    clientMap.insert(QString::number(conn_cnt++), c);
-    connect(c, &QTcpSocket::readyRead, this, &SessionManager::onReadyRead);
-    connect(c, &QTcpSocket::disconnected, this, &SessionManager::onDisconnected);
-    connect(c, &QTcpSocket::disconnected, c, &QObject::deleteLater);
-    emit clientCountChanged(clientMap.count());
     emit newConnectSocket(c);
 }
 
@@ -135,7 +149,7 @@ void SessionManager::onReadyRead()
     foreach(QString key, clientMap.keys()) {
         QTcpSocket *localTake = clientMap[key];
         if (localTake->bytesAvailable() >= qint64(sizeof(qint8))) {
-            emit newAction(localTake);
+            emit newAction(-1, localTake);
         }
     }
 }
@@ -161,7 +175,7 @@ void SessionManager::onHostConnected()
 void SessionManager::onHostReadyRead()
 {
     if (client->bytesAvailable() > qint64(sizeof(qint8))) {
-        emit newAction(client);
+        emit newAction(-1, client);
     }
     emit readRead();
 }

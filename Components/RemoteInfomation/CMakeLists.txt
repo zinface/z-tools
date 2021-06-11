@@ -17,6 +17,7 @@ include_directories(
 
 add_subdirectory(LinuxInfomation)
 add_subdirectory(InfomationManager)
+add_subdirectory(InfoCommands)
 
 add_library(${MODULE_NAME}
     remoteinfomation.cpp remoteinfomation.h)

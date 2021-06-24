@@ -25,10 +25,11 @@ void InfomationManager::setManagerTask(QString host, int port, SessionManager::S
     this->_manager_work = type;
 }
 
-void InfomationManager::registerAction(int action)
+void InfomationManager::registerAction(int action, bool raw)
 {
     handle_t t;
     t.id = action;
+    t.israw = raw;
     handles.append(t);
 }
 
@@ -36,6 +37,25 @@ void InfomationManager::registerAction(int action)
 //{
 //    broadCaseAction(c, qint8(e), msg);
 //}
+
+void InfomationManager::broadCaseAction(QTcpSocket *c, qint8 action, qint64 length, QByteArray &data) {
+    if (c == nullptr) {
+        foreach(QString key, adapter.clients().keys()) {
+            QTcpSocket *c = adapter.clients()[key];
+            QDataStream stream(c);
+            stream.setVersion(QDataStream::Qt_5_0);
+            stream << qint8(action) << qint64(length) << data;
+            c->waitForBytesWritten();
+            c->flush();
+        }
+    } else {
+        QDataStream stream(c);
+        stream.setVersion(QDataStream::Qt_5_0);
+        stream << qint8(action) << qint64(length) << data;
+        c->waitForBytesWritten();
+        c->flush();
+    }
+}
 
 void InfomationManager::broadCaseAction(QTcpSocket *c, qint8 action, QString msg)
 {
@@ -45,11 +65,15 @@ void InfomationManager::broadCaseAction(QTcpSocket *c, qint8 action, QString msg
             QDataStream stream(c);
             stream.setVersion(QDataStream::Qt_5_0);
             stream << qint8(action) << msg;
+            c->waitForBytesWritten();
+            c->flush();
         }
     } else {
         QDataStream stream(c);
         stream.setVersion(QDataStream::Qt_5_0);
         stream << qint8(action) << msg;
+        c->waitForBytesWritten();
+        c->flush();
     }
 }
 
@@ -64,6 +88,8 @@ void InfomationManager::broadCaseAction(qint8 e)
     QDataStream stream(adapter.c());
     stream.setVersion(QDataStream::Qt_5_0);
     stream << e;
+    adapter.c()->waitForBytesWritten();
+    adapter.c()->flush();
 }
 
 void InfomationManager::onNewAction(qint8 action, QTcpSocket *c)
@@ -73,20 +99,42 @@ void InfomationManager::onNewAction(qint8 action, QTcpSocket *c)
     stream.setVersion(QDataStream::Qt_5_0);
 
     QString msg;
+    qint64 length;
+//    QByteArray data;
 
     if(action == -1) stream >> action;
 
     if (this->_manager_work == SessionManager::SERVER)
         foreach (handle_t t, handles) {
             if (action == t.id) {
-                emit onRemoteFetch(action, c);
+                if (t.israw) {
+                    stream >> length;
+                    while (c->bytesAvailable() < length) {
+                        c->waitForReadyRead();
+                    }
+                    QByteArray data(length, 0);
+                    stream >> data;
+                    emit onRemoteFetchRaw(action, length, data, c);
+                }
+                else
+                    emit onRemoteFetch(action, c);
             }
         }
     else
         foreach (handle_t t, handles) {
             if (action == t.id) {
-                stream >> msg;
-                emit onReply(action, msg);
+                if (t.israw) {
+                    stream >> length;
+                    while (c->bytesAvailable() < length) {
+                        c->waitForReadyRead();
+                    }
+                    QByteArray data(length, 0);
+                    stream >> data;
+                    emit onReplyRaw(action, length, data);
+                } else {
+                    stream >> msg;
+                    emit onReply(action, msg);
+                }
             }
         }
 }

@@ -10,8 +10,7 @@
 #include <QPushButton>
 #include <QTableWidget>
 #include <QVBoxLayout>
-
-#include <AptUtils/aptutils.h>
+#include <remoteaptmanager.h>
 
 AptManager::AptManager(QWidget *parent) : QWidget(parent)
   ,m_packageCategoryLab(new QLabel("软件包分类:"))
@@ -22,6 +21,11 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
   ,mSearchBtn(new QPushButton("搜索"))
   ,m_packageView(new PackageView)
   ,m_statusBar(new QLabel)
+  ,workhost("localhost")
+  ,workport(8888)
+  ,timer(new QTimer())
+  ,remoteLocal(QString("0"))
+  ,remoteMirrors(QString("0"))
 {
     createAptManager();
     onSearchPackage();
@@ -32,12 +36,42 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     connect(m_packageArchCategory, &QComboBox::currentTextChanged, this, &AptManager::onArchCategoryChange);
 
     setFixedSize(580, 500);
+
+    connect(timer,&QTimer::timeout, this, &AptManager::onTimerout);
+    connect(&manager, &InfomationManager::onReply, this, &AptManager::onReply);
+    connect(&manager, &InfomationManager::onReplyRaw, this, &AptManager::onReplyRaw);
+    connect(&manager, &InfomationManager::connected, this, &AptManager::onConnected);
+    connect(&manager, &InfomationManager::ClientSocketUnConnected, this, &AptManager::onUnConnected);
+
+//    void registerAction(int action = -1, bool raw = false);
+    manager.registerAction(RemoteAptManager::FetchPackageList, true);
+    manager.registerAction(RemoteAptManager::RemoteLocalPackageCount);
+    manager.registerAction(RemoteAptManager::RemoteMirrorsPackageCount);
+}
+
+bool AptManager::setWorkHost(QString host)
+{
+    this->workhost = host;
+    return true;
+}
+
+bool AptManager::setWorkPort(int port)
+{
+    this->workport = port;
+    return true;
+}
+
+bool AptManager::start()
+{
+    manager.setManagerTask(this->workhost, this->workport, SessionManager::CLIENT);
+    this->show();
+    return true;
 }
 
 void AptManager::onSearchPackage()
 {
     onPackageChange();
-    m_packageView->setPackages(mAptUtil.GetPackageList());
+    m_packageView->setPackages(plist);
 }
 
 void AptManager::onPackageChange()
@@ -53,6 +87,71 @@ void AptManager::onCategoryChange()
 void AptManager::onArchCategoryChange()
 {
     emit m_packageView->setArchCategory(m_packageArchCategory->currentData().toInt());
+}
+
+void AptManager::onConnected()
+{
+    manager.broadCaseAction(RemoteAptManager::FetchPackageList);
+    timer->setInterval(1000);
+    timer->start();
+    onTimerout();
+}
+
+void AptManager::onUnConnected()
+{
+    //    exit(0);
+}
+
+void AptManager::onReply(int action, QString msg)
+{
+    if (action == RemoteAptManager::FetchPackageList) {
+//        QTextStream(stdout) << QString("FetchPackageList - %1\n").arg(msg.length());
+//        if (!msg.isEmpty() && msg.contains(";")) {
+//            foreach(QString package, msg.split(";")) {
+//                PackageInfo *info = new PackageInfo;
+//                info->setName(msg);
+//                this->m_packageView->appendPackage(info);
+//                QTextStream(stdout) << QString("%1\n").arg(msg);
+//            }
+//        }
+    } else if (action == RemoteAptManager::Name) {
+
+    } else if (action == RemoteAptManager::Version) {
+
+    } else if (action == RemoteAptManager::Arch) {
+
+    } else if (action == RemoteAptManager::Installed) {
+
+    } else if (action == RemoteAptManager::RemoteLocalPackageCount) {
+        this->remoteLocal = msg;
+        updateStatus();
+    } else if (action == RemoteAptManager::RemoteMirrorsPackageCount) {
+        this->remoteMirrors = msg;
+        updateStatus();
+    }
+}
+
+void AptManager::onReplyRaw(qint8 action, qint64 length, QByteArray &data)
+{
+    if (action == RemoteAptManager::FetchPackageList) {
+        QTextStream(stdout) << QString("FetchPackageList - %1\n").arg(length);
+        QString msg = QString::fromLocal8Bit(data);
+        QTextStream(stdout) << QString("FetchPackageList - %1\n").arg(msg.length());
+        if (!msg.isEmpty() && msg.contains(";")) {
+            foreach(QString package, msg.split(";")) {
+                PackageInfo *info = new PackageInfo;
+                QStringList packageInfo = package.split(":");
+                info->setName(packageInfo[0]);
+                info->setVersion(packageInfo[1]);
+                info->setArchitecture(packageInfo[2]);
+                bool installed = packageInfo[3] == "true"?true:false;
+                info->setInstalled(installed);
+                plist << info;
+//                this->m_packageView->appendPackage(info);
+            }
+        }
+        this->m_packageView->setPackages(plist);
+    }
 }
 //    QApt::PackageList plist = m_backend->availablePackages();
 
@@ -137,7 +236,6 @@ void AptManager::createAptManager()
     searchLayout->addWidget(mSearchBtn, 1,3,1,1);
 
 
-
 //    QHBoxLayout *searchLayout = new QHBoxLayout;
 //    searchLayout->addWidget(mSearchEdit);
 //    searchLayout->addWidget(mSearchBtn);
@@ -162,9 +260,20 @@ void AptManager::createAptManager()
 
     setLayout(mainLayout);
 
+    updateStatus();
+}
+
+void AptManager::updateStatus()
+{
     m_statusBar->setText(QString("本地已安装：%1 镜像源：%2")
-                                     .arg(mAptUtil.GetInstalledPackagesCount())
-                                     .arg(mAptUtil.GetMirrorsPackagesCount()));
+                         .arg(remoteLocal)
+                         .arg(remoteMirrors));
+}
+
+void AptManager::onTimerout()
+{
+    manager.broadCaseAction(RemoteAptManager::RemoteMirrorsPackageCount);
+    manager.broadCaseAction(RemoteAptManager::RemoteLocalPackageCount);
 }
 
 

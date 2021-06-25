@@ -1,12 +1,10 @@
 #ifndef SEARCHPACKAGE_H
 #define SEARCHPACKAGE_H
 
+#include <QTimer>
 #include <QWidget>
-
-#include <QApt/Backend>
-
-#include <AptUtils/aptutils.h>
-//#include <QApt/Transaction>
+#include <infomationmanager.h>
+#include <packageinfo.h>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -25,6 +23,10 @@ class AptManager : public QWidget
     Q_OBJECT
 public:
     explicit AptManager(QWidget *parent = nullptr);
+    bool setWorkHost(QString host);
+    bool setWorkPort(int port);
+
+    bool start();
 
 signals:
 
@@ -33,6 +35,12 @@ public slots:
     void onPackageChange();
     void onCategoryChange();
     void onArchCategoryChange();
+
+    void onConnected();
+    void onUnConnected();
+    void onReply(int action, QString msg);
+    void onReplyRaw(qint8 action, qint64 length, QByteArray &data);
+
 
 private:
     /******* 类别控制 *******/
@@ -55,7 +63,23 @@ private:
 
 private:
     void createAptManager();
-    AptUtils mAptUtil;
+//    AptUtils mAptUtil;
+    InfomationManager manager;
+
+    QString workhost;
+    int workport;
+
+    QTimer *timer;
+
+// RemoteInfo
+private:
+    QString remoteLocal;
+    QString remoteMirrors;
+    QList<PackageInfo*> plist;
+
+private slots:
+    void updateStatus();
+    void onTimerout();
 };
 
 #endif // SEARCHPACKAGE_H

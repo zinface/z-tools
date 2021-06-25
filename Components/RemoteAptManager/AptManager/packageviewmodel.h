@@ -2,7 +2,7 @@
 #define SEARCHVIEWMODEL_H
 
 #include <QAbstractTableModel>
-#include <QApt/Package>
+#include <packageinfo.h>
 
 class PackageViewModel : public QAbstractListModel
 {
@@ -55,7 +55,9 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 public slots:
-    void setPackages(const QApt::PackageList packages);
+    void appendPackage(PackageInfo *package);
+    void setPackages(const QList<PackageInfo*> packages);
+//    void setPackages(const QApt::PackageList packages);
     void updateModel();
 
     void installStatusCategoryChange(int i);
@@ -71,8 +73,10 @@ private:
     QString currentPackage;
 
 private:
-    QApt::PackageList m_data;
-    QApt::PackageList old_data;
+//    QApt::PackageList m_data;
+//    QApt::PackageList old_data;
+    QList<PackageInfo*> old_data;
+    QList<PackageInfo*> m_data;
 
 };
 

@@ -14,3 +14,11 @@ target_link_libraries(PackageInfo Qt5::Core Qt5::Widgets Qt5::Network)
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
     add_subdirectory(AptCommands)
 endif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+
+
+include_directories(
+    AptManager
+)
+
+add_subdirectory(AptManager)
+add_subdirectory(AptWindow)

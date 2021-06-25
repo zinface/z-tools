@@ -3,8 +3,7 @@
 
 #include <QListView>
 #include <QTableView>
-
-#include <QApt/Package>
+#include <packageinfo.h>
 
 class PackageViewModel;
 class PackagesListDelegate;
@@ -16,8 +15,8 @@ public:
     explicit PackageView(QWidget *parent = nullptr);
 
 signals:
-    void appendPackage(const QApt::Package &package);
-    void setPackages(const QApt::PackageList &packages);
+    void appendPackage(PackageInfo *package);
+    void setPackages(const QList<PackageInfo*> packages);
 
     void setInstallCategory(int i);
     void setArchCategory(int i);

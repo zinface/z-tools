@@ -11,7 +11,7 @@ PackageViewModel::PackageViewModel(QObject *parent) : QAbstractListModel (parent
 
 int PackageViewModel::rowCount(const QModelIndex &parent) const
 {
-    return m_data.size();
+    return m_data.count();
 }
 
 QVariant PackageViewModel::data(const QModelIndex &index, int role) const
@@ -20,25 +20,31 @@ QVariant PackageViewModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     int nrow = index.row();
-    QApt::Package *package = m_data.at(nrow);
+    PackageInfo *package = m_data.at(nrow);
 
     switch (role)
     {
         case PackageNameRole:
-            return package->name();
+            return package->getName();
         case PackageVersionRole:
-            return package->version();
+            return package->getVersion();
         case PackageInstalledVersionRole:
-            return package->isInstalled() ? InstalledSameVersion : NotInstalled;
+            return package->getInstalled() ? InstalledSameVersion : NotInstalled;
         case PackageArchitecture:
-            return package->architecture();
+            return package->getArchitecture();
         default:;
     }
 
     return QVariant();
 }
 
-void PackageViewModel::setPackages(const QApt::PackageList packages)
+void PackageViewModel::appendPackage(PackageInfo *package)
+{
+    old_data.append(package);
+    updateModel();
+}
+
+void PackageViewModel::setPackages(const QList<PackageInfo *> packages)
 {
     old_data = packages;
     updateModel();
@@ -47,20 +53,20 @@ void PackageViewModel::setPackages(const QApt::PackageList packages)
 void PackageViewModel::updateModel()
 {
     m_data.clear();
-    QApt::PackageList plist;
+    QList<PackageInfo*> plist;
 
     foreach(auto item, old_data) {
-        if (currentPackage.isEmpty() || QString(item->name()).contains(currentPackage)){
+        if (currentPackage.isEmpty() || QString(item->getName()).contains(currentPackage)){
             switch (currentCategory) {
             case ALL:
                 plist.append(item);
                 break;
             case ONLY_INSTALLER:
-                if (item->isInstalled()) {
+                if (item->getInstalled()) {
                     plist.append(item);
                 };break;
             case ONLY_UNINSTALLER:
-                if (!item->isInstalled()) {
+                if (!item->getInstalled()) {
                     plist.append(item);
                 };break;
             }
@@ -73,15 +79,15 @@ void PackageViewModel::updateModel()
             m_data.append(item);
             break;
         case ONLY_I386:
-            if (item->architecture().compare("i386") == 0) {
+            if (item->getArchitecture().compare("i386") == 0) {
                 m_data.append(item);
             };break;
         case ONLY_AMD64:
-            if (item->architecture().compare("amd64") == 0) {
+            if (item->getArchitecture().compare("amd64") == 0) {
                 m_data.append(item);
             };break;
         case ONLY_ARM64:
-            if (item->architecture().compare("arm64") == 0) {
+            if (item->getArchitecture().compare("arm64") == 0) {
                 m_data.append(item);
             };break;
         }

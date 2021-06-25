@@ -10,3 +10,7 @@ add_library(PackageInfo
     packageinfo.cpp packageinfo.h
 )
 target_link_libraries(PackageInfo Qt5::Core Qt5::Widgets Qt5::Network)
+
+if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+    add_subdirectory(AptCommands)
+endif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")

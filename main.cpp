@@ -4,9 +4,13 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMainWindow>
+#include <QStyleFactory>
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_MACOS
+    qApp->setStyle(QStyleFactory::create("fusion"));
+#endif
     QApplication a(argc, argv);
     a.setApplicationName("z-ToolBox");
     MainWindow wm;

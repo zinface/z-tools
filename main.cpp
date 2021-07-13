@@ -4,9 +4,13 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMainWindow>
+#include <QStyleFactory>
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_MACOS
+    qApp->setStyle(QStyleFactory::create("Fusion"));
+#endif
     QApplication a(argc, argv);
     a.setApplicationName("z-Tools-BaseApkView");
     MainWindow wm;

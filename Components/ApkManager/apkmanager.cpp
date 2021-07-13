@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QGroupBox>
+#include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QProcess>
@@ -19,6 +20,7 @@ ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
   ,m_apkPackage(new QLabel("null"))
   ,currentApkPath(QString(""))
   ,log(new QTextEdit)
+  ,aapt("aapt")
 {
     initUi();
 
@@ -72,15 +74,17 @@ void ApkManager::onChoosedApkFile()
 //        file.copy(QDir::tempPath()+"/"+QFileInfo(file).fileName());
     }
     QProcess process;
+    checkCommandsAapt();
     log->append("working dir: " + QFileInfo(file).dir().path());
     process.setWorkingDirectory(QFileInfo(file).dir().path());
 //    currentApkPath.replace(' ',"\\ ");
 //    process.start("aapt dump badging " + QDir::tempPath()+"/"+QFileInfo(file).fileName());
 //    process.start("aapt dump badging " + currentApkPath);
-    process.start("aapt", QStringList() << "dump" << "badging" << QFileInfo(file).fileName());
+    process.start(aapt.trimmed(), QStringList() << "dump" << "badging" << QFileInfo(file).fileName());
     process.waitForFinished();
     targetPath = QFileInfo(file).dir().path();
     QByteArray stde = process.readAllStandardError();
+
     log->append("exit :" + QString::number(process.exitCode()));
     log->append("..........................");
     log->append(QString::fromLocal8Bit(stde).trimmed());
@@ -121,6 +125,21 @@ void ApkManager::onChoosedApkFile()
         m_apkName->setText(zh);
     } else {
         m_apkName->setText(en);
+    }
+}
+
+void ApkManager::checkCommandsAapt()
+{
+    QProcess process;
+    process.start(QString("which %1").arg(aapt));
+    process.waitForFinished();
+    if (process.exitCode() != 0) {
+        QInputDialog dialog;
+        dialog.setLabelText("指定aapt程序位置");
+        if (dialog.exec() == QDialog::Accepted) {
+            aapt = dialog.textValue();
+            checkCommandsAapt();
+        }
     }
 }
 

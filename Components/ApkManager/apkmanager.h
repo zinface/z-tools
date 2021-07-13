@@ -31,8 +31,13 @@ private:
     QString targetPath;
     void onChoosedApkFile();
 
+    void checkCommandsAapt();
+    QString aapt;
+
 private slots:
     void onApkFileChoose();
+
+
 };
 
 #endif // APKMANAGER_H

@@ -20,6 +20,7 @@ FileReceiverCommand::FileReceiverCommand(QObject *parent) : QObject(parent)
   ,avaliableHostCnt(0)
   ,onlyShowFile(false)
   ,onlyShowWork(false)
+  ,onlyShowWorkTasks(false)
   ,onlySearchHostFiles(false)
   ,onlyDownloadHostFiles(false)
   ,onlyShowFileSize(0)
@@ -30,6 +31,7 @@ FileReceiverCommand::FileReceiverCommand(QObject *parent) : QObject(parent)
     connect(&manager, &FileTransferManager::ClientSocketUnConnected, this, &FileReceiverCommand::onUnConnected);
     connect(&manager, &FileTransferManager::onReplyPushFileConfirm, this, &FileReceiverCommand::onReplyPushFile);
     connect(&manager, &FileTransferManager::onReplyFetchWork, this, &FileReceiverCommand::onReplyWork);
+    connect(&manager, &FileTransferManager::onReplyFetchWorkTasks, this, &FileReceiverCommand::onReplyWorkTasks);
 }
 
 void FileReceiverCommand::setSenderFiles(QStringList &filepaths)
@@ -157,20 +159,20 @@ void FileReceiverCommand::showHostWork()
 {
     QTextStream(stdout) << QString("好家伙, 准备获取主机工作目录.\n");
     this->onlyShowWork = true;
-    timer.setInterval(2000);
+    timer.setInterval(1000);
     connect(&timer, &QTimer::timeout, this, &FileReceiverCommand::finish);
     timer.start();
     start();
 }
 
-void FileReceiverCommand::showWork()
+void FileReceiverCommand::showHostWorkTasks()
 {
-//    if (cnt == 0) goto timeout;
-//    exit(0);
-
-//    timeout:
-//    QTextStream(stdout) << QString("好家伙, 超时未响应.\n");
-//    exit(-1);
+    QTextStream(stdout) << QString("好家伙, 准备获取主机工作任务数据.\n");
+    this->onlyShowWorkTasks = true;
+    timer.setInterval(1000);
+    connect(&timer, &QTimer::timeout, this, &FileReceiverCommand::finish);
+    timer.start();
+    start();
 }
 
 void FileReceiverCommand::searchHostFile()
@@ -199,10 +201,14 @@ void FileReceiverCommand::start()
     manager.setManagerTask(this->workhost, this->workport, SessionManager::CLIENT);
 }
 
+// 工作完成
 void FileReceiverCommand::finish()
 {
+    // 计数器检查
     if (cnt == 0) goto timeout;
+    // 仅下载 -
     if(onlyDownloadHostFiles) return;
+    // 极速触发 - 匹配相似文件完成检查
     if (onlySearchHostFiles) {
         QTextStream(stdout) << QString("好家伙, 己匹配主机文件数量 %1 个.\n").arg(searchCnt);
     }
@@ -222,16 +228,25 @@ void FileReceiverCommand::onUnConnected()
 void FileReceiverCommand::onConnected()
 {
 //    QTextStream(stdout) << QString("好家伙, 连接成功 - 模式%1\n").arg(this->workMode);
+    // 极速触发 --work 显示Cloud目录
     if (onlyShowWork) {
         manager.fetchWorkAction();
         return;
     }
+    // 极速触发 --tasks 查看服务端当前运行任务数
+    if (onlyShowWorkTasks) {
+        manager.fetchWorkTasksAction();
+        return;
+    }
+    // 极速触发 --target <name> 下载指定文件
     if (onlyDownloadHostFiles) {
         manager.fetchFileListAction();
         return;
     }
+    // 触发 - 常规下载
     if (workMode == "Download")
         manager.fetchFileListAction();
+    // 触发 - 上传模式 - 文件上传确认
     else if (workMode == "Upload") {
         foreach(QString filepath, this->files) {
             QFileInfo info(filepath);
@@ -243,43 +258,49 @@ void FileReceiverCommand::onConnected()
 void FileReceiverCommand::onAppendFile(const QString &fileName, qint64 filesize)
 {
     cnt++;
+    // 极速触发 --list 列出文件列表
     if (onlyShowFile) {
         timer.stop();
         onlyShowFileSize += filesize;
-        QTextStream(stdout) << QString("好家伙,确认中: %1\r").arg(cnt%3==0?QString("\\"):cnt%3==1?QString("/"):QString("-"));
+        QTextStream(stdout) << QString("好家伙, 确认中: %1\r").arg(cnt%3==0?QString("\\"):cnt%3==1?QString("/"):QString("-"));
         timer.start();
         return;
     }
+    // 极速触发 --search <name> 匹配相似文件列表
     if (onlySearchHostFiles) {
-        QTextStream(stdout) << QString("好家伙,确认中: %1\r").arg(cnt%3==0?QString("\\"):cnt%3==1?QString("/"):QString("-"));
+        QTextStream(stdout) << QString("好家伙, 确认中: %1\r").arg(cnt%3==0?QString("\\"):cnt%3==1?QString("/"):QString("-"));
         timer.stop();
         foreach(QString file, this->files) {
             if (fileName.contains(file)) {
                 searchCnt++;
-                QTextStream(stdout) << QString("好家伙,发现相似: %1\n").arg(fileName);
+                QTextStream(stdout) << QString("好家伙, 发现相似: %1\n").arg(fileName);
             }
         }
         timer.start();
         return;
     }
+    // 极速触发 --target <name> 下载指定文件
     if (onlyDownloadHostFiles) {
-        QTextStream(stdout) << QString("好家伙,确认中: %1\r").arg(cnt%3==0?QString("\\"):cnt%3==1?QString("/"):QString("-"));
+        QTextStream(stdout) << QString("好家伙, 确认中: %1\r").arg(cnt%3==0?QString("\\"):cnt%3==1?QString("/"):QString("-"));
         timer.stop();
         foreach(QString file, this->files) {
             if (fileName == file) {
-                QTextStream(stdout) << QString("好家伙,确认文件: %1\n").arg(fileName);
+                QTextStream(stdout) << QString("好家伙, 确认文件: %1\n").arg(fileName);
                 manager.fetchFileAction(nullptr, fileName, filesize, this->workdir);
             }
         }
         timer.start();
         return;
     }
-    if (this->workMode == "Upload" || onlyShowWork) return;
+    // 触发拦截 -- 上传/列出文件列表/查看任务情况
+    if (this->workMode == "Upload" || onlyShowWork || onlyShowWorkTasks) return;
+    // 触发拦截 -- 名称尾部不匹配
     if (!this->worksuffix.isEmpty() && !fileName.endsWith(this->worksuffix)) goto _notsuffix;
+    // 触发拦截 -- 文件大小不符合
     if (this->workignoresize<filesize && this->workignoresize != -1) goto _ignore_filesize;
 
-//    QTextStream(stdout) << QString("好家伙,准备下载：%1 - %2 - %3\n").arg(cnt).arg(fileName).arg(filesize);
-    QTextStream(stdout) << QString("好家伙,确认中: %1 - %2\r").arg(cnt%3==0?QString("\\"):cnt%3==1?QString("/"):QString("-")).arg(fileName);
+    QTextStream(stdout) << QString("好家伙, 确认中: %1 - %2\r").arg(cnt%3==0?QString("\\"):cnt%3==1?QString("/"):QString("-")).arg(fileName);
+    // 文件传输管理器下载任务 - 创建下载
     manager.fetchFileAction(nullptr, fileName, filesize, this->workdir);
 
     _ignore_filesize:;
@@ -288,11 +309,12 @@ void FileReceiverCommand::onAppendFile(const QString &fileName, qint64 filesize)
 
 void FileReceiverCommand::onReplyPushFile(QString filename, qint64 filesize)
 {
+    // 本地文件列表
     foreach(QString filepath, this->files) {
         QFileInfo info(filepath);
         if (info.fileName() == filename) {
             cnt++;
-            QTextStream(stdout) << QString("好家伙,确认中: %1 - %2\r").arg(cnt%3==0?QString("\\"):cnt%3==1?QString("/"):QString("-")).arg(filename);
+            QTextStream(stdout) << QString("好家伙, 确认中: %1 - %2\r").arg(cnt%3==0?QString("\\"):cnt%3==1?QString("/"):QString("-")).arg(filename);
             manager.broadCaseAction(nullptr, FileTransferManager::OP_UPLOAD, info.fileName(), info.size(), filepath);
         }
     }
@@ -304,6 +326,12 @@ void FileReceiverCommand::onReplyWork(QString work)
     QTextStream(stdout) << QString("好家伙, 云盘当前工作目录: %1.\n").arg(work);
 }
 
+void FileReceiverCommand::onReplyWorkTasks(QString workTasks)
+{
+    cnt++;
+    QTextStream(stdout) << QString("好家伙, 主机当前工作任务数为: %1.\n").arg(workTasks);
+}
+
 void FileReceiverCommand::scanAvaliableHost(QString host, int port)
 {
     avaliableHostCnt++;
@@ -312,7 +340,7 @@ void FileReceiverCommand::scanAvaliableHost(QString host, int port)
 
 void FileReceiverCommand::onScanThreadChanged()
 {
-    QTextStream(stdout) << QString("好家伙,扫描中: %1 \r").arg(pool->count()%3==0?QString("\\"):pool->count()%3==1?QString("/"):QString("-"));
+    QTextStream(stdout) << QString("好家伙, 扫描中: %1 \r").arg(pool->count()%3==0?QString("\\"):pool->count()%3==1?QString("/"):QString("-"));
 }
 
 void FileReceiverCommand::onScanFinished()

@@ -12,14 +12,36 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
   ,_workState(UNLISTENED)
   ,_workType(SERVER)
 {
-    connect(server, &QTcpServer::newConnection, this, &SessionManager::onNewConnectSocket);
+
+    /** Server 模式 **/
+    // 产生了新的客户端
+    connect(server, &QTcpServer::newConnection, [&]() mutable{
+        QTcpSocket *c = server->nextPendingConnection();
+        emit newConnectSocket(c);
+    });
+    // 模式监听失败
     connect(server, &QTcpServer::acceptError, this, &SessionManager::onError);
 
-    connect(client, &QTcpSocket::connected, this, &SessionManager::onHostConnected);
-    connect(client, &QTcpSocket::readyRead, this, &SessionManager::onHostReadyRead);
-    connect(client, &QTcpSocket::disconnected, this, &SessionManager::onHostDisconnected);
+    /** Client 模式 **/
+    // 已连接到服务器
+    connect(client, &QTcpSocket::connected, [&]{ this->_workState = CONNECTED; emit connected();});
+    // 准备读取数据
+    connect(client, &QTcpSocket::readyRead, [&]{
+        if (client->bytesAvailable() > qint64(sizeof(qint8))) {
+            emit newAction(-1, client);
+        }
+        emit readRead();
+    });
 
+    // 已断开连接
+    connect(client, &QTcpSocket::disconnected, [&]{
+        this->_workState = UNCONNECTED;
+        emit disconnected();
+    });
+
+    // 连接状态发生改变
     connect(client, &QTcpSocket::stateChanged, this, &SessionManager::onStateChanged);
+    // 发生错误
     connect(client, QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error), this, &SessionManager::onError);
 }
 
@@ -67,16 +89,6 @@ void SessionManager::ConnectSocketSignal(QTcpSocket *c)
     emit clientCountChanged(clientMap.count());
 }
 
-SessionManager::SessionManagerWorkState SessionManager::serverState()
-{
-    return _workState;
-}
-
-SessionManager::SessionManagerWorkState SessionManager::clientState()
-{
-    return _workState;
-}
-
 void SessionManager::onStateChanged(QAbstractSocket::SocketState state)
 {
 //    QTextStream(stdout) << QString("Client: 连接状态改变\n");
@@ -113,7 +125,7 @@ void SessionManager::onError(QAbstractSocket::SocketError error)
     case CLIENT:
         break;
     }
-    // ConnectionRefusedError,
+    // ConnectionRefusedError,                  /* 0 */
     // RemoteHostClosedError,
     // HostNotFoundError,
     // SocketAccessError,
@@ -138,12 +150,6 @@ void SessionManager::onError(QAbstractSocket::SocketError error)
     // TemporaryError,
 }
 
-void SessionManager::onNewConnectSocket()
-{
-    QTcpSocket *c = server->nextPendingConnection();
-    emit newConnectSocket(c);
-}
-
 void SessionManager::onReadyRead()
 {
     foreach(QString key, clientMap.keys()) {
@@ -165,27 +171,6 @@ void SessionManager::onDisconnected()
     }
     emit clientCountChanged(clientMap.count());
 }
-
-void SessionManager::onHostConnected()
-{
-    this->_workState = CONNECTED;
-    emit connected();
-}
-
-void SessionManager::onHostReadyRead()
-{
-    if (client->bytesAvailable() > qint64(sizeof(qint8))) {
-        emit newAction(-1, client);
-    }
-    emit readRead();
-}
-
-void SessionManager::onHostDisconnected()
-{
-    this->_workState = UNCONNECTED;
-    emit disconnected();
-}
-
 
 /**
 //void FileTransferManager::onSocketError(QAbstractSocket::SocketError error)

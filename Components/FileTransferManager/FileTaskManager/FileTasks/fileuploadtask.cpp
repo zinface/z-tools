@@ -1,5 +1,7 @@
 #include "fileuploadtask.h"
 
+#include <infomationmanager.h>
+
 /**
  * @brief FileUploadTask::FileUploadTask
  * @param parent
@@ -58,15 +60,16 @@ void FileUploadTask::setTaskParam(FileTransferTask::TaskType t, QString ipAddres
 }
 
 void FileUploadTask::onConnected() {
-//    QTextStream(stdout) << QString("onConnected: %1, %2\n").arg(this->_t).arg(this->_fileName);
-
+    // Master 模式已经连接到服务器，进行请求交互
     QByteArray bytes = _mfile.read(this->_readBlock);
     int bytesLen = bytes.size();
 
+    Package package = Package() << this->_fileSize << this->_fileName;
+
     _mstream.setDevice(this->tcp);
     _mstream.setVersion(QDataStream::Qt_5_0);
+    _mstream << qint8(this->_t) << qint64(package.toByteArray().length()) << package.toByteArray() << this->_fileSize << this->_fileName;
 
-    _mstream <<  qint8(this->_t) << this->_fileSize << this->_fileName << this->_fileSize << this->_fileName;
     if (_mstream.device()->waitForBytesWritten(10)) {
         connect(this->tcp, &QTcpSocket::bytesWritten, this, &FileUploadTask::onWriteBytes);
         _mstream.writeRawData(bytes.constData(), bytesLen);
@@ -75,7 +78,7 @@ void FileUploadTask::onConnected() {
 
 void FileUploadTask::onDisConnected()
 {
-//    QTextStream(stdout) << QString("远程已关闭此连接，可能已完成\n");
+    // 远程已关闭此连接，可能已完成
     disconnect(this->tcp, &QTcpSocket::bytesWritten, this, &FileUploadTask::onWriteBytes);
     emit onFinished();
 }
@@ -89,19 +92,22 @@ void FileUploadTask::onStartUpload()
 {
     bool isopen = this->_mfile.open(QIODevice::ReadOnly);
     if (this->_m == FileTransferTask::Master) goto _MasterMode;
+
+    // 任务排队开始时，如果客户端连接已经关闭，任务结束
+    if (this->tcp->state() == QAbstractSocket::SocketState::UnconnectedState) {
+        emit onFinished();
+        return;
+    }
+
     if (isopen) {
         QByteArray bytes = _mfile.read(this->_readBlock);
         int bytesLen = bytes.size();
-
         _mstream.setDevice(this->tcp);
         _mstream.setVersion(QDataStream::Qt_5_0);
-
         _mstream << qint64(this->_fileSize) << this->_fileName;
         if (_mstream.device()->waitForBytesWritten(100)) {
-            if (this->tcp->state() == QAbstractSocket::SocketState::UnconnectedState) {
-                emit onFinished();
-                return;
-            }
+
+            connect(tcp, &QTcpSocket::disconnected, this, &FileUploadTask::onDisConnected);
             connect(this->tcp, &QTcpSocket::bytesWritten, this, &FileUploadTask::onWriteBytes);
             _mstream.writeRawData(bytes.constData(), bytesLen);
         }
@@ -120,13 +126,12 @@ void FileUploadTask::onWriteBytes(qint64 bytes)
     FileTransferTask::showProgress(this->_t, this->_ipAddress, this->_ipPort, this->_fileName, this->_fileSize, this->_mtotalSize);
     QByteArray array = _mfile.read(_readBlock);
     if (this->_mtotalSize == this->_fileSize) {
-//        QTextStream(stdout) << this->_fileName << QString(", 写入完毕，关闭\n");
+        // 当写入数据达到文件大小时，任务结束
         this->tcp->flush();
         emit onFinished();
     }
     if (array.isEmpty()) {
-//        f = true;
-//        QTextStream(stdout) << this->_fileName << QString(", 无数据可读\n");
+        // 当无法再读取文件数据块时，停止再次发生数据写入函数
         return;
     }
     int size = array.size();

@@ -62,11 +62,13 @@ void FileSenderCommand::start()
 void FileSenderCommand::onClientFetchFileList(QTcpSocket *c)
 {
     if (workMode == "Simple")
+        // 发送原始指定文件
         foreach(QString filepath, this->files) {
             QFileInfo info(filepath);
             manager.broadCaseAction(c, FileTransferManager::S_APPEND, info.fileName(), info.size());
         }
     else if(workMode == "Cloud")
+        // 发送本地最新文件
         foreach(QFileInfo info, QDir(this->workdir).entryInfoList(QDir::Files)) {
             manager.broadCaseAction(c, FileTransferManager::S_APPEND, info.fileName(), info.size());
         }

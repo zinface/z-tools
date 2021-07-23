@@ -21,10 +21,10 @@ public:
     void setTaskParam(FileTransferTask::TaskType t, QTcpSocket *c, QString fileName, qint64 fileSize, QString fileSavePath);
 
 public slots:
-    void onReadyRead();;
-    void onDisConnected();;
-    void onConnected();;
-    void Connect();;
+    void onReadyRead();
+    void onDisConnected();
+    void onConnected();
+    void Connect();
     void onStartDownload();
 
 signals:

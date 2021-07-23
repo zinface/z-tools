@@ -20,9 +20,9 @@ public:
     void setTaskParam(FileTransferTask::TaskType t, QString ipAddres, int ipPort, QString fileName, qint64 fileSize, QString filePath);
 
 public slots:
-    void onConnected();;
-    void onDisConnected();;
-    void Connect();;
+    void onConnected();
+    void onDisConnected();
+    void Connect();
     void onStartUpload();
 
 private slots:

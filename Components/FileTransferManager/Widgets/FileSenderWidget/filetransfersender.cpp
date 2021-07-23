@@ -1,4 +1,4 @@
-#include "fileiteminfo.h"
+
 #include "filetransfersender.h"
 
 #include <QApplication>

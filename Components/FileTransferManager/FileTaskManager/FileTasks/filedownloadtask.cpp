@@ -1,6 +1,7 @@
 #include "filedownloadtask.h"
 
 #include <QFont>
+#include <infomationmanager.h>
 
 /**
  * @brief FileDownloadTask::FileDownloadTask
@@ -101,7 +102,15 @@ void FileDownloadTask::onDisConnected()
 void FileDownloadTask::onConnected() {
     _mstream.setDevice(tcp);
     _mstream.setVersion(QDataStream::Qt_5_0);
-    _mstream << qint8(this->_t) << this->_fileName;
+//    _mstream << qint8(this->_t) << this->_fileName;
+    Package package = Package() << this->_fileName;
+    InfomationManager().broadCaseAction(tcp, this->_t, package.toByteArray().length(), package.toByteArray());
+
+//    Package package = Package() << this->_fileName;
+
+//    _mstream.setDevice(tcp);
+//    _mstream.setVersion(QDataStream::Qt_5_0);
+//    _mstream << qint8(this->_t) << qint64(package.toByteArray().length()) << package.toByteArray();
 }
 
 void FileDownloadTask::Connect() {

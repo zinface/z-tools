@@ -4,8 +4,7 @@
 #include <QFile>
 #include <QTcpSocket>
 #include <QWidget>
-
-#include "fileiteminfo.h"
+#include <../../fileiteminfo.h>
 
 class QComboBox;
 class QLabel;

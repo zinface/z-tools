@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
     QCommandLineOption fetchFileList(QStringList() << "list", "查看服务端提供的文件数量");
     QCommandLineOption scanFileServer(QStringList() << "scan", "扫描/发现: 指定端口服务.");
     QCommandLineOption fetchWorkServer(QStringList() << "work", "查看服务端工作目录.");
+    QCommandLineOption fetchWorkTasks(QStringList() << "tasks", "查看服务端当前运行任务数.");
 
     QCommandLineOption workDownloadTarget(QStringList() << "target", "Client模式指定要下载的目标","file(s)");
     QCommandLineOption workSearchTarget(QStringList() << "search", "Client模式指定要搜索的目标","file(s)");
@@ -69,6 +70,7 @@ int main(int argc, char *argv[])
                       << fetchFileList
                       << scanFileServer
                       << fetchWorkServer
+                      << fetchWorkTasks
                       << workSearchTarget
                       << workDownloadTarget
                       << workThreadNums
@@ -93,6 +95,7 @@ int main(int argc, char *argv[])
     bool l = false;
     bool s = false;
     bool w = false;
+    bool wt = false;
     bool search = false;
     bool target = false;
     FileSenderCommand fileSender(nullptr);
@@ -115,6 +118,7 @@ int main(int argc, char *argv[])
     if (parser.isSet(fetchFileList) && (l=true)) goto _showHost;
     if (parser.isSet(scanFileServer) && (s=true)) goto _scanHost;
     if (parser.isSet(fetchWorkServer) && (w=true)) goto _workHost;
+    if (parser.isSet(fetchWorkTasks) && (wt = true)) goto _workHostTasks;
     if (parser.isSet(workSearchTarget) && (search=true)) goto _workSearchTarget;
     if (parser.isSet(workDownloadTarget) && (target=true)) goto _workDownloadTarget;
 
@@ -316,6 +320,7 @@ int main(int argc, char *argv[])
             _showHost:
             _scanHost:
             _workHost:
+            _workHostTasks:
             if (parser.isSet(workHost)) {
                 QString host = parser.value(workHost);
                 if (host.isEmpty()) goto _nohost;
@@ -338,6 +343,10 @@ int main(int argc, char *argv[])
             }
             if (w) {
                 fileReceiver.showHostWork();
+                app.exec();
+            }
+            if (wt) {
+                fileReceiver.showHostWorkTasks();
                 app.exec();
             }
             if (search) {

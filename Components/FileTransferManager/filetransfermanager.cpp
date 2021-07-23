@@ -6,6 +6,7 @@
 
 #include <QAbstractSocket>
 #include <QApplication>
+#include <QBuffer>
 #include <QGroupBox>
 #include <QMessageBox>
 #include <QTcpServer>
@@ -14,23 +15,30 @@
 #include <QVBoxLayout>
 
 FileTransferManager::FileTransferManager(QObject *parent) : QObject(parent)
-  , adapter(new SessionManager)
+  , adapter(new InfomationManager)
   ,_manager_work(SessionManager::SERVER)
   ,taskManager(new FileTransferTaskManager)
+  ,registedActions(false)
 {
-    connect(adapter, &SessionManager::newConnectSocket, this, &FileTransferManager::newConnectSocket);
-    connect(adapter, &SessionManager::clientCountChanged, this, &FileTransferManager::clientCountChanged);
-    connect(adapter, &SessionManager::newAction, this, &FileTransferManager::onNewAction, Qt::DirectConnection);
+    connect(adapter, &InfomationManager::clientCountChanged, this, &FileTransferManager::clientCountChanged);
 
-    connect(adapter, &SessionManager::connected, this, &FileTransferManager::connected);
-    connect(adapter, &SessionManager::readRead, this, &FileTransferManager::readRead);
-    connect(adapter, &SessionManager::disconnected, this, &FileTransferManager::disconnected);
+    connect(adapter, &InfomationManager::connected, this, &FileTransferManager::connected);
+    connect(adapter, &InfomationManager::disconnected, this, &FileTransferManager::disconnected);
 
-    connect(adapter, &SessionManager::ClientSocketConnected, this,&FileTransferManager::ClientSocketConnected);
-    connect(adapter, &SessionManager::ClientSocketConnecting, this,&FileTransferManager::ClientSocketConnecting);
-    connect(adapter, &SessionManager::ClientSocketUnConnected, this,&FileTransferManager::ClientSocketUnConnected);
+    connect(adapter, &InfomationManager::ClientSocketConnected, this,&FileTransferManager::ClientSocketConnected);
+    connect(adapter, &InfomationManager::ClientSocketConnecting, this,&FileTransferManager::ClientSocketConnecting);
+    connect(adapter, &InfomationManager::ClientSocketUnConnected, this,&FileTransferManager::ClientSocketUnConnected);
 
-    connect(adapter, &SessionManager::serverUnListenError, this, &FileTransferManager::ServerUnListenError);
+//    connect(adapter, &SessionManager::serverUnListenError, this, &FileTransferManager::ServerUnListenError);
+
+    // Server Mode
+    connect(adapter, &InfomationManager::onRemoteFetch, this, &FileTransferManager::onRemoteFetch);
+    connect(adapter, &InfomationManager::onRemoteFetchRaw, this, &FileTransferManager::onRemoteFetchRaw);
+
+
+    // Client Mode
+    connect(adapter, &InfomationManager::onReply, this, &FileTransferManager::onReply);
+    connect(adapter, &InfomationManager::onReplyRaw, this, &FileTransferManager::onReplyRaw);
 }
 
 FileTransferManager::~FileTransferManager()
@@ -38,9 +46,29 @@ FileTransferManager::~FileTransferManager()
 
 }
 
+void FileTransferManager::initActionsRegister(bool rawmode)
+{
+    if (registedActions) return;
+    // 需要注册的事件信息：事件动作，数据模式，生命周期接管过滤
+    adapter->registerAction(OP_ALL, rawmode);
+    adapter->registerAction(OP_UPLOAD, true, true);
+    adapter->registerAction(OP_DOWNLOAD, true, true);
+    adapter->registerAction(S_APPEND, rawmode);
+    adapter->registerAction(S_DELETE, rawmode);
+    adapter->registerAction(S_CLEANR, rawmode);
+    adapter->registerAction(S_Confirm, true);
+    adapter->registerAction(S_ReplyConfirm, rawmode);
+    adapter->registerAction(S_Work, rawmode);
+    adapter->registerAction(S_ReplyWork, rawmode);
+    adapter->registerAction(S_WorkTasks, rawmode);
+    adapter->registerAction(S_ReplyWorkTasks, rawmode);
+    registedActions = true;
+}
+
 void FileTransferManager::setManagerTask(QString host, int port, SessionManager::SessionManagerWorkType type)
 {
-    adapter->SettingHost(host, port, type);
+    initActionsRegister(type == SessionManager::CLIENT);
+    adapter->setManagerMode(host, port, type);
     this->_manager_work = type;
 }
 
@@ -49,24 +77,7 @@ void FileTransferManager::setMaxTaskToggetherRunningCount(int count)
     taskManager->setMaxTaskToggether(count);
 }
 
-bool FileTransferManager::state()
-{
-    if (this->_manager_work == SessionManager::SERVER) {
-        return adapter->serverState() == SessionManager::LISTENED;
-    } else {
-        return adapter->serverState() == SessionManager::CONNECTED;
-    }
-}
-
-bool FileTransferManager::serverState()
-{
-    return this->adapter->serverState() == SessionManager::LISTENED;
-}
-
-bool FileTransferManager::clientState()
-{
-    return this->adapter->serverState();
-}
+int FileTransferManager::getToggetherRunningCount() { return this->taskManager->togetherRunningTaskCount();}
 
 void FileTransferManager::pushFileAppend(QString filename, qint64 filesize)
 {
@@ -119,9 +130,11 @@ void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString fi
  */
 void FileTransferManager::fetchFileListAction()
 {
-    QDataStream stream(adapter->c());
-    stream.setVersion(QDataStream::Qt_5_0);
-    stream << qint8(OP_ALL);
+//    QDataStream stream(adapter->c());
+//    stream.setVersion(QDataStream::Qt_5_0);
+//    stream << qint8(OP_ALL);
+
+    adapter->broadCaseAction(OP_ALL);
 }
 
 /**
@@ -175,18 +188,26 @@ void FileTransferManager::fetchFileItemInfoAction(const FileItemInfo &fileinfo)
 
 void FileTransferManager::fetchWorkAction()
 {
-    QDataStream stream(adapter->c());
-    stream.setVersion(QDataStream::Qt_5_0);
-    stream << qint8(S_Work);
+    adapter->broadCaseAction(S_Work);
 }
 
 void FileTransferManager::broadCaseWorkAction(QTcpSocket *c, QString work)
 {
     if (c->state() == QAbstractSocket::UnconnectedState) return;
 
-    QDataStream stream(c);
-    stream.setVersion(QDataStream::Qt_5_0);
-    stream << qint8(S_ReplyWork) << work;
+    Package package = Package() << work;
+    adapter->broadCaseAction(c, S_ReplyWork, package.toByteArray().length() ,package.toByteArray());
+}
+
+void FileTransferManager::fetchWorkTasksAction()
+{
+    adapter->broadCaseAction(S_WorkTasks);
+}
+
+void FileTransferManager::broadCaseWorkTasksAction(QTcpSocket *c)
+{
+    Package package = Package() << QString::number(taskManager->togetherRunningTaskCount());
+    adapter->broadCaseAction(c, S_ReplyWorkTasks, package.toByteArray().length() ,package.toByteArray());
 }
 
 /**
@@ -197,9 +218,8 @@ void FileTransferManager::broadCaseWorkAction(QTcpSocket *c, QString work)
  */
 void FileTransferManager::fetchPushFileConfirm(const QString filename, qint64 filesize)
 {
-    QDataStream stream(adapter->c());
-    stream.setVersion(QDataStream::Qt_5_0);
-    stream << qint8(S_Confirm) << filename << filesize;
+    Package package = Package() << filename <<filesize;
+    adapter->broadCaseAction(adapter->c(), S_Confirm, package.toByteArray().length() ,package.toByteArray());
 }
 
 /**
@@ -214,138 +234,85 @@ void FileTransferManager::broadCasePushFileConfirm(QTcpSocket *c, const QString 
 {
     if (c->state() == QAbstractSocket::UnconnectedState) return;
 
-    QDataStream stream(c);
-    stream.setVersion(QDataStream::Qt_5_0);
-    stream << qint8(S_ReplyConfirm) << filename << filesize;
+    Package package = Package() << filename <<filesize;
+    adapter->broadCaseAction(c, S_ReplyConfirm, package.toByteArray().length() ,package.toByteArray());
 }
 
 void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString filename)
 {
-    if (c == nullptr) {
-        foreach(QString key, adapter->clients().keys()) {
-            QTcpSocket *c = adapter->clients()[key];
-            QDataStream stream(c);
-            stream.setVersion(QDataStream::Qt_5_0);
-            stream << qint8(e) << filename;
-        }
-    } else {
-        QDataStream stream(c);
-        stream.setVersion(QDataStream::Qt_5_0);
-        stream << qint8(e) << filename;
-    }
+    Package package = Package() << filename;
+    adapter->broadCaseAction(c, e, package.toByteArray().length() ,package.toByteArray());
 }
 
 void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString filename, qint64 filesize)
 {
-    if (c == nullptr) {
-        foreach(QString key, adapter->clients().keys()) {
-            QTcpSocket *c = adapter->clients()[key];
-            QDataStream stream(c);
-            stream.setVersion(QDataStream::Qt_5_0);
-            stream << qint8(e) << filename << filesize;
-        }
-    } else {
-        QDataStream stream(c);
-        stream.setVersion(QDataStream::Qt_5_0);
-        stream << qint8(e) << filename << filesize;
+    Package package = Package() << filename << filesize;
+    adapter->broadCaseAction(c, e, package.toByteArray().length() ,package.toByteArray());
+}
+
+void FileTransferManager::onRemoteFetch(qint8 action, QTcpSocket *c)
+{
+    switch (action) {
+        case OP_ALL: emit onRemoteFetchFileList(c); break;
+        case S_Work: emit onRemoteFetchWork(c); break;
+        case S_WorkTasks: broadCaseWorkTasksAction(c); break;
     }
 }
 
-void FileTransferManager::onNewAction(qint8 action, QTcpSocket *c)
+void FileTransferManager::onRemoteFetchRaw(qint8 action, qint64 length, QByteArray &data, QTcpSocket *c)
 {
-    c->waitForReadyRead(10);
-    QDataStream stream(c);
-    stream.setVersion(QDataStream::Qt_5_0);
-
     QString filename;
-    QStringList filenames;
-    qint64 filesize(0);
+    qint64 filesize = 10000;
     QString work;
 
-    if (action == -1) {
-        stream >> action;
-    }
+    Package package(data);
 
     switch (action) {
-
-    case OP_ALL:
-        emit onRemoteFetchFileList(c);
-        break;
-
-    case OP_UPLOAD:
-        stream >> filesize >> filename;
-//         QTextStream(stdout) << QString("来自上传文件: %1, 大小: %2\n").arg(filename).arg(filesize);
-        emit onRemotePushFile(c, filename, filesize);
-        return;
-
-    case OP_DOWNLOAD:
-        stream >> filename;
-        emit onRemoteFetchFile(c, filename);
-        break;
-
-    case S_APPEND:
-        stream >> filename >> filesize;
-        emit onRemoteFileAppend(filename, filesize);
-        break;
-
-    case S_DELETE:
-        stream >> filename;
-        emit onRemoteFileDelete(filename);
-        break;
-
-    case S_CLEANR:
-        stream >> filename;
-        emit onRemoteFileClear();
-        break;
-
-    case S_Confirm:
-        stream >> filename >> filesize;
-        emit onRemotePushFileConfirm(c, filename, filesize);
-        break;
-
-    case S_ReplyConfirm:
-        stream >> filename >> filesize;
-        emit onReplyPushFileConfirm(filename, filesize);
-    case S_Work:
-        emit onRemoteFetchWork(c);
-        break;
-    case S_ReplyWork:
-        stream >> work;
-        emit onReplyFetchWork(work);
-        break;
-    }
-
-    while(c->bytesAvailable() > 0) {
-        onNewAction(-1, c);
+        case S_Confirm:
+            package >> filename >> filesize;
+            emit onRemotePushFileConfirm(c, filename, filesize); break;
+        case OP_UPLOAD:
+            package >> filesize >> filename;
+            emit onRemotePushFile(c, filename, filesize); break;
+        case OP_DOWNLOAD:
+            package >> filename;
+            emit onRemoteFetchFile(c, filename); break;
     }
 }
 
-void FileTransferManager::newConnectSocket(QTcpSocket *c)
+void FileTransferManager::onReply(qint8 action, QString msg)
 {
-    qint8 action = -1;
-    c->waitForReadyRead();
-//    if (c->bytesAvailable() < sizeof (qint8));
-    if (c->bytesAvailable() >= (qint64)sizeof(qint8)) {
-        QDataStream(c) >> action;
-        switch (action) {
-        case OP_UPLOAD:
-            break;
-        case OP_ALL:
-        case OP_DOWNLOAD:
+
+}
+
+void FileTransferManager::onReplyRaw(qint8 action, qint64 length, QByteArray &data)
+{
+    QString filename;
+    qint64 filesize = 10000;
+    QString work;
+    QString workTasks;
+
+    Package package(data);
+
+    switch (action) {
         case S_APPEND:
+            package >> filename >> filesize;
+            emit onRemoteFileAppend(filename, filesize); break;
         case S_DELETE:
+            package >> filename;
+            emit onRemoteFileDelete(filename); break;
         case S_CLEANR:
-        case S_Confirm:
+            package >> filename;
+            emit onRemoteFileClear(); break;
         case S_ReplyConfirm:
-        case S_Work:
+            package >> filename >> filesize;
+            emit onReplyPushFileConfirm(filename, filesize); break;
         case S_ReplyWork:
-        default:
-            adapter->ConnectSocketSignal(c);
-            break;
-        }
-        onNewAction(action, c);
-    } else {
-        adapter->ConnectSocketSignal(c);
+            package >> work;
+            emit onReplyFetchWork(work); break;
+        case S_ReplyWorkTasks:
+            package >> workTasks;
+            emit onReplyFetchWorkTasks(workTasks); break;
     }
 }
 

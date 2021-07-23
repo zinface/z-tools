@@ -20,6 +20,7 @@ public:
 
     void doStart();
     int count();
+    int togetherRunningTaskCount() { return this->mTasks.count(); }
 
 signals:
     void onTaskThreadChanged();

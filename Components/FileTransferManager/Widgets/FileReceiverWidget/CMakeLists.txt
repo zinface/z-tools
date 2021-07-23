@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
 
-set(MODULE_NAME "FileReceiver")
+set(MODULE_NAME "FileReceiverWidget")
 
 find_package(Qt5Core)
 find_package(Qt5Widgets)
@@ -12,6 +12,10 @@ add_library(${MODULE_NAME}
     filereceiveritemdelegate.cpp filereceiveritemdelegate.h
     filereceivermodel.cpp filereceivermodel.h
     filereceiverview.cpp filereceiverview.h
+
+
+    filetransferrecivermanualhostdialog.cpp filetransferrecivermanualhostdialog.h
+    filetransferreceiver.cpp filetransferreceiver.h
 )
 
-target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets Qt5::Network FileItemInfo)
+target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets Qt5::Network FileItemInfo ScanPort FileTransferManager)

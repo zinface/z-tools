@@ -30,7 +30,8 @@ add_subdirectory(Components)
 
 include_directories(
     src
-    Components/FileTransferManager
+    Components/FileTransferManager/Widgets/FileSenderWidget
+    Components/FileTransferManager/Widgets/FileReceiverWidget
 )
 set(QRC_SOURCES
     "resources/images.qrc"
@@ -46,5 +47,7 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     Qt5::Core Qt5::Widgets Qt5::Network
 
-    FileTransferManager
+    FileSenderWidget FileReceiverWidget
 )
+
+

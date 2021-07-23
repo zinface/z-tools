@@ -12,4 +12,4 @@ add_executable(${MODULE_NAME}
     filesendercommand.cpp filesendercommand.h
     filereceivercommand.cpp filereceivercommand.h)
 
-target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Network FileSessionManager ScanPort)
+target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Network FileTransferManager ScanPort)

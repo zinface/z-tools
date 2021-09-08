@@ -7,6 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+add_compile_options(-std=c++11)
 
 find_package(Qt5Core)
 find_package(Qt5Widgets)

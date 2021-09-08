@@ -5,7 +5,6 @@ set(MODULE_NAME "DesktopGenerater")
 find_package(Qt5Core)
 find_package(Qt5Widgets)
 find_package(Qt5Network)
-find_package(QApt REQUIRED)
 
 add_library(${MODULE_NAME}
     "desktopgenerater.cpp" "desktopgenerater.h"

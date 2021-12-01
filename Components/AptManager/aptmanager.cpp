@@ -32,6 +32,7 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     connect(m_packageArchCategory, &QComboBox::currentTextChanged, this, &AptManager::onArchCategoryChange);
 
     setFixedSize(580, 500);
+    setContentsMargins(0,0,0,0);
 }
 
 void AptManager::onSearchPackage()
@@ -161,6 +162,9 @@ void AptManager::createAptManager()
     mainLayout->addWidget(m_statusBar);
 
     setLayout(mainLayout);
+
+    setTabOrder(mSearchEdit, m_packageArchCategory);
+    setTabOrder(m_packageArchCategory, m_packageCategory);
 
     m_statusBar->setText(QString("本地已安装：%1 镜像源：%2")
                                      .arg(mAptUtil.GetInstalledPackagesCount())

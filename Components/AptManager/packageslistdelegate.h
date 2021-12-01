@@ -23,6 +23,10 @@ public:
 private:
 //    QLabel *pName;
 //    QLabel *pVersion;
+
+    // QAbstractItemDelegate interface
+public:
+    bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) override;
 };
 
 #endif // PACKAGESLISTDELEGATE_H

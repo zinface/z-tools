@@ -3,7 +3,11 @@
 
 #include <QApplication>
 #include <QCheckBox>
+#include <QClipboard>
+#include <QDragEnterEvent>
 #include <QPainter>
+#include <QPainterPath>
+#include <QProcess>
 #include <QPushButton>
 #include <QStyle>
 PackagesListDelegate::PackagesListDelegate(QObject *parent) : QItemDelegate (parent)
@@ -16,6 +20,44 @@ void PackagesListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
     painter->save();
     painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+
+    QPen old = painter->pen();
+
+    // ---------------------
+    QRectF rect;
+    rect.setX(option.rect.x());
+    rect.setY(option.rect.y());
+    rect.setWidth(option.rect.width());
+    rect.setHeight(option.rect.height());
+
+    QPainterPath path;
+    path.moveTo(rect.topRight());
+    path.lineTo(rect.topLeft());
+    path.quadTo(rect.topLeft(), rect.topLeft());
+    path.lineTo(rect.bottomLeft());
+    path.quadTo(rect.bottomLeft(), rect.bottomLeft());
+    path.lineTo(rect.bottomRight());
+    path.quadTo(rect.bottomRight(), rect.bottomRight());
+    path.lineTo(rect.topRight());
+    path.quadTo(rect.topRight(), rect.topRight());
+
+    // 鼠标悬停或者选中时改变背景色
+    if (option.state.testFlag(QStyle::State_MouseOver)) {
+        painter->setPen(QPen(QColor("#e9e9ec")));
+        painter->setBrush(QColor("#e9e9ec"));
+        painter->drawPath(path);
+    }
+
+    // 条目被选中颜色
+    if(option.state.testFlag(QStyle::State_Selected)) {
+        painter->setPen(QPen(QColor("#6791aa")));
+        painter->setBrush(QColor("#6791aa"));
+        painter->drawPath(path);
+        painter->setPen(Qt::white);
+    } else {
+        painter->setPen(old);
+    }
+    // ---------------------
 
 #if 0
     // draw package name
@@ -92,4 +134,27 @@ QSize PackagesListDelegate::sizeHint(const QStyleOptionViewItem &option, const Q
 {
 
     return QItemDelegate::sizeHint(option, index);
+}
+
+bool PackagesListDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+    bool rPaint = false;
+    // 构造一个矩形区域
+    QRect decorationRect = option.rect;
+
+    QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event); // 将事件转换为鼠标事件
+
+    // 判断当前事件是鼠标按钮事件，并且鼠标位置是属于当前矩形范围内，就发送downloadItem信号
+    if (event->type() == QEvent::MouseButtonDblClick && decorationRect.contains(mouseEvent->pos()))
+    {
+        QString name = index.model()->data(index, PackageViewModel::PackageNameRole).toString();
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(QString("pkexec apt install %1 --yes").arg(name));
+//        QProcess install;
+//        install.start(QString("/usr/bin/pkexec apt install %1 --yes").arg(name));
+//        install.waitForFinished();
+        rPaint = true;
+    }
+    // 返回编辑事件
+    return rPaint;
 }

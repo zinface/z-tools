@@ -19,4 +19,6 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
     m_mainLayout->addWidget(m_tabWidget);
     setLayout(m_mainLayout);
     layout()->setSizeConstraint(QLayout::SetFixedSize);
+
+    m_tabWidget->setFocusPolicy(Qt::NoFocus);
 }

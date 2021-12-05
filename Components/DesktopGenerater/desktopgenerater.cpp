@@ -181,12 +181,10 @@ void DesktopGenerater::onGeneraterContent()
            << QString("Type=%1").arg(contentTypeComb->currentText())
            << QString("Exec=%1 %2").arg(contentExec->text()).arg((contentExec->text().trimmed().isEmpty()?"":m_currentParam))
            << QString("Icon=%1").arg(contentIcon->text())
-           << QString("Categories=%1").arg(contentCategoriesComb->currentText());
-    QString s;
-    foreach(const QString str, text){
-        s.append(str + "\n");
-    }
-    s.append("\n# Generated from the DesktopGenerater component of the z-Tools toolkit");
+           << QString("Categories=%1").arg(contentCategoriesComb->currentText())
+           << QString("Keywords=%1").arg(contentKeywords->text());
+    QString s = text.join("\n");
+    s.append("\n\n# Generated from the DesktopGenerater component of the z-Tools toolkit");
     contentText->setText(s);
 }
 
@@ -219,6 +217,8 @@ void DesktopGenerater::initUi()
     entryLayout->addWidget(contentIcon,7,1,1,1);
     entryLayout->addWidget(fileContentCategoriesLabel,8,0,1,1);
     entryLayout->addWidget(contentCategoriesComb,8,1,1,2);
+    entryLayout->addWidget(fileContentKeywordsLabel, 9,0,1,1);
+    entryLayout->addWidget(contentKeywords,9,1,1,2);
     entryLayout->setColumnMinimumWidth(2,170);
 
     QHBoxLayout *execParam = new QHBoxLayout;
@@ -232,7 +232,6 @@ void DesktopGenerater::initUi()
     iconPreview->setSpacing(5);
     iconPreview->setSizeConstraint(QLayout::SetFixedSize);
     entryLayout->addLayout(iconPreview,7,2,1,1);
-
 
     QGroupBox *desktopEntryBox = new QGroupBox("Desktop Entry");
     desktopEntryBox->setLayout(entryLayout);
@@ -297,6 +296,9 @@ void DesktopGenerater::initContentEditeLine()
     contentExec->setPlaceholderText("例如：/usr/bin/desktopGenerater %f");
     contentIcon = new QLineEdit;
     contentIcon->setPlaceholderText("例如：apper");
+
+    contentKeywords = new QLineEdit();
+    contentKeywords->setPlaceholderText("例如：desktop;DesktopGenerater");
 }
 
 void DesktopGenerater::initContentWidgets()
@@ -315,6 +317,7 @@ void DesktopGenerater::initContentWidgets()
     fileContentExecLabel = new QLabel("执行文件选择:");
     fileContentIconLabel = new QLabel("图标文件选择:");
     fileContentCategoriesLabel = new QLabel("程序分类:");
+    fileContentKeywordsLabel = new QLabel("Keywords:");
 
     contentIconPreview = new QLabel;
     contentIconPreview->setFixedSize(32,32);

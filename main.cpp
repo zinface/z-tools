@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName("z-Tools-DesktopGenerater");
+    a.setApplicationName("桌面图标生成器 - v1.0");
     MainWindow wm;
     wm.show();
     QDesktopWidget *desktop = QApplication::desktop();

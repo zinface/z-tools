@@ -77,6 +77,9 @@ void DesktopGenerater::onIconFileChoose()
     m_currentDir = QFileInfo(file).dir().path();
 }
 
+/**
+ * @brief 信号槽-当输入框内容更改时刷新icon图标的显示
+ */
 void DesktopGenerater::onContentIconChanged()
 {
     const auto ratio = qApp->devicePixelRatio();
@@ -99,6 +102,9 @@ void DesktopGenerater::onContentIconChanged()
     }
 }
 
+/**
+ * @brief 信号槽-当文件类型被修改时，改变全局存储状态，并更新对应内容布局
+ */
 void DesktopGenerater::onContentTypeChanged()
 {
     QString current_Type = contentTypeComb->currentText();
@@ -162,6 +168,9 @@ void DesktopGenerater::onSaveAsFile()
     QMessageBox::information(this, "提示", "文件已保存!");
 }
 
+/**
+ * @brief 信号槽-当点击复制到剪贴板时触发
+ */
 void DesktopGenerater::onCopyClipper()
 {
     onGeneraterContent();
@@ -171,15 +180,30 @@ void DesktopGenerater::onCopyClipper()
     QMessageBox::information(this, "提示", "已复制到剪贴板!");
 }
 
+/**
+ * @brief Desktop内容生成与组织函数
+ *
+ * 新增对 Type=Application|Link 的结构处理
+ */
 void DesktopGenerater::onGeneraterContent()
 {
+    //Type=Application|Link 的结构处理
+    QString currentType = contentTypeComb->currentText();
+    QString typeContent;
+    if (currentType == "Application") {
+        // 此处填充第二个%2时需要检查%1不为空，确保处理内容细节
+        typeContent = QString("Exec=%1 %2").arg(contentExec->text()).arg((contentExec->text().trimmed().isEmpty()?"":m_currentParam));
+    } else if (currentType == "Link") {
+        typeContent = QString("URL=%1").arg((contentUrl->text().trimmed()));
+    }//Type=Application|Link 的结构处理
+
     QStringList text;
     text << "[Desktop Entry]"
            << QString("Version=%1").arg(contentVersion->text())
            << QString("Name=%1").arg(contentName->text())
            << QString("Comment=%1").arg(contentComment->text())
            << QString("Type=%1").arg(contentTypeComb->currentText())
-           << QString("Exec=%1 %2").arg(contentExec->text()).arg((contentExec->text().trimmed().isEmpty()?"":m_currentParam))
+           << typeContent
            << QString("Icon=%1").arg(contentIcon->text())
            << QString("Categories=%1").arg(contentCategoriesComb->currentText())
            << QString("Keywords=%1").arg(contentKeywords->text());
@@ -256,7 +280,7 @@ void DesktopGenerater::initTypes()
     contentTypeComb = new QComboBox;
     contentTypeComb->addItem("Application","Application");
     contentTypeComb->addItem("Link","Link");
-    contentTypeComb->addItem("Directory","Directory");
+    contentTypeComb->addItem("Directory(未实现)","Directory");
 
     connect(contentTypeComb, &QComboBox::currentTextChanged, this,&DesktopGenerater::onContentTypeChanged);
 }

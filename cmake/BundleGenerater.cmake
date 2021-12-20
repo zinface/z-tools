@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 set(CPACK_GENERATOR "Bundle")
-set(PART_NAME "FileTransfer")
+set(PART_NAME "FileTransfer - v${PROJECT_VERSION}")
 
 #生成的包的名称。这在macOS Finder中显示为包名。必需的。
 set(CPACK_BUNDLE_NAME "${PROJECT_NAME}")

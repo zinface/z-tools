@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
     QCoreApplication::setApplicationName("FileCommands");
-    QCoreApplication::setApplicationVersion("v1.0");
+    QCoreApplication::setApplicationVersion("v1.1");
 
     // Common Param
     QCommandLineOption workType(QStringList() << "t" << "type", "指定本程序运行模式(默认: Server)", "Server|Client|Any|Daemon", "Server");
@@ -57,6 +57,9 @@ int main(int argc, char *argv[])
     QCommandLineOption workDownloadTarget(QStringList() << "target", "Client模式指定要下载的目标","file(s)");
     QCommandLineOption workSearchTarget(QStringList() << "search", "Client模式指定要搜索的目标","file(s)");
 
+    QCommandLineOption fetchWorkDirectoryTree(QStringList() << "sync-directory", "同步服务端当前工作目录.");
+    QCommandLineOption fetchIgnoreDirectories(QStringList() << "ignore-directories", "同步服务端当前工作目录时忽略的目录.");
+
     QCommandLineParser parser;
     parser.setApplicationDescription("文件传输CLI命令行版.");
     parser.addHelpOption();
@@ -73,6 +76,8 @@ int main(int argc, char *argv[])
                       << fetchWorkTasks
                       << workSearchTarget
                       << workDownloadTarget
+                      << fetchWorkDirectoryTree
+                      << fetchIgnoreDirectories
                       << workThreadNums
                       << workHost
                       << workDownloadSpeed
@@ -96,6 +101,7 @@ int main(int argc, char *argv[])
     bool s = false;
     bool w = false;
     bool wt = false;
+    bool sdt = false;
     bool search = false;
     bool target = false;
     FileSenderCommand fileSender(nullptr);
@@ -121,6 +127,7 @@ int main(int argc, char *argv[])
     if (parser.isSet(fetchWorkTasks) && (wt = true)) goto _workHostTasks;
     if (parser.isSet(workSearchTarget) && (search=true)) goto _workSearchTarget;
     if (parser.isSet(workDownloadTarget) && (target=true)) goto _workDownloadTarget;
+    if (parser.isSet(fetchWorkDirectoryTree) && (sdt=true)) goto _workSyncDirectory;
 
     if (parser.isSet(workMode)) {
         QString localValue = parser.value(workMode);
@@ -242,7 +249,9 @@ int main(int argc, char *argv[])
                 fileReceiver.setWorkMode("Upload");
                 QTextStream(stdout) << QString("好家伙,已指定文件处理模式为: Upload\n");
             }
+
             _workDownloadTarget:
+            _workSyncDirectory:
             if (parser.isSet(workDir)) {
                 QString localdir = parser.value(workDir);
                 if (localdir.isEmpty()) {
@@ -287,6 +296,25 @@ int main(int argc, char *argv[])
                 if (m) QTextStream(stdout) << QString("好家伙,居然没指定任何可发送文件 \n");
             }
 
+            if (parser.isSet(fetchIgnoreDirectories)) {
+                QStringList localPositionalArguments; 
+                localPositionalArguments << parser.value(fetchIgnoreDirectories);
+                localPositionalArguments << parser.positionalArguments(); // 可能会携带空值，需要使用String::isEmpty进行过滤
+                if (!localPositionalArguments.size()) goto _noignoredirectories;
+                QStringList ignores;
+                if (localPositionalArguments.size()) {
+                    foreach(QString path, localPositionalArguments) {
+                        if (!path.isEmpty()) {
+                            ignores << path;
+                            QTextStream(stdout) << QString("过滤目录: %1\n").arg(path); 
+                        }
+                    }
+                    QTextStream(stdout) << QString("好家伙, 设置过滤 %1 个目录.\n").arg(ignores.size());
+                    fileReceiver.setIgnoreDirectories(ignores);
+                }
+            } else {
+            _noignoredirectories:;
+            }
 
             _workSearchTarget:
             if (parser.isSet(workSearchTarget)) {
@@ -419,6 +447,13 @@ int main(int argc, char *argv[])
              _nothreadnums:
                 ;
             }
+
+
+            if (sdt) {
+                fileReceiver.syncWorkDirectoryTree();
+                app.exec();
+            }
+            // ---------------------------------------
 
             // 以Daemon模式运行
             if (parser.isSet(workDaemon)) {

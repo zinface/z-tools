@@ -1,5 +1,6 @@
 #include "filereceivercommand.h"
 
+#include <QDir>
 #include <QFileInfo>
 #include <QNetworkInterface>
 #include <QRegExpValidator>
@@ -23,6 +24,7 @@ FileReceiverCommand::FileReceiverCommand(QObject *parent) : QObject(parent)
   ,onlyShowWorkTasks(false)
   ,onlySearchHostFiles(false)
   ,onlyDownloadHostFiles(false)
+  ,onlySyncWorkDirectory(false)
   ,onlyShowFileSize(0)
 {
     this->manager.setMaxTaskToggetherRunningCount(this->workthreadnums);
@@ -32,6 +34,7 @@ FileReceiverCommand::FileReceiverCommand(QObject *parent) : QObject(parent)
     connect(&manager, &FileTransferManager::onReplyPushFileConfirm, this, &FileReceiverCommand::onReplyPushFile);
     connect(&manager, &FileTransferManager::onReplyFetchWork, this, &FileReceiverCommand::onReplyWork);
     connect(&manager, &FileTransferManager::onReplyFetchWorkTasks, this, &FileReceiverCommand::onReplyWorkTasks);
+    connect(&manager, &FileTransferManager::onReplyFetchDirectoryTree, this, &FileReceiverCommand::onReplyFetchDirectoryTree);
 }
 
 void FileReceiverCommand::setSenderFiles(QStringList &filepaths)
@@ -102,6 +105,11 @@ bool FileReceiverCommand::setWorkDownloadThreadNums(int num)
 
     _failthreadnums:
     return false;
+}
+
+bool FileReceiverCommand::setIgnoreDirectories(QStringList &directories) {
+    this->ignoreDirectories = directories;
+    return true;
 }
 
 void FileReceiverCommand::showHostFiles()
@@ -195,6 +203,13 @@ void FileReceiverCommand::downloadHostFile()
     start();
 }
 
+void FileReceiverCommand::syncWorkDirectoryTree()
+{
+    QTextStream(stdout) << QString("好家伙, 准备同步指定主机工作目录.\n");
+    onlySyncWorkDirectory = true;
+    start();
+}
+
 void FileReceiverCommand::start()
 {
     QTextStream(stdout) << QString("好家伙, 准备连接：%1: %2\n").arg(this->workhost).arg(this->workport);
@@ -241,6 +256,11 @@ void FileReceiverCommand::onConnected()
     // 极速触发 --target <name> 下载指定文件
     if (onlyDownloadHostFiles) {
         manager.fetchFileListAction();
+        return;
+    }
+    // 触发 --sync-directory 同步服务端当前工作目录
+    if (onlySyncWorkDirectory) {
+        manager.fetchDirectoryTreeAction();
         return;
     }
     // 触发 - 常规下载
@@ -330,6 +350,32 @@ void FileReceiverCommand::onReplyWorkTasks(QString workTasks)
 {
     cnt++;
     QTextStream(stdout) << QString("好家伙, 主机当前工作任务数为: %1.\n").arg(workTasks);
+}
+
+void FileReceiverCommand::onReplyFetchDirectoryTree(qint8 ftype, qint64 filesize, QString path)
+{
+    QDir work(this->workdir);
+    foreach(QString ignoreDirectory, ignoreDirectories) {
+        if (path.startsWith(ignoreDirectory)) {
+            return;
+        }
+    }
+    if (ftype == FileTransferManager::FileType::RAWDIR) {
+        // 需要检查相对目录是否存在
+        if (QFileInfo(work.absoluteFilePath(path)).exists()) {
+            QTextStream(stdout) << QString("已存在目录: %1\n").arg(path);
+        } else {
+            // 准备创建目录
+            if (work.mkpath(path)){
+                QTextStream(stdout) << QString("已创建目录: %1\n").arg(path);
+            }
+        }
+    } else {
+        QTextStream(stdout) << QString("文件: %1\n").arg(path);
+        // 准备处理此处的文件信息，
+        QFileInfo temp(QDir(this->workdir).filePath(path));
+        manager.fetchFileAction(nullptr, path, filesize, temp.absolutePath());
+    }
 }
 
 void FileReceiverCommand::scanAvaliableHost(QString host, int port)

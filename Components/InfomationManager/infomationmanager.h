@@ -107,6 +107,13 @@ public:
         buffer = buffer.right(length-vlen-8);
         return *this;
     }
+    Package &operator<<(Package package) {
+        buffer.append(package.toByteArray());
+        return *this;
+    }
+    int size() {
+        return buffer.length();
+    }
 
 private:
     QByteArray buffer;

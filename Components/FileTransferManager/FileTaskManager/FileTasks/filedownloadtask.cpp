@@ -60,7 +60,7 @@ void FileDownloadTask::setTaskParam(FileTransferTask::TaskType t, QTcpSocket *c,
 void FileDownloadTask::onReadyRead() {
     if (0 == _mfileSize && this->tcp->bytesAvailable() > sizeof(qint64)) {
         this->_mstream >> this->_mfileSize >> this->_mfileName;
-        this->_mfile.setFileName(QDir(this->_fileSavePath).absoluteFilePath(_fileName));
+        this->_mfile.setFileName(QDir(this->_fileSavePath).absoluteFilePath(this->_mfileName));
         if (!_mfile.open(QIODevice::WriteOnly)) {
             QTextStream(stdout) << this->_fileName << QString("，WriteOnly 异常退出了\n");
             return;
@@ -102,25 +102,17 @@ void FileDownloadTask::onDisConnected()
 void FileDownloadTask::onConnected() {
     _mstream.setDevice(tcp);
     _mstream.setVersion(QDataStream::Qt_5_0);
-//    _mstream << qint8(this->_t) << this->_fileName;
     Package package = Package() << this->_fileName;
     InfomationManager().broadCaseAction(tcp, this->_t, package.toByteArray().length(), package.toByteArray());
-
-//    Package package = Package() << this->_fileName;
-
-//    _mstream.setDevice(tcp);
-//    _mstream.setVersion(QDataStream::Qt_5_0);
-//    _mstream << qint8(this->_t) << qint64(package.toByteArray().length()) << package.toByteArray();
 }
 
 void FileDownloadTask::Connect() {
     this->tcp->connectToHost(this->_ipAddress, this->_ipPort);
 }
 
-
 void FileDownloadTask::onStartDownload()
 {
-    QFileInfo info(QDir(this->_fileSavePath).absoluteFilePath(this->_fileName));
+    QFileInfo info(QDir(this->_fileSavePath).absoluteFilePath(QFileInfo(this->_fileName).fileName()));
     if (this->_m == FileTransferTask::Master) goto _MasterMode;
     if (!(info.exists() && info.size() == this->_fileSize)) {
         _mstream.setDevice(tcp);

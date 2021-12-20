@@ -32,6 +32,7 @@ void FileSenderCommand::setWorkMode(QString mode)
 void FileSenderCommand::setWorkDir(QString path)
 {
     this->workdir = path;
+    manager.setSavePath(workdir);
 }
 
 bool FileSenderCommand::setWorkPort(int port)
@@ -76,10 +77,12 @@ void FileSenderCommand::onClientFetchFileList(QTcpSocket *c)
 
 void FileSenderCommand::onClientFetchFile(QTcpSocket *c, QString filename)
 {
+    bool finded = false;
     if (workMode == "Simple")
         foreach(QString filepath, this->files) {
             QFileInfo info(filepath);
             if (info.fileName() == filename) {
+                finded = true;
                 QTextStream(stdout) << QString(" -- 下载: %1, size: %2\n").arg(filename).arg(info.size());
                 manager.broadCaseAction(c, FileTransferManager::OP_UPLOAD, info.fileName(), info.size(), filepath);
             }
@@ -87,10 +90,23 @@ void FileSenderCommand::onClientFetchFile(QTcpSocket *c, QString filename)
     else if(workMode == "Cloud")
         foreach(QFileInfo info, QDir(this->workdir).entryInfoList(QDir::Files)) {
             if (info.fileName() == filename) {
+                finded = true;
                 QTextStream(stdout) << QString(" -- 下载: %1, size: %2\n").arg(filename).arg(info.size());
                 manager.broadCaseAction(c, FileTransferManager::OP_UPLOAD, info.fileName(), info.size(), info.absoluteFilePath());
             }
         }
+    if (!finded) {
+        QFileInfo temp(QDir(this->workdir).filePath(filename));
+//        QTextStream(stdout) << QString(" -- 下载: %1, size: %2\n").arg(filename).arg(temp.size());
+        // ./x/y/z.txt
+        if (temp.exists()) {
+            // QString path = temp.absolutePath(); // ./x/y
+            // QString name = temp.fileName(); // z.txt
+            manager.broadCaseAction(c, FileTransferManager::OP_UPLOAD, temp.fileName(), temp.size(), temp.absoluteFilePath());
+        } else {
+            c->close();
+        }
+    }
 }
 
 void FileSenderCommand::onClientPushFileConfirm(QTcpSocket *c, QString filename, qint64 filesize)

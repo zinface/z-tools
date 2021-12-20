@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     qApp->setStyle(QStyleFactory::create("fusion"));
 #endif
     QApplication a(argc, argv);
-    a.setApplicationName("z-Tools-FileTransfer");
+    a.setApplicationName("文件传输(FileTransfer) - v1.1");
     MainWindow wm;
     wm.show();
     QDesktopWidget *desktop = QApplication::desktop();

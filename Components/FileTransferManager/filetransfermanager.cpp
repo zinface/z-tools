@@ -62,6 +62,9 @@ void FileTransferManager::initActionsRegister(bool rawmode)
     adapter->registerAction(S_ReplyWork, rawmode);
     adapter->registerAction(S_WorkTasks, rawmode);
     adapter->registerAction(S_ReplyWorkTasks, rawmode);
+
+    /* DirectoryActions */
+    adapter->registerAction(FetchWorkDirectoryTree, rawmode);
     registedActions = true;
 }
 
@@ -130,11 +133,12 @@ void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString fi
  */
 void FileTransferManager::fetchFileListAction()
 {
-//    QDataStream stream(adapter->c());
-//    stream.setVersion(QDataStream::Qt_5_0);
-//    stream << qint8(OP_ALL);
-
     adapter->broadCaseAction(OP_ALL);
+}
+
+void FileTransferManager::fetchDirectoryTreeAction()
+{
+    adapter->broadCaseAction(FetchWorkDirectoryTree);
 }
 
 /**
@@ -250,19 +254,43 @@ void FileTransferManager::broadCaseAction(QTcpSocket *c, FullEvent e, QString fi
     adapter->broadCaseAction(c, e, package.toByteArray().length() ,package.toByteArray());
 }
 
+Package FileTransferManager::broadCaseWorkDirectoryTree(qint8 action, QTcpSocket *c, QString parent, QString relative)
+{
+    Package package;
+    foreach(QFileInfo info, QDir(parent).entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries)) {
+        QString path = QString("%1/%2").arg(relative).arg(info.fileName());
+        if (info.isDir()) {
+            package << qint8(RAWDIR) << qint64(-1) << path;
+//            adapter->broadCaseAction(c, action, package.toByteArray().length(), package.toByteArray());
+            package <<  broadCaseWorkDirectoryTree(action, c, QDir(parent).absoluteFilePath(info.fileName()), relative+"/"+info.fileName());
+        } else {
+            package << qint8(RAWFILE) << qint64(info.size()) << path;
+//            adapter->broadCaseAction(c, action, package.toByteArray().length(), package.toByteArray());
+        }
+    }
+    return package;
+
+}
+
 void FileTransferManager::onRemoteFetch(qint8 action, QTcpSocket *c)
 {
     switch (action) {
         case OP_ALL: emit onRemoteFetchFileList(c); break;
         case S_Work: emit onRemoteFetchWork(c); break;
         case S_WorkTasks: broadCaseWorkTasksAction(c); break;
+        case FetchWorkDirectoryTree:
+            Package package;
+            package << broadCaseWorkDirectoryTree(action, c, this->savePath, ".");
+            adapter->broadCaseAction(c, action, package.toByteArray().length(), package.toByteArray());
+            QTextStream(stdout) << QString("发送包大小: %1\n").arg(package.size());
+            break;
     }
 }
 
 void FileTransferManager::onRemoteFetchRaw(qint8 action, qint64 length, QByteArray &data, QTcpSocket *c)
 {
     QString filename;
-    qint64 filesize = 10000;
+    qint64 filesize(0);
     QString work;
 
     Package package(data);
@@ -288,9 +316,12 @@ void FileTransferManager::onReply(qint8 action, QString msg)
 void FileTransferManager::onReplyRaw(qint8 action, qint64 length, QByteArray &data)
 {
     QString filename;
-    qint64 filesize = 10000;
+    qint64 filesize(0);
     QString work;
     QString workTasks;
+
+    qint8 ftype;
+    QString path;
 
     Package package(data);
 
@@ -313,6 +344,12 @@ void FileTransferManager::onReplyRaw(qint8 action, qint64 length, QByteArray &da
         case S_ReplyWorkTasks:
             package >> workTasks;
             emit onReplyFetchWorkTasks(workTasks); break;
+        case FetchWorkDirectoryTree:
+            QTextStream(stdout) << QString("接收包大小: %1\n").arg(package.size());
+            while(package.size() > 0) {
+                package >> ftype >> filesize>>  path;
+                emit onReplyFetchDirectoryTree(ftype, filesize, path);
+            }break;
     }
 }
 

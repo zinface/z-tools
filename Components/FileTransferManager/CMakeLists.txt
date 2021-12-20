@@ -17,6 +17,7 @@ include_directories(
 add_subdirectory(ScanPort)
 add_subdirectory(FileTaskManager)
 add_subdirectory(FileCommands)
+add_subdirectory(FileDirectory)
 
 add_subdirectory(Widgets)
 

@@ -21,6 +21,7 @@ public:
     bool setIgnoreFileSize(int size);
     void setDownloadFinishExit(bool _exit);
     bool setWorkDownloadThreadNums(int num);
+    bool setIgnoreDirectories(QStringList &directories);
 
     // 极速触发 --list 列出文件列表
     void showHostFiles();
@@ -40,6 +41,9 @@ public:
     // 极速触发 --target <name> 下载指定文件
     void downloadHostFile();
 
+    // 极速触发 --sync-directory 同步服务端当前工作目录
+    void syncWorkDirectoryTree();
+
     void start();
     void finish();
 
@@ -50,6 +54,8 @@ private slots:
     void onReplyPushFile(QString filename, qint64 filesize);
     void onReplyWork(QString work);
     void onReplyWorkTasks(QString workTasks);
+
+    void onReplyFetchDirectoryTree(qint8 ftype, qint64 filesize, QString path);
 
     // 主机扫描确认
     void scanAvaliableHost(QString host, int port);
@@ -76,6 +82,8 @@ private:
     bool onlyShowWorkTasks;
     bool onlySearchHostFiles;
     bool onlyDownloadHostFiles;
+    bool onlySyncWorkDirectory;
+    QStringList ignoreDirectories;
     qint64 onlyShowFileSize;
     QTimer timer;
 

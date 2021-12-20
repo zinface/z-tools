@@ -111,6 +111,8 @@ void FileUploadTask::onStartUpload()
             connect(this->tcp, &QTcpSocket::bytesWritten, this, &FileUploadTask::onWriteBytes);
             _mstream.writeRawData(bytes.constData(), bytesLen);
         }
+    } else {
+        emit onFinished();
     }
     return;
 

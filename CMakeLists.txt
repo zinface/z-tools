@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
 
-project(z-tools-base-apk-view VERSION 0.1 LANGUAGES CXX)
+project(z-tools-base-apk-view VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -31,7 +31,7 @@ include_directories(
     Components/ApkManager
 )
 set(QRC_SOURCES
-    ""
+    "sources.qrc"
 )
 
 add_executable(${PROJECT_NAME}

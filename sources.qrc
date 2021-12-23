@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/apk.png</file>
+        <file>resources/apk1.png</file>
+        <file>resources/apk3.jpg</file>
+        <file>resources/apk4.jpg</file>
+    </qresource>
+</RCC>

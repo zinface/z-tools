@@ -6,6 +6,11 @@ find_package(Qt5Core)
 find_package(Qt5Widgets)
 find_package(Qt5Network)
 
-add_library(${MODULE_NAME} apkmanager.cpp apkmanager.h)
+aux_source_directory(aapt aapt)
+
+add_library(${MODULE_NAME} 
+    apkmanager.cpp apkmanager.h 
+    apkinfopage.cpp apkinfopage.h
+    ${aapt})
 
 target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets Qt5::Network)

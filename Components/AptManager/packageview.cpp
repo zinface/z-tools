@@ -16,8 +16,16 @@ PackageView::PackageView(QWidget *parent) : QListView(parent)
 //    setAutoScroll(false);
 //    setMouseTracking(true);
 
-    connect(this,&PackageView::setPackages, m_model, &PackageViewModel::setPackages);
-    connect(this,&PackageView::setInstallCategory, m_model, &PackageViewModel::installStatusCategoryChange);
-    connect(this,&PackageView::setArchCategory, m_model, &PackageViewModel::packageArchCategoryChange);
-    connect(this,&PackageView::setPackageName, m_model, &PackageViewModel::packageNameChange);
+    connect(this,&PackageView::setPackages, [=](const QApt::PackageList &packages){
+      m_model->setPackages(packages);
+    });
+    connect(this,&PackageView::setInstallCategory, [=](int i){
+      m_model->installStatusCategoryChange(i);
+    });
+    connect(this,&PackageView::setArchCategory, [=](int i){
+      m_model->packageArchCategoryChange(i);
+    });
+    connect(this,&PackageView::setPackageName, [=](QString text){
+      m_model->packageNameChange(text);
+    });
 }

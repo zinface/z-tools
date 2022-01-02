@@ -20,12 +20,13 @@ class AptUtils : public QObject
 public:
     explicit AptUtils(QObject *parent = nullptr);
 
-
 public:
     // 已经安装数量
     int GetInstalledPackagesCount();
     // 软件源数数量
     int GetMirrorsPackagesCount();
+
+    void reload();
 
     // 所有软件包
     QApt::PackageList GetPackageList();

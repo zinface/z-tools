@@ -11,6 +11,10 @@ AptUtils::AptUtils(QObject *parent)
     m_backend.init();
     m_backend.reloadCache();
     plist.append(m_backend.availablePackages());
+
+    // connect(m_backend, &QApt::Backend::cacheReloadFinished, [=]{
+
+    // });
 }
 
 int AptUtils::GetInstalledPackagesCount()
@@ -25,7 +29,13 @@ int AptUtils::GetMirrorsPackagesCount()
 
 QApt::PackageList AptUtils::GetPackageList()
 {
-    return plist;
+    return m_backend.availablePackages();
 }
 
+void AptUtils::reload(){
+    if (m_backend.reloadCache()) {
+        plist.clear();
+        plist.append(m_backend.availablePackages());
+    }
+}
 

@@ -69,6 +69,7 @@ private:
     int currentArch;
     int currentCategory;
     QString currentPackage;
+    QStringList currentPackages;
 
 private:
     QApt::PackageList m_data;

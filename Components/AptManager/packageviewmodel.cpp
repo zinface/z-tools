@@ -50,7 +50,19 @@ void PackageViewModel::updateModel()
     QApt::PackageList plist;
 
     foreach(auto item, old_data) {
-        if (currentPackage.isEmpty() || QString(item->name()).contains(currentPackage)){
+        
+        bool contained = true;
+        for (auto &sep : currentPackages)
+        {
+            if (! item->name().contains(sep)) {
+                contained = false;
+                goto exp;
+            }
+        }
+
+        exp:
+
+        if (currentPackage.isEmpty() || contained ){
             switch (currentCategory) {
             case ALL:
                 plist.append(item);
@@ -105,5 +117,6 @@ void PackageViewModel::packageArchCategoryChange(int i)
 void PackageViewModel::packageNameChange(QString text)
 {
     currentPackage = text;
+    currentPackages = currentPackage.split(" ");
     updateModel();
 }

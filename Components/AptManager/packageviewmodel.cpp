@@ -1,6 +1,7 @@
 #include "packageviewmodel.h"
 
 #include <QDebug>
+#include <qapt/package.h>
 
 PackageViewModel::PackageViewModel(QObject *parent) : QAbstractListModel (parent)
   ,currentArch(ANY_ARCH)
@@ -29,7 +30,7 @@ QVariant PackageViewModel::data(const QModelIndex &index, int role) const
         case PackageVersionRole:
             return package->version();
         case PackageInstalledVersionRole:
-            return package->isInstalled() ? InstalledSameVersion : NotInstalled;
+            return package->isInstalled() ? (Installed && package->state() & QApt::Package::State::Upgradeable) ? Upgradeable : Installed : NotInstalled;
         case PackageArchitecture:
             return package->architecture();
         default:;
@@ -73,6 +74,10 @@ void PackageViewModel::updateModel()
                 };break;
             case ONLY_UNINSTALLER:
                 if (!item->isInstalled()) {
+                    plist.append(item);
+                };break;
+            case ONLY_UPGRADLEABLE:
+                if (item->state() & QApt::Package::State::Upgradeable) {
                     plist.append(item);
                 };break;
             }

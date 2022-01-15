@@ -116,13 +116,18 @@ void PackagesListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     checkBoxOption.rect = checkbox_rect;
     checkBoxOption.state |= QStyle::State_Enabled;
 
-    if(install_stat == PackageViewModel::NotInstalled)
-    {
-        checkBoxOption.text = "未安装";
-        checkBoxOption.state |= QStyle::State_Off;
-    } else {
-        checkBoxOption.text = "已安装";
-        checkBoxOption.state |= QStyle::State_On;
+    switch (install_stat) {
+        case PackageViewModel::NotInstalled:
+            checkBoxOption.text = "未安装";
+            checkBoxOption.state |= QStyle::State_Off;
+            break;
+        case PackageViewModel::Installed:
+            checkBoxOption.text = "已安装";
+            checkBoxOption.state |= QStyle::State_On;
+            break;
+        case PackageViewModel::Upgradeable:
+            checkBoxOption.text = "可更新";
+            checkBoxOption.state |= QStyle::State_NoChange;
     }
 
     QApplication::style()->drawControl(QStyle::CE_CheckBox, &checkBoxOption, painter);

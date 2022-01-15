@@ -3,27 +3,19 @@
 
 #include <QApt/Backend>
 
-
-//namespace QApt {
-//    class Cache;
-//    class Config;
-//    class DebFile;
-//    class Transaction;
-
-//    class Backend;
-//    class Package;
-//}
-
 class AptUtils : public QObject
 {
     Q_OBJECT
 public:
     explicit AptUtils(QObject *parent = nullptr);
+    ~AptUtils();
 
 public:
     // 已经安装数量
     int GetInstalledPackagesCount();
-    // 软件源数数量
+    // 可更新数量
+    int GetUpgradablePackagesCount();
+    // 软件源可用数量
     int GetMirrorsPackagesCount();
 
     void reload();
@@ -31,8 +23,10 @@ public:
     // 所有软件包
     QApt::PackageList GetPackageList();
 
+signals:
+    void packageChange();
+
 private:
-    QApt::PackageList plist;
     QApt::Backend m_backend;
 };
 

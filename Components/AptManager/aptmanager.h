@@ -28,6 +28,12 @@ private:
     QLabel *m_statusBar;
 
     AptUtils mAptUtil;
+
+signals:
+    void packageChange(PackageView *m_packageView);
+
+public slots:
+    void onPackageChange(PackageView *m_packageView);
 };
 
 #endif // SEARCHPACKAGE_H

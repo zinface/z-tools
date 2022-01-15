@@ -31,9 +31,10 @@ public:
     enum PackageInstallStatus
     {
         NotInstalled,
-        InstalledSameVersion,
-        InstalledEarlierVersion,
-        InstalledLaterVersion,
+        Installed,
+        Upgradeable,
+        // InstalledEarlierVersion,
+        // InstalledLaterVersion,
     };
 
     /***** 架构变量 *****/
@@ -49,6 +50,7 @@ public:
         ALL,
         ONLY_INSTALLER,
         ONLY_UNINSTALLER,
+        ONLY_UPGRADLEABLE,
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;

@@ -13,7 +13,12 @@
 #include <QTimer>
 
 #include <AptUtils/aptutils.h>
+#include <qnamespace.h>
+#include <qobject.h>
+#include <qobjectdefs.h>
 #include <qwindowdefs.h>
+
+#include <QThread>
 
 AptManager::AptManager(QWidget *parent) : QWidget(parent)
   ,m_statusBar(new QLabel)
@@ -32,6 +37,7 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     packageInstalledCategory->addItem("全部", PackageViewModel::ALL);
     packageInstalledCategory->addItem("已安装", PackageViewModel::ONLY_INSTALLER);
     packageInstalledCategory->addItem("未安装 ", PackageViewModel::ONLY_UNINSTALLER);
+    packageInstalledCategory->addItem("可更新", PackageViewModel::ONLY_UPGRADLEABLE);
 
 
     /******** 搜索输入框 和 搜索按钮 ******/
@@ -73,8 +79,9 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     setTabOrder(packageSearchEdit, m_packageArchCategory);
     setTabOrder(m_packageArchCategory, packageInstalledCategory);
 
-    m_statusBar->setText(QString("本地已安装：%1 镜像源：%2")
+    m_statusBar->setText(QString("本地已安装: %1 可更新: %2 镜像源: %3")
                                      .arg(mAptUtil.GetInstalledPackagesCount())
+                                     .arg(mAptUtil.GetUpgradablePackagesCount())
                                      .arg(mAptUtil.GetMirrorsPackagesCount()));
 
     
@@ -95,27 +102,40 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
         emit m_packageView->setPackageName(packageSearchEdit->text());
     });
 
-
     setFixedSize(580, 500);
     setContentsMargins(0,0,0,0);
-    QTimer *timer = new QTimer(this);
-    timer->setInterval(100);
-    timer->start();
-    connect(timer, &QTimer::timeout, [=]{
-        timer->stop();
-        timer->deleteLater();
-        m_packageView->setPackages(mAptUtil.GetPackageList());
-    });
+    
+    m_packageView->setPackages(mAptUtil.GetPackageList());
+    AptUtils *hAptUtil = new AptUtils;
 
-    QTimer *autoUpdateTimer = new QTimer(this);
-    autoUpdateTimer->setInterval(3000);
-    autoUpdateTimer->start();
-    connect(autoUpdateTimer, &QTimer::timeout, [=]{
-        mAptUtil.reload();
-        m_packageView->setPackages(mAptUtil.GetPackageList());
-    });
+    connect(this, &AptManager::packageChange, this, &AptManager::onPackageChange);   
+    // 使用一个线程来检测是否有最新数据
+    QThread *thread = new QThread(this);
+    connect(thread, &QThread::started, [=]{
+        QTimer *timer = new QTimer(this);
+        timer->setInterval(500);
+        timer->start();
+        connect(timer, &QTimer::timeout, [=]{
+            timer->stop();
+            
+            QTextStream(stdout) << "Check!\n";
+                hAptUtil->reload();
+                if (hAptUtil->GetInstalledPackagesCount() != mAptUtil.GetInstalledPackagesCount()) {
+                    emit packageChange(m_packageView);
+                }
+            QTextStream(stdout) << "Finish!\n";
 
+            timer->start();
+        });
+    });
+    thread->start();
 }
+
+void AptManager::onPackageChange(PackageView *m_packageView) {
+    mAptUtil.reload();
+    m_packageView->setPackages(mAptUtil.GetPackageList());
+};
+
 
 //    QApt::PackageList plist = m_backend->availablePackages();
 

@@ -24,7 +24,8 @@ ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent)
 
     m_apkIcon->setText("icon");
     m_apkIcon->setFixedSize(64,64);
-    m_apkPackage->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
+    m_apkName->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
+    m_apkPackage->setAlignment(Qt::AlignCenter | Qt::AlignLeft);
     m_apkVersion->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     m_apkDescription->setWordWrap(true);
     // m_logText.set
@@ -38,7 +39,7 @@ ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent)
     QLabel *apkPackage = new QLabel;
     // apkPackage;
     apkPackage->setText("应用包名:");
-    apkPackage->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
+    apkPackage->setAlignment(Qt::AlignCenter | Qt::AlignLeft);
 
     QLabel *apkVersion = new QLabel;
     // apkVersion;

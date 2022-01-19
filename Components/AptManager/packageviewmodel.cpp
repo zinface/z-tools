@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <qapt/package.h>
 
+#include <QTextStream>
+
 PackageViewModel::PackageViewModel(QObject *parent) : QAbstractListModel (parent)
   ,currentArch(ANY_ARCH)
   ,currentCategory(ALL)
@@ -37,6 +39,10 @@ QVariant PackageViewModel::data(const QModelIndex &index, int role) const
     }
 
     return QVariant();
+}
+
+QApt::Package* PackageViewModel::package(const int index) {
+    return m_data.at(index);
 }
 
 void PackageViewModel::setPackages(const QApt::PackageList packages)

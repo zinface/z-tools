@@ -149,6 +149,9 @@ bool PackagesListDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
 
     QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event); // 将事件转换为鼠标事件
 
+    // mouseEvent->MouseButtonPress
+    emit currentPackageIndexChanged(index.row());
+
     // 判断当前事件是鼠标按钮事件，并且鼠标位置是属于当前矩形范围内，就发送downloadItem信号
     if (event->type() == QEvent::MouseButtonDblClick && decorationRect.contains(mouseEvent->pos()))
     {

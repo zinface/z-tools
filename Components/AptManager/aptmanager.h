@@ -31,6 +31,7 @@ private:
 
 signals:
     void packageChange(PackageView *m_packageView);
+    
 
 public slots:
     void onPackageChange(PackageView *m_packageView);

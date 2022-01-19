@@ -3,6 +3,7 @@
 #include "packageviewmodel.h"
 
 #include <QHeaderView>
+#include <qobjectdefs.h>
 
 PackageView::PackageView(QWidget *parent) : QListView(parent)
   ,m_model(new PackageViewModel)
@@ -27,5 +28,9 @@ PackageView::PackageView(QWidget *parent) : QListView(parent)
     });
     connect(this,&PackageView::setPackageName, [=](QString text){
       m_model->packageNameChange(text);
+    });
+    connect(m_packagesListDelegate, &PackagesListDelegate::currentPackageIndexChanged, [=](int index){
+      // m_model->data(index);
+      emit currentPackageChanged(m_model->package(index));
     });
 }

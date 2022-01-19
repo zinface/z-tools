@@ -56,6 +56,8 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
+    QApt::Package* package(const int index);
+
 public slots:
     void setPackages(const QApt::PackageList packages);
     void updateModel();

@@ -23,6 +23,8 @@ signals:
     void setArchCategory(int i);
     void setPackageName(QString text);
 
+    void currentPackageChanged(QApt::Package *package);
+
 private:
     PackageViewModel *m_model;
     PackagesListDelegate *m_packagesListDelegate;

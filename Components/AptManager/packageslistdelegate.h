@@ -13,6 +13,7 @@ public:
     explicit PackagesListDelegate(QObject *parent = nullptr);
 
 signals:
+    int currentPackageIndexChanged(int);
 
 public slots:
     // QAbstractItemDelegate interface

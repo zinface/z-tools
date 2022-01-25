@@ -61,7 +61,7 @@ void PackageViewModel::updateModel()
         bool contained = true;
         for (auto &sep : currentPackages)
         {
-            if (! item->name().contains(sep)) {
+            if (! QString(item->name()).contains(sep)) {
                 contained = false;
                 goto exp;
             }

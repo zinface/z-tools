@@ -216,7 +216,12 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
 
     connect(m_packageView, &PackageView::currentPackageChanged, [=](QApt::Package *_package){
         package->setText(_package->name());
-        version->setText(_package->version());
+        
+        if (_package->isInUpdatePhase()) {
+            version->setText(QString("%1 --> %2").arg(_package->version()).arg(_package->availableVersion()));
+        } else {
+            version->setText(_package->version());
+        }
         priority->setText(_package->priority());
         section->setText(_package->section());
         source->setText(_package->sourcePackage());

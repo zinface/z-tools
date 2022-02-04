@@ -51,13 +51,21 @@ void PackageViewModel::setPackages(const QApt::PackageList packages)
     updateModel();
 }
 
+/**
+ * @brief  模型视图绑定数据更新
+ * @note   这个部分有比较复杂的条件与数据过滤的逻辑关系
+ * @retval None
+ */
 void PackageViewModel::updateModel()
 {
     m_data.clear();
     QApt::PackageList plist;
 
+    // 此处永远将原有数据集看做旧数据 old_data
+    // 将所有符合条件的数据加入到模型用于渲染
     foreach(auto item, old_data) {
         
+        // 此处判断为否符合过滤条件，如果不够满足条件，将标记为不包含到模型中用于显示 (conteined = false)
         bool contained = true;
         for (auto &sep : currentPackages)
         {

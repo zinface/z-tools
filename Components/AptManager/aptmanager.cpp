@@ -14,6 +14,7 @@
 
 #include <AptUtils/aptutils.h>
 #include <qboxlayout.h>
+#include <qcombobox.h>
 #include <qframe.h>
 #include <QScrollArea>
 #include <qnamespace.h>
@@ -58,11 +59,26 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     packageInstalledCategory->addItem("可更新", PackageViewModel::ONLY_UPGRADLEABLE);
 
 
+    /******* 搜索类型 *******/
+    QLabel *packageSearchTypeLabel = new QLabel("搜索词类型:");
+    QComboBox *packageSearchCombo = new QComboBox(this);
+    packageSearchCombo->addItem("软件包名称",0);
+    packageSearchCombo->addItem("软件包简介",1);
+
+
     /******** 搜索输入框 和 搜索按钮 ******/
     QLabel *packageSearchLabel = new QLabel("软件包名称:", this);
     QLineEdit *packageSearchEdit = new QLineEdit(this);
     QPushButton *packageSearchButton = new QPushButton("搜索", this);
 
+
+    connect(packageSearchCombo, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index){
+        if (index == 0) {
+            packageSearchLabel->setText("软件包名称:");
+        } else {
+            packageSearchLabel->setText(QString("%1:").arg(packageSearchCombo->currentText()));
+        }
+    });
 
     /******* 搜索控制框布局 ******/
     QGridLayout *searchControlLayout = new QGridLayout;
@@ -71,9 +87,13 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     searchControlLayout->addWidget(packageCategoryLabel, 0,0,1,1);
     searchControlLayout->addWidget(m_packageArchCategory, 0,1,1,1);
     searchControlLayout->addWidget(packageInstalledCategory, 0,2,1,2);
-    searchControlLayout->addWidget(packageSearchLabel, 1,0,1,1);
-    searchControlLayout->addWidget(packageSearchEdit, 1,1,1,2);
-    searchControlLayout->addWidget(packageSearchButton, 1,3,1,1);
+    
+    searchControlLayout->addWidget(packageSearchTypeLabel, 1, 0, 1, 1);
+    searchControlLayout->addWidget(packageSearchCombo, 1, 1, 1, 3);
+
+    searchControlLayout->addWidget(packageSearchLabel, 2,0,1,1);
+    searchControlLayout->addWidget(packageSearchEdit, 2,1,1,2);
+    searchControlLayout->addWidget(packageSearchButton, 2,3,1,1);
 
     QGroupBox *searchControlBox = new QGroupBox("Search Package");
     searchControlBox->setLayout(searchControlLayout);
@@ -188,7 +208,8 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     setContentsMargins(0,0,0,0);
 
 
-    setTabOrder(packageSearchEdit, m_packageArchCategory);
+    setTabOrder(packageSearchEdit, packageSearchCombo);
+    setTabOrder(packageSearchCombo, m_packageArchCategory);
     setTabOrder(m_packageArchCategory, packageInstalledCategory);
 
     m_statusBar->setText(QString("本地已安装: %1 可更新: %2 镜像源: %3")
@@ -207,11 +228,20 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     });
     // 处理实时搜索
     connect(packageSearchEdit, static_cast<void (QLineEdit::*)(const QString &)>(&QLineEdit::textChanged), [=](const QString &text){
-        emit m_packageView->setPackageName(text);
+        if (packageSearchCombo->currentIndex() == 0) {
+            emit m_packageView->setPackageName(text);
+        } else {
+            // emit m_packageView->setPackageDescription(text);
+        }
     });
     // 处理点击按钮
     connect(packageSearchButton, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](bool checked){
-        emit m_packageView->setPackageName(packageSearchEdit->text());
+        // emit m_packageView->setPackageName(packageSearchEdit->text());
+        if (packageSearchCombo->currentIndex() == 0) {
+            emit m_packageView->setPackageName(packageSearchEdit->text());
+        } else {
+            emit m_packageView->setPackageDescription(packageSearchEdit->text());
+        }
     });
 
     connect(m_packageView, &PackageView::currentPackageChanged, [=](QApt::Package *_package){

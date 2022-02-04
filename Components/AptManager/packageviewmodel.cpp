@@ -8,6 +8,7 @@
 PackageViewModel::PackageViewModel(QObject *parent) : QAbstractListModel (parent)
   ,currentArch(ANY_ARCH)
   ,currentCategory(ALL)
+  ,filter(FilterPackageName)
 {
 //    connect(this, &PackageViewModel::statusChanged, this, setPackages())
 }
@@ -67,12 +68,25 @@ void PackageViewModel::updateModel()
         
         // 此处判断为否符合过滤条件，如果不够满足条件，将标记为不包含到模型中用于显示 (conteined = false)
         bool contained = true;
-        for (auto &sep : currentPackages)
-        {
-            if (! QString(item->name()).contains(sep)) {
-                contained = false;
-                goto exp;
-            }
+        switch(filter) {
+            case FilterPackageName:
+                for (auto &sep : currentPackages)
+                {
+                    if (! QString(item->name()).contains(sep)) {
+                        contained = false;
+                        goto exp;
+                    }
+                }
+                break;
+            case FilterPackageDescription:
+                for (auto &sep : currentPackageDescriptions)
+                {
+                    if (! QString(item->longDescription()).contains(sep)) {
+                        contained = false;
+                        goto exp;
+                    }
+                }
+                break;
         }
 
         exp:
@@ -137,5 +151,13 @@ void PackageViewModel::packageNameChange(QString text)
 {
     currentPackage = text;
     currentPackages = currentPackage.split(" ");
+    filter = FilterPackageName;
+    updateModel();
+}
+
+void PackageViewModel::packageDescriptionChange(QString text) {
+    currentPackageDescription = text;
+    currentPackageDescriptions = currentPackageDescription.split(" ");
+    filter = FilterPackageDescription;
     updateModel();
 }

@@ -53,6 +53,12 @@ public:
         ONLY_UPGRADLEABLE,
     };
 
+    /***** 搜索标志 *****/
+    enum FilteredPackageState {
+        FilterPackageName,
+        FilterPackageDescription,
+    };
+
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
@@ -65,6 +71,7 @@ public slots:
     void installStatusCategoryChange(int i);
     void packageArchCategoryChange(int i);
     void packageNameChange(QString text);
+    void packageDescriptionChange(QString text);
 
 signals:
     void statusChanged();
@@ -74,6 +81,10 @@ private:
     int currentCategory;
     QString currentPackage;
     QStringList currentPackages;
+    QString currentPackageDescription;
+    QStringList currentPackageDescriptions;
+
+    FilteredPackageState filter;
 
 private:
     QApt::PackageList m_data;

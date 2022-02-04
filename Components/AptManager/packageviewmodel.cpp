@@ -79,6 +79,7 @@ void PackageViewModel::updateModel()
                 }
                 break;
             case FilterPackageDescription:
+                if (currentPackageDescription.isEmpty()) goto exp;
                 for (auto &sep : currentPackageDescriptions)
                 {
                     if (! QString(item->longDescription()).contains(sep)) {
@@ -91,7 +92,7 @@ void PackageViewModel::updateModel()
 
         exp:
 
-        if (currentPackage.isEmpty() || contained ){
+        if (((filter == FilterPackageName) && currentPackage.isEmpty()) || contained ){
             switch (currentCategory) {
             case ALL:
                 plist.append(item);

@@ -57,6 +57,7 @@ public:
     enum FilteredPackageState {
         FilterPackageName,
         FilterPackageDescription,
+        FilterPackageSuggestion,
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -72,6 +73,7 @@ public slots:
     void packageArchCategoryChange(int i);
     void packageNameChange(QString text);
     void packageDescriptionChange(QString text);
+    void packageSuggestionChange(QString text);
 
 signals:
     void statusChanged();
@@ -83,6 +85,8 @@ private:
     QStringList currentPackages;
     QString currentPackageDescription;
     QStringList currentPackageDescriptions;
+    QString currentPackageSuggestion;
+    QStringList currentPackageSuggests;
 
     FilteredPackageState filter;
 

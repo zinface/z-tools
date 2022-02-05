@@ -88,6 +88,16 @@ void PackageViewModel::updateModel()
                     }
                 }
                 break;
+            case FilterPackageSuggestion:
+                if (currentPackageSuggestion.isEmpty()) goto exp;
+                for (auto &sep : currentPackageSuggests)
+                {
+                    if (! item->suggestsList().contains(sep)) {
+                        contained = false;
+                        goto exp;
+                    }
+                }
+                break;
         }
 
         exp:
@@ -160,5 +170,13 @@ void PackageViewModel::packageDescriptionChange(QString text) {
     currentPackageDescription = text;
     currentPackageDescriptions = currentPackageDescription.split(" ");
     filter = FilterPackageDescription;
+    updateModel();
+}
+
+
+void PackageViewModel::packageSuggestionChange(QString text) {
+    currentPackageSuggestion = text;
+    currentPackageSuggests = currentPackageSuggestion.split(" ");
+    filter = FilterPackageSuggestion;
     updateModel();
 }

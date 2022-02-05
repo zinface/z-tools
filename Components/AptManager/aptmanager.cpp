@@ -64,6 +64,7 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     QComboBox *packageSearchCombo = new QComboBox(this);
     packageSearchCombo->addItem("软件包名称",0);
     packageSearchCombo->addItem("软件包简介",1);
+    packageSearchCombo->addItem("软件包建议",2);
 
 
     /******** 搜索输入框 和 搜索按钮 ******/
@@ -228,19 +229,18 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     });
     // 处理实时搜索
     connect(packageSearchEdit, static_cast<void (QLineEdit::*)(const QString &)>(&QLineEdit::textChanged), [=](const QString &text){
-        if (packageSearchCombo->currentIndex() == 0) {
-            emit m_packageView->setPackageName(text);
-        } else {
-            // emit m_packageView->setPackageDescription(text);
+        switch(packageSearchCombo->currentIndex()) {
+            case 0: emit m_packageView->setPackageName(text); break;
+            case 1: break; // 此处不应调用过于耗时的操作: emit m_packageView->setPackageDescription(text);
+            case 2: emit m_packageView->setPackageSuggestion(text); break;
         }
     });
     // 处理点击按钮
     connect(packageSearchButton, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](bool checked){
-        // emit m_packageView->setPackageName(packageSearchEdit->text());
-        if (packageSearchCombo->currentIndex() == 0) {
-            emit m_packageView->setPackageName(packageSearchEdit->text());
-        } else {
-            emit m_packageView->setPackageDescription(packageSearchEdit->text());
+        switch(packageSearchCombo->currentIndex()) {
+            case 0: emit m_packageView->setPackageName(packageSearchEdit->text()); break;
+            case 1: emit m_packageView->setPackageDescription(packageSearchEdit->text()); break;
+            case 2: emit m_packageView->setPackageSuggestion(packageSearchEdit->text()); break;
         }
     });
 

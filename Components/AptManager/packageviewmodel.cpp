@@ -72,7 +72,7 @@ void PackageViewModel::updateModel()
             case FilterPackageName:
                 for (auto &sep : currentPackages)
                 {
-                    if (! QString(item->name()).contains(sep)) {
+                    if (! QString(item->name()).contains(sep, Qt::CaseInsensitive)) {
                         contained = false;
                         goto exp;
                     }
@@ -82,7 +82,7 @@ void PackageViewModel::updateModel()
                 if (currentPackageDescription.isEmpty()) goto exp;
                 for (auto &sep : currentPackageDescriptions)
                 {
-                    if (! QString(item->longDescription()).contains(sep)) {
+                    if (! QString(item->longDescription()).contains(sep, Qt::CaseInsensitive)) {
                         contained = false;
                         goto exp;
                     }
@@ -92,7 +92,7 @@ void PackageViewModel::updateModel()
                 if (currentPackageSuggestion.isEmpty()) goto exp;
                 for (auto &sep : currentPackageSuggests)
                 {
-                    if (! item->suggestsList().contains(sep)) {
+                    if (! item->suggestsList().contains(sep, Qt::CaseInsensitive)) {
                         contained = false;
                         goto exp;
                     }

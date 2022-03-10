@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName("软件包管理器 - v0.7");
+    a.setApplicationName("软件包管理器 - v0.7.2");
     AptManager wm;
     wm.show();
     QDesktopWidget *desktop = QApplication::desktop();

@@ -157,7 +157,7 @@ bool PackagesListDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
     {
         QString name = index.model()->data(index, PackageViewModel::PackageNameRole).toString();
         QClipboard *clipboard = QApplication::clipboard();
-        clipboard->setText(QString("pkexec apt install %1 --yes").arg(name));
+        clipboard->setText(QString("sudo apt install %1 --yes").arg(name));
 //        QProcess install;
 //        install.start(QString("/usr/bin/pkexec apt install %1 --yes").arg(name));
 //        install.waitForFinished();

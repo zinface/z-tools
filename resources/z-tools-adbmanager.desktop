@@ -1,10 +1,11 @@
 [Desktop Entry]
 Version=1.0
-Name=zTools-ADBManager
+Name=安卓信息查看器(adb)
 Comment=致力生产工具，简单明确需求
 Type=Application
 Exec=/opt/zTools/bin/z-tools-adbmanager
-Icon=/opt/zTools/Components/ADBManager/resources/icon/z-Tools.svg
+Icon=/opt/zTools/Components/AdbManager/resources/icon/z-Tools.svg
 Categories=Development
+Keywords=adbmanager;
 
 # Generated from the DesktopGenerater component of the z-Tools toolkit

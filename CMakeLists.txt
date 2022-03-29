@@ -28,7 +28,7 @@ add_subdirectory(Components)
 
 include_directories(
     src
-    Components/AdbManager
+    Components/AdbManager/src
 )
 set(QRC_SOURCES
     ""

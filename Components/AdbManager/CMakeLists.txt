@@ -6,9 +6,7 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 
 add_subdirectory(AdbUtils)
+aux_source_directory(src MODULE_SOURCES)
 
-add_library(${MODULE_NAME}
-    "adbmanager.cpp" "adbmanager.h"
-    "adbpkgview.cpp" "adbpkgview.h")
-
+add_library(${MODULE_NAME} ${MODULE_SOURCES})
 target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets AdbUtils)

@@ -81,3 +81,38 @@ private:
 //链接：https://www.jianshu.com/p/0a3b972b85a0
 //来源：简书
 //著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+// 版本号                  英文名                 API等级  发布时间              中文名  
+// Android 1.0            -                     1       2008-9-23            无
+// Android 1.1            -                     2       2009-2-9             无
+// Android 1.5            Cupcake               3       2009-4-30            纸杯蛋糕
+// Android 1.6            Donut                 4       2009-9-15            甜甜圈
+// Android 2.1            Eclair                7       2009-10-26           闪电泡芙
+// Android 2.2            Froyo                 8       2010-5-20            冻酸奶
+// Android 2.3            Gingerbread           9       2010-12-7            姜饼
+// Android 2.3.3          Gingerbread           10      2011-2-9             姜饼
+// Android 3.0            Honeycomb             11      2011-2-22            蜂巢
+// Android 3.1            Honeycomb             12      2011-5-10            蜂巢
+// Android 3.2            Honeycomb             13      2011-7-15            蜂巢
+// Android 4.0            Ice cream Sandwich    14      2011-10-19           冰淇淋三明治
+// Android 4.0.3-4.0.4    Ice cream Sandwich    14                           冰淇淋三明治
+// Android 4.1            Jelly Bean            16      2012-6-28            果冻豆
+// Android 4.2            Jelly Bean            17      2012-10-30           果冻豆
+// Android 4.3            Jelly Bean            18      2013-7-25            果冻豆
+// Android 4.4            KitKat                19      2013-10-31           雀巢巧克力
+// Android 5.0            Lollipop              21      2014-10-16           棒棒糖
+// Android 5.1            Lollipop              22      2015-3-10            棒棒糖
+// Android 6.0            Marshmallow           23      2015-8-18            棉花糖
+// Android 7.0            Nougat                24      2016-8-22            牛轧糖
+// Android 7.1            Nougat                25      2016-10-4            牛轧糖
+// Android 8.0            Oreo                  26      2017-8-21            奥利奥
+// Android 8.1            Oreo                  27      2017-12-5            奥利奥
+// Android 9.0            Pie                   28       2018-8-6            派
+// Android 10.0           Q                     29      2019-9-3             抛弃糖果命名
+// Android 11.0           R                     30      2020-9-8             抛弃糖果命名
+// Android 12.0           S                     31      2021-10-4            抛弃糖果命名
+// Android 13.0           T                     32      2022-10...           抛弃糖果命名
+// ————————————————
+// 版权声明：本文为CSDN博主「Joven0」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+// 原文链接：https://blog.csdn.net/Joven0/article/details/105022472

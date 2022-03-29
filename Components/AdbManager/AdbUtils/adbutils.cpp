@@ -142,9 +142,12 @@ QStringList AdbUtils::GetAndroidPackages(const QString& deviceId, const QString&
 QString AdbUtils::RunCommand(const QString &commandLine)
 {
     QProcess process;
-    process.start("adb " + commandLine);
+    process.start(QString("adb %1").arg(commandLine), QProcess::ReadOnly);
     process.waitForFinished();
+
     QByteArray stdo = process.readAllStandardOutput();
+    QTextStream out(stdout);
+    out << stdo.toStdString().data() <<  "\n";
     QString result = QString::fromLocal8Bit(stdo).trimmed();
     return result;
 }

@@ -28,7 +28,7 @@ install(PROGRAMS
 )
 install(FILES
     ${CMAKE_SOURCE_DIR}/resources/z-Tools.svg
-    DESTINATION /opt/zTools/Components/ADBManager/resources/icon
+    DESTINATION /opt/zTools/Components/AdbManager/resources/icon
 )
 install(FILES
     ${CMAKE_SOURCE_DIR}/resources/z-tools-adbmanager.desktop

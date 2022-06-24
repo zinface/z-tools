@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QGroupBox>
 #include <QLabel>
+#include <QCheckBox>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTableWidget>
@@ -41,6 +42,7 @@ QString numSize(qint64 size){
 
 AptManager::AptManager(QWidget *parent) : QWidget(parent)
   ,m_statusBar(new QLabel)
+  ,m_refreshCheck(new QCheckBox("实时刷新"))
 {
 
     /******* 架构类别 和 结果过滤控制 *******/
@@ -116,11 +118,19 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
 
 // 1.1
     QGroupBox *leftBox = new QGroupBox("软件包查询");
+
+    // 底部状态布局
+    QHBoxLayout *statusBarLayout = new QHBoxLayout;
+    statusBarLayout->addWidget(m_statusBar);
+    statusBarLayout->addWidget(m_refreshCheck);
+    statusBarLayout->setAlignment(m_refreshCheck, Qt::AlignmentFlag::AlignRight);
+
+    // 左侧面板布局
     QVBoxLayout *leftBoxLayout = new QVBoxLayout(leftBox);
     leftBox->setFixedWidth(564);
     leftBoxLayout->addWidget(searchControlBox);
     leftBoxLayout->addWidget(packageResultBox);
-    leftBoxLayout->addWidget(m_statusBar);
+    leftBoxLayout->addLayout(statusBarLayout);
     LeftLayout->addWidget(leftBox);
 
 
@@ -218,7 +228,7 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
                                      .arg(mAptUtil.GetUpgradablePackagesCount())
                                      .arg(mAptUtil.GetMirrorsPackagesCount()));
 
-    
+
     // 处理改变架构选择项的部分
     connect(m_packageArchCategory, &QComboBox::currentTextChanged, [=]{
         emit m_packageView->setArchCategory(m_packageArchCategory->currentData().toInt());
@@ -286,10 +296,10 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     connect(this, &AptManager::packageChange, this, &AptManager::onPackageChange);   
     // 使用一个线程来检测是否有最新数据
     QThread *thread = new QThread(this);
+    QTimer *timer = new QTimer(this);
     connect(thread, &QThread::started, [=]{
-        QTimer *timer = new QTimer(this);
         timer->setInterval(500);
-        timer->start();
+        // timer->start();
         connect(timer, &QTimer::timeout, [=]{
             timer->stop();
             
@@ -304,6 +314,15 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
         });
     });
     thread->start();
+
+    // 处理实时刷新
+    connect(m_refreshCheck, &QCheckBox::stateChanged,[=](int i){
+        if (m_refreshCheck->isChecked()) {
+            timer->start();
+        } else {
+            timer->stop();
+        }
+    });
 }
 
 void AptManager::onPackageChange(PackageView *m_packageView) {

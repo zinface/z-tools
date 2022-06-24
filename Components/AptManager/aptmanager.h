@@ -12,6 +12,7 @@ QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QPushButton;
 class QLabel;
+class QCheckBox;
 class QTableWidget;
 class QComboBox;
 
@@ -26,6 +27,7 @@ public:
 
 private:
     QLabel *m_statusBar;
+    QCheckBox *m_refreshCheck;
 
     AptUtils mAptUtil;
 

@@ -10,6 +10,8 @@
 #include <QProcess>
 #include <QPushButton>
 #include <QStyle>
+#include <QMessageBox>
+#include <QMessageBox>
 PackagesListDelegate::PackagesListDelegate(QObject *parent) : QItemDelegate (parent)
 {
 
@@ -156,8 +158,37 @@ bool PackagesListDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
     if (event->type() == QEvent::MouseButtonDblClick && decorationRect.contains(mouseEvent->pos()))
     {
         QString name = index.model()->data(index, PackageViewModel::PackageNameRole).toString();
+        bool isInstalled = index.model()->data(index, PackageViewModel::PackageIsInstalledRole).toBool();
+        int install_stat = index.model()->data(index, PackageViewModel::PackageInstalledVersionRole).toInt();
+
+        int doInstall = 0;
+
         QClipboard *clipboard = QApplication::clipboard();
-        clipboard->setText(QString("sudo apt install %1 --yes").arg(name));
+        switch (install_stat) {
+            case PackageViewModel::NotInstalled:
+                // 未安装
+                doInstall = 1;
+                break;
+            case PackageViewModel::Installed:
+                // 已安装
+                doInstall = 0;
+                break;
+            case PackageViewModel::Upgradeable:
+                // 可更新
+                doInstall = QMessageBox::question(nullptr, 
+                    tr("复制安装还是卸载命令?"), 
+                    tr("复制安装命令请点击确定，否则取消。"), 
+                    QMessageBox::Yes | QMessageBox::Cancel, 
+                    QMessageBox::Cancel) == QMessageBox::Yes;
+                break;
+        }
+
+        if (doInstall) {
+            clipboard->setText(QString("sudo apt install %1 --yes").arg(name));
+        } else {
+            clipboard->setText(QString("sudo apt remove %1").arg(name));
+        }
+
 //        QProcess install;
 //        install.start(QString("/usr/bin/pkexec apt install %1 --yes").arg(name));
 //        install.waitForFinished();

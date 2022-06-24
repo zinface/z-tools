@@ -19,6 +19,7 @@ public:
         PackagePathRole,
         PackageArchitecture,
         PackageInstalledVersionRole,
+        PackageIsInstalledRole,
         PackageDescriptionRole,
         PackageVersionStatusRole,
         PackageDependsStatusRole,

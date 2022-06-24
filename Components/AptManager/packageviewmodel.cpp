@@ -30,6 +30,8 @@ QVariant PackageViewModel::data(const QModelIndex &index, int role) const
     {
         case PackageNameRole:
             return package->name();
+        case PackageIsInstalledRole:
+            return package->isInstalled();
         case PackageVersionRole:
             return package->version();
         case PackageInstalledVersionRole:

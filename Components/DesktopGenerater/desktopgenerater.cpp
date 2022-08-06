@@ -213,8 +213,7 @@ void DesktopGenerater::onGeneraterContent()
            << QString("Type=%1").arg(contentTypeComb->currentText())
            << typeContent
            << QString("Icon=%1").arg(contentIcon->text())
-           << QString("Categories=%1").arg(contentCategoriesComb->currentText())
-           << QString("Keywords=%1").arg(contentKeywords->text());
+           << QString("Categories=%1").arg(contentCategoriesComb->currentText());
     QString s = text.join("\n");
     s.append("\n\n# Generated from the DesktopGenerater component of the z-Tools toolkit");
     contentText->setText(s);
@@ -261,9 +260,6 @@ void DesktopGenerater::initUi()
     index++;
     entryLayout->addWidget(fileContentCategoriesLabel,index,0,1,1);
     entryLayout->addWidget(contentCategoriesComb,index,1,1,2);
-    index++;
-    entryLayout->addWidget(fileContentKeywordsLabel, index,0,1,1);
-    entryLayout->addWidget(contentKeywords,index,1,1,2);
     index++;
     entryLayout->setColumnMinimumWidth(2,170);
 
@@ -346,9 +342,6 @@ void DesktopGenerater::initContentEditeLine()
     contentExec->setPlaceholderText("例如：/usr/bin/desktopGenerater %f");
     contentIcon = new QLineEdit;
     contentIcon->setPlaceholderText("例如：apper");
-
-    contentKeywords = new QLineEdit();
-    contentKeywords->setPlaceholderText("例如：desktop;DesktopGenerater");
 }
 
 void DesktopGenerater::initContentWidgets()
@@ -368,7 +361,6 @@ void DesktopGenerater::initContentWidgets()
     fileContentExecLabel = new QLabel("执行文件选择:");
     fileContentIconLabel = new QLabel("图标文件选择:");
     fileContentCategoriesLabel = new QLabel("程序分类:");
-    fileContentKeywordsLabel = new QLabel("Keywords:");
 
     contentIconPreview = new QLabel;
     contentIconPreview->setFixedSize(32,32);

@@ -62,7 +62,6 @@ private:
     QLabel *fileContentExecLabel;        // 可执行文件选择
     QLabel *fileContentIconLabel;        // 图标文件选择
     QLabel *fileContentCategoriesLabel;  // 程序分类
-    QLabel *fileContentKeywordsLabel;    // 程序标识关键词
     QLabel *fileContentNoDisplay;        // 程序关键词
     // QLabel *fileContentNoDisplay;        // 程序标识关键词
 
@@ -114,8 +113,6 @@ private:
 //    System
 //    Utility
 */
-
-    QLineEdit *contentKeywords;
 
     DesktopExtendedGroupBox *contentGroupBox;
     QTextEdit *contentText;

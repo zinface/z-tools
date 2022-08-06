@@ -18,7 +18,7 @@ set(CPACK_DEBIAN_PACKAGE_VERSION      "${PROJECT_VERSION}-${BUILD_TIME}")
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${ARCHITECTURE}")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS      "")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY     "optional")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER   "Individual developer <zinfacex@gmail.com>")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER   "zinface <zinface@163.com>")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION  "Linux toolbox under development")
 
 install(PROGRAMS

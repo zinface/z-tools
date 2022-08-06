@@ -54,7 +54,8 @@ private:
 
     QLabel *fileFolderLabel;        // 文件存放路径提示
     QLabel *fileContentVersionLabel;     // 文件版本(默认1.0)
-    QLabel *fileContentNameLabel;        // 显示的名称
+    QLabel *fileContentNameLabel;        // 显示的名称En
+    QLabel *fileContentNameZhCnLabel;    // 显示的名称zh_CN
     QLabel *fileContentCommentLabel;     // 文件说明
     QLabel *fileContentTypeLabel;        // 文件类型
     QLabel *fileContentUrlLabel;         // Url链接
@@ -62,9 +63,13 @@ private:
     QLabel *fileContentIconLabel;        // 图标文件选择
     QLabel *fileContentCategoriesLabel;  // 程序分类
     QLabel *fileContentKeywordsLabel;    // 程序标识关键词
+    QLabel *fileContentNoDisplay;        // 程序关键词
+    // QLabel *fileContentNoDisplay;        // 程序标识关键词
+
 
     QLineEdit *contentVersion;
     QLineEdit *contentName;
+    QLineEdit *contentNameZhCn;
     QLineEdit *contentComment;
     QLineEdit *contentUrl;
     QLineEdit *contentExec;

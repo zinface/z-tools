@@ -151,11 +151,18 @@ void DesktopGenerater::onSaveAsFile()
 {
     onGeneraterContent();
     QString fileName = QFileDialog::getSaveFileName(this, "保存到", fileFolderComb->currentData().toString(),"Desktop 描述文件 (*.desktop)");
+    // 1.检查是否未选择目录与存储位置
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    // 2.检查是否包含.desktop后缀
     if (!fileName.endsWith(".desktop")) {
         fileName.append(".desktop");
     }
-    QFile file(fileName);
 
+    // 3.检查是否可创建文件
+    QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, "警告", "无法保存文件：" + file.errorString());
         return;
@@ -201,6 +208,7 @@ void DesktopGenerater::onGeneraterContent()
     text << "[Desktop Entry]"
            << QString("Version=%1").arg(contentVersion->text())
            << QString("Name=%1").arg(contentName->text())
+           << QString("Name[zh_CN]=%1").arg(contentNameZhCn->text())
            << QString("Comment=%1").arg(contentComment->text())
            << QString("Type=%1").arg(contentTypeComb->currentText())
            << typeContent
@@ -222,40 +230,56 @@ void DesktopGenerater::initUi()
     initShowContentBox();
 
     QGridLayout *entryLayout = new QGridLayout;
-    entryLayout->addWidget(fileFolderLabel,0,0,1,1);
-    entryLayout->addWidget(fileFolderComb,0,1,1,1);
-    entryLayout->addWidget(folderChoose,0,2,1,1);
-    entryLayout->addWidget(fileContentVersionLabel,1,0,1,1);
-    entryLayout->addWidget(contentVersion,1,1,1,2);
-    entryLayout->addWidget(fileContentNameLabel,2,0,1,1);
-    entryLayout->addWidget(contentName,2,1,1,2);
-    entryLayout->addWidget(fileContentCommentLabel,3,0,1,1);
-    entryLayout->addWidget(contentComment,3,1,1,2);
-    entryLayout->addWidget(fileContentTypeLabel,4,0,1,1);
-    entryLayout->addWidget(contentTypeComb,4,1,1,2);
-    entryLayout->addWidget(fileContentUrlLabel,5,0,1,1);
-    entryLayout->addWidget(contentUrl,5,1,1,2);
-    entryLayout->addWidget(fileContentExecLabel,6,0,1,1);
-    entryLayout->addWidget(contentExec,6,1,1,1);
-    entryLayout->addWidget(fileContentIconLabel,7,0,1,1);
-    entryLayout->addWidget(contentIcon,7,1,1,1);
-    entryLayout->addWidget(fileContentCategoriesLabel,8,0,1,1);
-    entryLayout->addWidget(contentCategoriesComb,8,1,1,2);
-    entryLayout->addWidget(fileContentKeywordsLabel, 9,0,1,1);
-    entryLayout->addWidget(contentKeywords,9,1,1,2);
+    int index = 0, execIndex, iconIndex;
+    entryLayout->addWidget(fileFolderLabel,index,0,1,1);
+    entryLayout->addWidget(fileFolderComb,index,1,1,1);
+    entryLayout->addWidget(folderChoose,index,2,1,1);
+    index++;
+    entryLayout->addWidget(fileContentVersionLabel,index,0,1,1);
+    entryLayout->addWidget(contentVersion,index,1,1,2);
+    index++;
+    entryLayout->addWidget(fileContentNameLabel,index,0,1,1);
+    entryLayout->addWidget(contentName,index,1,1,2);
+    index++;
+    entryLayout->addWidget(fileContentNameZhCnLabel,index,0,1,1);
+    entryLayout->addWidget(contentNameZhCn,index,1,1,2);
+    index++;
+    entryLayout->addWidget(fileContentCommentLabel,index,0,1,1);
+    entryLayout->addWidget(contentComment,index,1,1,2);
+    index++;
+    entryLayout->addWidget(fileContentTypeLabel,index,0,1,1);
+    entryLayout->addWidget(contentTypeComb,index,1,1,2);
+    index++;
+    entryLayout->addWidget(fileContentUrlLabel,index,0,1,1);
+    entryLayout->addWidget(contentUrl,index,1,1,2);
+    execIndex = ++index;
+    entryLayout->addWidget(fileContentExecLabel,index,0,1,1);
+    entryLayout->addWidget(contentExec,index,1,1,1);
+    iconIndex = ++index;
+    entryLayout->addWidget(fileContentIconLabel,index,0,1,1);
+    entryLayout->addWidget(contentIcon,index,1,1,1);
+    index++;
+    entryLayout->addWidget(fileContentCategoriesLabel,index,0,1,1);
+    entryLayout->addWidget(contentCategoriesComb,index,1,1,2);
+    index++;
+    entryLayout->addWidget(fileContentKeywordsLabel, index,0,1,1);
+    entryLayout->addWidget(contentKeywords,index,1,1,2);
+    index++;
     entryLayout->setColumnMinimumWidth(2,170);
 
+    // 执行文件:参数设置，文件选择
     QHBoxLayout *execParam = new QHBoxLayout;
     execParam->addWidget(execParamChoose);
     execParam->addWidget(execFileChoose);
-    entryLayout->addLayout(execParam,6,2,1,1);
+    entryLayout->addLayout(execParam,execIndex,2,1,1);
 
+    // 图标文件: 预览，选择图标
     QHBoxLayout *iconPreview = new QHBoxLayout;
     iconPreview->addWidget(contentIconPreview);
     iconPreview->addWidget(iconFileChoose);
     iconPreview->setSpacing(5);
     iconPreview->setSizeConstraint(QLayout::SetFixedSize);
-    entryLayout->addLayout(iconPreview,7,2,1,1);
+    entryLayout->addLayout(iconPreview,iconIndex,2,1,1);
 
     QGroupBox *desktopEntryBox = new QGroupBox("Desktop Entry");
     desktopEntryBox->setLayout(entryLayout);
@@ -311,7 +335,9 @@ void DesktopGenerater::initContentEditeLine()
     contentVersion->setEnabled(false);
 
     contentName = new QLineEdit;
-    contentName->setPlaceholderText("例如：桌面图标生成器");
+    contentName->setPlaceholderText("例如：DesktopGenertaer (适用于字母搜索)");
+    contentNameZhCn = new QLineEdit;
+    contentNameZhCn->setPlaceholderText("例如：桌面图标生成器");
     contentComment = new QLineEdit;
     contentComment->setPlaceholderText("例如：创建简单的desktop图标文件");
     contentUrl = new QLineEdit;
@@ -334,7 +360,8 @@ void DesktopGenerater::initContentWidgets()
     iconFileChoose = new QPushButton("选择图标");
 
     fileContentVersionLabel = new QLabel("文件版本:");
-    fileContentNameLabel = new QLabel("显示的名称:");
+    fileContentNameLabel = new QLabel("搜索的名称:");
+    fileContentNameZhCnLabel = new QLabel("显示的名称:");
     fileContentCommentLabel = new QLabel("文件说明:");
     fileContentTypeLabel = new QLabel("文件类型:");
     fileContentUrlLabel = new QLabel("Url链接:");

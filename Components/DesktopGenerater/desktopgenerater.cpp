@@ -2,6 +2,7 @@
 #include "desktopexecparamdialog.h"
 #include "desktopextendedgroupbox.h"
 #include "desktopgenerater.h"
+#include "ui_desktopgenerater.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -15,11 +16,15 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QStandardPaths>
 #include <QTextEdit>
 #include <QTextStream>
 
 DesktopGenerater::DesktopGenerater(QWidget *parent) : QWidget(parent)
+  ,ui(new Ui::DesktopGenertater)
 {
+    ui->setupUi(this);
+
     initUi();
 
     connect(folderChoose, &QPushButton::clicked, this, &DesktopGenerater::onFolderChoose);
@@ -227,142 +232,60 @@ void DesktopGenerater::initUi()
     initContentEditeLine();
     initContentWidgets();
     initShowContentBox();
-
-    QGridLayout *entryLayout = new QGridLayout;
-    int index = 0, execIndex, iconIndex;
-    entryLayout->addWidget(fileFolderLabel,index,0,1,1);
-    entryLayout->addWidget(fileFolderComb,index,1,1,1);
-    entryLayout->addWidget(folderChoose,index,2,1,1);
-    index++;
-    entryLayout->addWidget(fileContentVersionLabel,index,0,1,1);
-    entryLayout->addWidget(contentVersion,index,1,1,2);
-    index++;
-    entryLayout->addWidget(fileContentNameLabel,index,0,1,1);
-    entryLayout->addWidget(contentName,index,1,1,2);
-    index++;
-    entryLayout->addWidget(fileContentNameZhCnLabel,index,0,1,1);
-    entryLayout->addWidget(contentNameZhCn,index,1,1,2);
-    index++;
-    entryLayout->addWidget(fileContentCommentLabel,index,0,1,1);
-    entryLayout->addWidget(contentComment,index,1,1,2);
-    index++;
-    entryLayout->addWidget(fileContentTypeLabel,index,0,1,1);
-    entryLayout->addWidget(contentTypeComb,index,1,1,2);
-    index++;
-    entryLayout->addWidget(fileContentUrlLabel,index,0,1,1);
-    entryLayout->addWidget(contentUrl,index,1,1,2);
-    execIndex = ++index;
-    entryLayout->addWidget(fileContentExecLabel,index,0,1,1);
-    entryLayout->addWidget(contentExec,index,1,1,1);
-    iconIndex = ++index;
-    entryLayout->addWidget(fileContentIconLabel,index,0,1,1);
-    entryLayout->addWidget(contentIcon,index,1,1,1);
-    index++;
-    entryLayout->addWidget(fileContentCategoriesLabel,index,0,1,1);
-    entryLayout->addWidget(contentCategoriesComb,index,1,1,2);
-    index++;
-    entryLayout->setColumnMinimumWidth(2,170);
-
-    // 执行文件:参数设置，文件选择
-    QHBoxLayout *execParam = new QHBoxLayout;
-    execParam->addWidget(execParamChoose);
-    execParam->addWidget(execFileChoose);
-    entryLayout->addLayout(execParam,execIndex,2,1,1);
-
-    // 图标文件: 预览，选择图标
-    QHBoxLayout *iconPreview = new QHBoxLayout;
-    iconPreview->addWidget(contentIconPreview);
-    iconPreview->addWidget(iconFileChoose);
-    iconPreview->setSpacing(5);
-    iconPreview->setSizeConstraint(QLayout::SetFixedSize);
-    entryLayout->addLayout(iconPreview,iconIndex,2,1,1);
-
-    QGroupBox *desktopEntryBox = new QGroupBox("Desktop Entry");
-    desktopEntryBox->setLayout(entryLayout);
-
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(desktopEntryBox);
-    mainLayout->setAlignment(desktopEntryBox, Qt::AlignTop);
-    mainLayout->addWidget(contentGroupBox);
-    mainLayout->setAlignment(contentGroupBox, Qt::AlignTop);
-    mainLayout->setParent(parent());
-    setLayout(mainLayout);
 }
 
 void DesktopGenerater::initFileLocal()
 {
-    fileFolderComb = new QComboBox;
-    fileFolderComb->addItem(s_userApplicationTargetDir,s_homeDir+"/.local/share/applications");
+    fileFolderComb = ui->fileFolderComb;
+    fileFolderComb->clear();
+     fileFolderComb->addItem(s_userApplicationTargetDir, QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation));
 }
 
 void DesktopGenerater::initTypes()
 {
-    contentTypeComb = new QComboBox;
-    contentTypeComb->addItem("Application","Application");
-    contentTypeComb->addItem("Link","Link");
-    contentTypeComb->addItem("Directory(未实现)","Directory");
-
+    contentTypeComb = ui->contentTypeComb;
     connect(contentTypeComb, &QComboBox::currentTextChanged, this,&DesktopGenerater::onContentTypeChanged);
 }
 
 void DesktopGenerater::initCategories()
 {
-    contentCategoriesComb = new QComboBox;
-    contentCategoriesComb->addItem("AudioVideo","AudioVideo");
-    contentCategoriesComb->addItem("Audio","Audio");
-    contentCategoriesComb->addItem("Video","Video");
-    contentCategoriesComb->addItem("Development","Development");
-    contentCategoriesComb->addItem("Education","Education");
-    contentCategoriesComb->addItem("Game","Game");
-    contentCategoriesComb->addItem("Graphics","Graphics");
-    contentCategoriesComb->addItem("Network","Network");
-    contentCategoriesComb->addItem("Office","Office");
-    contentCategoriesComb->addItem("Science","Science");
-    contentCategoriesComb->addItem("Settings","Settings");
-    contentCategoriesComb->addItem("System","System");
-    contentCategoriesComb->addItem("Utility","Utility");
+    contentCategoriesComb = ui->contentCategoriesComb;
 }
 
 void DesktopGenerater::initContentEditeLine()
 {
-    contentVersion = new QLineEdit;
+    contentVersion = ui->contentVersion;
     contentVersion->setText("1.0");
     contentVersion->setReadOnly(true);
     contentVersion->setEnabled(false);
 
-    contentName = new QLineEdit;
-    contentName->setPlaceholderText("例如：DesktopGenertaer (适用于字母搜索)");
-    contentNameZhCn = new QLineEdit;
-    contentNameZhCn->setPlaceholderText("例如：桌面图标生成器");
-    contentComment = new QLineEdit;
-    contentComment->setPlaceholderText("例如：创建简单的desktop图标文件");
-    contentUrl = new QLineEdit;
-    contentUrl->setPlaceholderText("例如：https://www.bing.com");
-    contentExec = new QLineEdit;
-    contentExec->setPlaceholderText("例如：/usr/bin/desktopGenerater %f");
-    contentIcon = new QLineEdit;
-    contentIcon->setPlaceholderText("例如：apper");
+    contentName = ui->contentName;
+    contentNameZhCn = ui->contentNameZhCn;
+    contentComment = ui->contentComment;
+    contentUrl = ui->contentUrl;
+    contentExec = ui->contentExec;
+    contentIcon = ui->contentIcon;
 }
 
 void DesktopGenerater::initContentWidgets()
 {
-    fileFolderLabel = new QLabel("文件路径存放:");
-    folderChoose = new QPushButton("选择路径");
-    execFileChoose = new QPushButton("选择文件");
-    execParamChoose = new QPushButton("参数设定");
-    iconFileChoose = new QPushButton("选择图标");
+    fileFolderLabel = ui->fileFolderLabel;
+    folderChoose = ui->folderChoose;
+    execFileChoose = ui->execFileChoose;
+    execParamChoose = ui->execParamChoose;
+    iconFileChoose = ui->iconFileChoose;
 
-    fileContentVersionLabel = new QLabel("文件版本:");
-    fileContentNameLabel = new QLabel("搜索的名称:");
-    fileContentNameZhCnLabel = new QLabel("显示的名称:");
-    fileContentCommentLabel = new QLabel("文件说明:");
-    fileContentTypeLabel = new QLabel("文件类型:");
-    fileContentUrlLabel = new QLabel("Url链接:");
-    fileContentExecLabel = new QLabel("执行文件选择:");
-    fileContentIconLabel = new QLabel("图标文件选择:");
-    fileContentCategoriesLabel = new QLabel("程序分类:");
+    fileContentVersionLabel = ui->fileContentVersionLabel;
+    fileContentNameLabel = ui->fileContentNameLabel;
+    fileContentNameZhCnLabel = ui->fileContentNameZhCnLabel;
+    fileContentCommentLabel = ui->fileContentCommentLabel;
+    fileContentTypeLabel = ui->fileContentTypeLabel;
+    fileContentUrlLabel = ui->fileContentUrlLabel;
+    fileContentExecLabel = ui->fileContentExecLabel;
+    fileContentIconLabel = ui->fileContentIconLabel;
+    fileContentCategoriesLabel = ui->fileContentCategoriesLabel;
 
-    contentIconPreview = new QLabel;
+    contentIconPreview = ui->contentIconPreview;
     contentIconPreview->setFixedSize(32,32);
     contentIconPreview->setPixmap(QIcon::fromTheme("apper").pixmap(32,32));
 
@@ -373,30 +296,19 @@ void DesktopGenerater::initContentWidgets()
 void DesktopGenerater::initShowContentBox()
 {
 
-    contentText = new QTextEdit;
+    contentText = ui->contentText;
     contentText->setReadOnly(true);
     contentText->setFixedHeight(100);
 
-    copyClipper = new QPushButton("复制到剪贴板");
-    saveAsFile = new QPushButton("保存到文件");
+    copyClipper = ui->copyClipper;
+    saveAsFile = ui->saveAsFile;
 
-    contentGroupBox = new DesktopExtendedGroupBox("Show Content", this, DesktopExtendedGroupBox::STATE_NORMAL);
 
-    QHBoxLayout *contentOperatLayout = new QHBoxLayout;
-    contentOperatLayout->addWidget(copyClipper);
-    contentOperatLayout->addWidget(saveAsFile);
-    contentOperatLayout->setAlignment(copyClipper, Qt::AlignTop | Qt::AlignRight);
-    contentOperatLayout->setAlignment(saveAsFile, Qt::AlignTop | Qt::AlignRight);
+    contentGroupBox = ui->contentGroupBox;
+    contentGroupBox->setState(DesktopExtendedGroupBox::STATE_NORMAL);
 
-    QVBoxLayout *contentBoxLayout = new QVBoxLayout;
-    contentBoxLayout->addWidget(contentText);
-    contentBoxLayout->setAlignment(contentText, Qt::AlignTop);
-    contentBoxLayout->addLayout(contentOperatLayout);
-    contentBoxLayout->setAlignment(contentOperatLayout, Qt::AlignTop | Qt::AlignRight);
 
     contentGroupBox->addWidget(contentText);
     contentGroupBox->addWidget(copyClipper);
     contentGroupBox->addWidget(saveAsFile);
-
-    contentGroupBox->setLayout(contentBoxLayout);
 }

@@ -7,7 +7,7 @@ find_package(Qt5Widgets)
 find_package(Qt5Network)
 
 add_library(${MODULE_NAME}
-    "desktopgenerater.cpp" "desktopgenerater.h"
+    "desktopgenerater.cpp" "desktopgenerater.h" "desktopgenerater.ui"
     "desktopexecparamdialog.cpp" "desktopexecparamdialog.h"
     "desktopcustomecontent.cpp" "desktopcustomecontent.h"
     "desktopextendedgroupbox.cpp" "desktopextendedgroupbox.h")

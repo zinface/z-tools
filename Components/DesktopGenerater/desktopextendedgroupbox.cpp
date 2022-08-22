@@ -1,6 +1,7 @@
 #include "desktopextendedgroupbox.h"
 
-DesktopExtendedGroupBox::DesktopExtendedGroupBox(const QString &title, QWidget *parent /*= nullptr*/, State state /*= STATE_NORMAL*/) : QGroupBox (title, parent)
+DesktopExtendedGroupBox::DesktopExtendedGroupBox(QWidget *parent, State state) : QGroupBox (parent)
+  ,children_(0)
 {
     setObjectName("DesktopExtendedGroupBox");
     setCheckable(true);
@@ -37,7 +38,7 @@ void DesktopExtendedGroupBox::onChecked(bool checked)
         }
         state_ = STATE_EXPAND;
     } else {
-         setFlat(true);
+        setFlat(true);
         for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
             (*iter)->setVisible(false);
         }
@@ -50,4 +51,10 @@ void DesktopExtendedGroupBox::onChecked(bool checked)
 DesktopExtendedGroupBox::State DesktopExtendedGroupBox::getState() const
 {
     return state_;
+}
+
+void DesktopExtendedGroupBox::setState(const State &state)
+{
+    state_ = state;
+
 }

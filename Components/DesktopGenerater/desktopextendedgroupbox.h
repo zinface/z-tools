@@ -16,7 +16,7 @@ public:
     };
 
 public:
-    explicit DesktopExtendedGroupBox(const QString &title, QWidget *parent = nullptr, State state = STATE_NORMAL);
+    DesktopExtendedGroupBox(QWidget *parent = nullptr, State state = STATE_NORMAL);
 
 signals:
     void onChanged();
@@ -27,6 +27,7 @@ private Q_SLOTS:
 public:
     void addWidget(QWidget *widget);
     State getState() const;
+    void setState(const State &state);
 
 private:
     QVector<QWidget*> children_;

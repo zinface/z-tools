@@ -16,7 +16,9 @@ class QTextEdit;
 class DesktopExtendedGroupBox;
 class DesktopCustomeContent;
 
-
+namespace Ui {
+class DesktopGenertater;
+}
 class DesktopGenerater : public QWidget
 {
     Q_OBJECT
@@ -118,6 +120,9 @@ private:
     QTextEdit *contentText;
     QPushButton *saveAsFile;
     QPushButton *copyClipper;
+
+
+    Ui::DesktopGenertater *ui;
 
 };
 

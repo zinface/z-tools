@@ -1,8 +1,10 @@
+
 #include "mainwindow.h"
 
 #include <QApplication>
 #include <QDebug>
 #include <QDesktopWidget>
+#include <QMainWindow>
 #include <aptmanager.h>
 
 int main(int argc, char *argv[])

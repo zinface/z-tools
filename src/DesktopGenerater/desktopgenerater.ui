@@ -397,7 +397,7 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>DesktopExtendedGroupBox</class>
    <extends>QGroupBox</extends>
-   <header>desktopextendedgroupbox.h</header>
+   <header>src/DesktopGenerater/desktopextendedgroupbox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

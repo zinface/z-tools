@@ -1,46 +1,59 @@
-cmake_minimum_required(VERSION 3.0.0)
 
-project(z-tools-desktop-generater VERSION 1.2 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.5.1)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+project(z-tools-desktop-generater LANGUAGES CXX VERSION 1.2)
 
-add_compile_options(-std=c++11)
+include(cmake/SparkEnvConfig.cmake)
+include(cmake/SparkMacrosConfig.cmake)
+include(cmake/SparkFindLibraries.cmake)
+include(cmake/SparkFindQt5Config.cmake)
+# include(cmake/SparkFindQt6Config.cmake)
+include(cmake/SparkMacrosExtendConfig.cmake)
+include(cmake/SparkInstallMacrosConfig.cmake)   # 提供了 spark_install 开头的 macro 宏用于安装 target、file、program、directory、changelog 等内容
 
-find_package(Qt5Core)
-find_package(Qt5Widgets)
-find_package(Qt5Network)
 
-# Archive build control
-set(BUILD_TYPE "${BUILD_TYPE}")
-if(BUILD_TYPE STREQUAL "TGZ")
-    include(cmake/BuildSourceTgz.cmake)
-else()
-    include(cmake/DebGenerater.cmake)
-endif()
+# 资源文件路径
+set(QRC_SOURCES "src/DesktopGenerater/desktop.qrc")
 
-add_subdirectory(Components)
-
-include_directories(
-    src
-    Components/DesktopGenerater
-)
-set(QRC_SOURCES
-    Components/DesktopGenerater/desktop.qrc
+# 基于传入的项进行构建
+# 可接受的值为: 路径列表
+# 可接受的值为: 路径列表+依赖库A+依赖库B
+spark_add_library_realpaths(
+    src/DesktopGenerater
 )
 
-add_executable(${PROJECT_NAME}
-    "main.cpp"
-    "src/mainwindow.h"
-    "src/mainwindow.cpp"
+spark_add_executable_path(${PROJECT_NAME} src
     ${QRC_SOURCES}
 )
+target_link_DesktopGenerater(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME}
-    Qt5::Core Qt5::Widgets Qt5::Network
+# 安装主程序 z-tools-aptmanager
+spark_install_target(/opt/zTools/bin
+    ${PROJECT_NAME})
 
-    DesktopGenerater
+# 安装 icon 文件
+spark_install_file(/opt/zTools/Components/DesktopGenerater/resources/icon
+    ${CMAKE_SOURCE_DIR}/assets/z-Tools.svg)
+
+# 生成 z-tools-aptmanager.desktop 文件
+include(cmake/SparkDesktopMacros.cmake)
+# 内容默认应用名称: Name= 应与项目名称相同
+spark_desktop_macros(
+    "${PROJECT_NAME}"
+    "桌面图标生成器(desktop)"
+    "致力生产工具，简单明确需求"
+    "Application"
+    "/opt/zTools/bin/z-tools-desktop-generater"
+    "/opt/zTools/Components/DesktopGenerater/resources/icon/z-Tools.svg"
+    "Development"
 )
+
+# 安装 desktop 文件
+spark_install_file(/usr/share/applications
+    ${DESKTOP_FILE})
+
+include(cmake/SparkBuildGraphviz.cmake)
+
+# 注释行(使用方式)
+find_package(DebPackage PATHS ${CMAKE_SOURCE_DIR})
+add_package_descript(cmake/package-deb.descript)

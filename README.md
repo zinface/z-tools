@@ -1,24 +1,11 @@
-# z-tools 
-Linux toolbox under development
+# z-tools-adbmanager
 
+![](assets/screenshots/20230107031800.png)  
 
-## Everything is born
+## Build And Installation
 
-> This is the nature of the future
+* make run
+* make package
+* sudo dpkg -i  build/z-tools-adbmanager*.deb
 
-## Installation
-
-* mkdir build
-* cd build
-* cmake .. 
-* make
-* ./z-tools
-
-## Build deb or tar.gz
-
-* mkdir build
-* cd build
-* cmake .. ***or*** cmake .. -DBUILD_TYPE=TGZ
-* make packae
-
-*You get the file "\*. deb" or "\*.tar.gz"*
+*You get the file "z-tools-adbmanager\*. deb"*

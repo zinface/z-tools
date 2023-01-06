@@ -41,7 +41,7 @@ include(cmake/SparkDesktopMacros.cmake)
 # 内容默认应用名称: Name= 应与项目名称相同
 spark_desktop_macros(
     "${PROJECT_NAME}"
-    "桌面图标生成器(desktop)"
+    "安卓信息查看器(adb)"
     "致力生产工具，简单明确需求"
     "Application"
     "/opt/zTools/bin/${PROJECT_NAME}"

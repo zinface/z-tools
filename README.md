@@ -1,24 +1,11 @@
-# z-tools 
-Linux toolbox under development
+# z-tools-speedwidget
 
+![](assets/screenshot/20230107040434.png)  
 
-## Everything is born
+## Build And Installation
 
-> This is the nature of the future
+* make run
+* make package
+* sudo dpkg -i  build/z-tools-speedwidget*.deb
 
-## Installation
-
-* mkdir build
-* cd build
-* cmake .. 
-* make
-* ./z-tools
-
-## Build deb or tar.gz
-
-* mkdir build
-* cd build
-* cmake .. ***or*** cmake .. -DBUILD_TYPE=TGZ
-* make packae
-
-*You get the file "\*. deb" or "\*.tar.gz"*
+*You get the file "z-tools-speedwidget\*. deb"*

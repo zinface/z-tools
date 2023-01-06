@@ -1,30 +1,13 @@
 # z-tools base-apk-view
-Linux toolbox under development
+
+![](assets/screenshots/base-apk-view1.png)
+![](assets/screenshots/base-apk-view2.png)
 
 
-## Everything is born
+## Build And Installation
 
-> This is the nature of the future
+* make run
+* make package
+* sudo dpkg -i  build/z-tools-base-apk-view*.deb
 
-## Installation
-
-* mkdir build
-* cd build
-* cmake .. 
-* make
-* ./z-tools
-
-## Build deb or tar.gz
-
-* mkdir build
-* cd build
-* cmake .. ***or*** cmake .. -DBUILD_TYPE=TGZ
-* make packae
-
-*You get the file "\*. deb" or "\*.tar.gz"*
-
-
-## screenshots
-
-![](./resources/screenshots/base-apk-view1.png)
-![](./resources/screenshots/base-apk-view2.png)
+*You get the file "z-tools-base-apk-view\*. deb"*

@@ -1,26 +1,13 @@
-# z-tools 
-Linux toolbox under development
+# z-tools-desktop-generator
 
-
-## 内置组件
 * DesktopGenrater: desktop 图标生成器
 
-## Installation
+![](assets/screenshots/20230107031107.png)  
 
-* mkdir build
-* cd build
-* cmake .. 
-* make
-* ./z-tools
+## Build And Installation
 
-## Build deb or tar.gz
+* make run
+* make package
+* sudo dpkg -i  build/z-tools-desktop-generater*.deb
 
-* mkdir build
-* cd build
-* cmake .. ***or*** cmake .. -DBUILD_TYPE=TGZ
-* make packae
-
-*You get the file "\*. deb" or "\*.tar.gz"*
-
-## License
-
+*You get the file "z-tools-desktop-generater\*. deb"*

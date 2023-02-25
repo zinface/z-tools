@@ -268,28 +268,8 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     });
     // 处理实时搜索
     connect(packageSearchEdit, static_cast<void (QLineEdit::*)(const QString &)>(&QLineEdit::textChanged), [=](const QString &text){
-        switch(packageSearchCombo->currentIndex()) {
-            case 0: emit m_packageView->setPackageName(text); break;
-            case 1: break; // 此处不应调用过于耗时的操作: emit m_packageView->setPackageDescription(text);
-            case 2: emit m_packageView->setPackageSuggestion(text); break;
-            case 3: {
-                QString s = text;
-                DpkgUtils *dpkgsearch = new DpkgUtils();
-                dpkgsearch->Search(s);
-                connect(dpkgsearch, &DpkgUtils::searchFinished, this, [&](QString key, QString text){
-                    if (packageSearchEdit->text().compare(key) != 0) {
-                        // 如果不是当前搜索结果将跳出
-                        return;
-                    }
-                    // 为避免卡顿，在结果中最多仅显示 10000 字
-                    QString small = text.left(10000);
-                    if (text.length() > 10000)
-                        small.append("\n\n...为避免卡顿，在结果中最多仅显示 10000 字");
-                    tab2_textBrowser->setText(small);
-                });
-                QThreadPool::globalInstance()->start(dpkgsearch);
-            }
-        }
+        // 将实时搜索转为搜索按钮操作
+        emit packageSearchButton->clicked();
     });
     // 处理点击按钮
     connect(packageSearchButton, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](bool checked){

@@ -12,6 +12,8 @@ class DpkgUtils : public QObject, public QRunnable
 public:
     explicit DpkgUtils(QObject *parent = nullptr);
 
+    void Search(QString &v);
+
     void QueryListFiles(QString &packageName, QString &architecture);
     void QueryListFiles(QLatin1String &_packageName, QLatin1String &_architecture);
     // void QueryListFiles(QApt::Package &_package);
@@ -32,6 +34,7 @@ private:
 
 private:
     QString s_dpkg;             // dpkg
+                                    // -S,--search
     QString s_dpkgQuery;        // dpkg-query
                                     // --listfiles <package>[:architecture]
     QString s_dpkgShlibdeps;    // dpkg-shlibdeps

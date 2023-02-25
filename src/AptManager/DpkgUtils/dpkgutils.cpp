@@ -10,6 +10,14 @@ DpkgUtils::DpkgUtils(QObject *parent) : QObject(parent)
 
 }
 
+void DpkgUtils::Search(QString &v)
+{
+    arguments.clear();
+
+    command = s_dpkg;
+    arguments << "--search" << v;
+}
+
 void DpkgUtils::QueryListFiles(QString &packageName, QString &architecture)
 {
     arguments.clear();

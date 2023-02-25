@@ -1,6 +1,6 @@
 # z-tools-aptmanager
 
-![](2023-01-05-01-58-44.png)
+![](assets/screenshots/20230225193247.png)  
 
 
 ## Build And Installation

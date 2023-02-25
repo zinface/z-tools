@@ -23,6 +23,7 @@ spark_find_library(QApt libqapt)
 spark_add_library_realpaths(
     src/AptManager/AptUtils
     src/AptManager/DpkgUtils/CommandUtil
+    src/AptManager/DpkgUtils+CommandUtil
     src/AptManager+AptUtils
 )
 

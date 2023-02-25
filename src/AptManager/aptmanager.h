@@ -31,6 +31,9 @@ private:
     //QLabel   *m_packageArchitecture;
     QComboBox *m_packageInstallCategory;
 
+    QLineEdit *packageSearchEdit;
+    QPushButton *packageSearchButton;
+
     QLabel *m_statusBar;
     QCheckBox *m_refreshCheck;
 
@@ -42,6 +45,10 @@ signals:
 
 public slots:
     void onPackageChange(PackageView *m_packageView);
+
+    // QObject interface
+public:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
 
 #endif // SEARCHPACKAGE_H

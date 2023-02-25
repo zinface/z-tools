@@ -25,6 +25,8 @@
 #include <qobjectdefs.h>
 #include <qwindowdefs.h>
 
+#include <QEvent>
+#include <QKeyEvent>
 #include <QThread>
 #include <QThreadPool>
 
@@ -70,12 +72,18 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     packageSearchCombo->addItem("软件包名称",0);
     packageSearchCombo->addItem("软件包简介",1);
     packageSearchCombo->addItem("软件包建议",2);
+    packageSearchCombo->addItem("文件搜索",3);
 
 
     /******** 搜索输入框 和 搜索按钮 ******/
     QLabel *packageSearchLabel = new QLabel("软件包名称:", this);
-    QLineEdit *packageSearchEdit = new QLineEdit(this);
-    QPushButton *packageSearchButton = new QPushButton("搜索", this);
+    packageSearchEdit = new QLineEdit(this);
+    packageSearchButton = new QPushButton("搜索", this);
+    // 将该 QLineEdit 控件产生的事件转到当前窗口实例事件
+        // 在 eventFilter(QObject *watched, QEvent *event) 中
+            // watched 如果是本控件，并且 event 是 KeyPress 按键事件
+            // 那么，KeyPress 事件是 Qt::Key_Reture 回车键的话，将会触发一次搜索动作
+    packageSearchEdit->installEventFilter(this);
 
 
     connect(packageSearchCombo, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index){
@@ -264,6 +272,18 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
             case 0: emit m_packageView->setPackageName(text); break;
             case 1: break; // 此处不应调用过于耗时的操作: emit m_packageView->setPackageDescription(text);
             case 2: emit m_packageView->setPackageSuggestion(text); break;
+            case 3: {
+                QString s = text;
+                DpkgUtils *dpkgsearch = new DpkgUtils();
+                dpkgsearch->Search(s);
+                connect(dpkgsearch, &DpkgUtils::finished, this, [&](QString text){
+                    // 为避免卡顿，在结果中最多仅显示 10000 字
+                    QString small = text.left(10000);
+                    small.append("\n\n...为避免卡顿，在结果中最多仅显示 10000 字");
+                    tab2_textBrowser->setText(small);
+                });
+                QThreadPool::globalInstance()->start(dpkgsearch);
+            }
         }
     });
     // 处理点击按钮
@@ -272,6 +292,18 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
             case 0: emit m_packageView->setPackageName(packageSearchEdit->text()); break;
             case 1: emit m_packageView->setPackageDescription(packageSearchEdit->text()); break;
             case 2: emit m_packageView->setPackageSuggestion(packageSearchEdit->text()); break;
+            case 3: {
+                QString s = packageSearchEdit->text();
+                DpkgUtils *dpkgsearch = new DpkgUtils();
+                dpkgsearch->Search(s);
+                connect(dpkgsearch, &DpkgUtils::finished, this, [&](QString text){
+                    // 为避免卡顿，在结果中最多仅显示 10000 字
+                    QString small = text.left(10000);
+                    small.append("\n\n...为避免卡顿，在结果中最多仅显示 10000 字");
+                    tab2_textBrowser->setText(small);
+                });
+                QThreadPool::globalInstance()->start(dpkgsearch);
+            }
         }
     });
 
@@ -362,6 +394,21 @@ void AptManager::onPackageChange(PackageView *m_packageView) {
                                      .arg(mAptUtil.GetInstalledPackagesCount())
                                      .arg(mAptUtil.GetUpgradablePackagesCount())
                                      .arg(mAptUtil.GetMirrorsPackagesCount()));
+}
+
+bool AptManager::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == packageSearchEdit) {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *ke =  static_cast<QKeyEvent*>(event);
+            if (ke->key() == Qt::Key_Return) {
+                qDebug() << "eventFilter: enter key press";
+                emit packageSearchButton->clicked();
+                return true;
+            }
+        }
+    }
+    return QWidget::eventFilter(watched, event);
 };
 
 

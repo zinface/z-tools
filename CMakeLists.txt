@@ -22,6 +22,7 @@ spark_find_library(QApt libqapt)
 # 可接受的值为: 路径列表+依赖库A+依赖库B
 spark_add_library_realpaths(
     src/AptManager/AptUtils
+    src/AptManager/DpkgUtils/CommandUtil
     src/AptManager+AptUtils
 )
 

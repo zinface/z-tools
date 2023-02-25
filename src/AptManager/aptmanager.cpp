@@ -276,10 +276,15 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
                 QString s = text;
                 DpkgUtils *dpkgsearch = new DpkgUtils();
                 dpkgsearch->Search(s);
-                connect(dpkgsearch, &DpkgUtils::finished, this, [&](QString text){
+                connect(dpkgsearch, &DpkgUtils::searchFinished, this, [&](QString key, QString text){
+                    if (packageSearchEdit->text().compare(key) != 0) {
+                        // 如果不是当前搜索结果将跳出
+                        return;
+                    }
                     // 为避免卡顿，在结果中最多仅显示 10000 字
                     QString small = text.left(10000);
-                    small.append("\n\n...为避免卡顿，在结果中最多仅显示 10000 字");
+                    if (text.length() > 10000)
+                        small.append("\n\n...为避免卡顿，在结果中最多仅显示 10000 字");
                     tab2_textBrowser->setText(small);
                 });
                 QThreadPool::globalInstance()->start(dpkgsearch);
@@ -296,10 +301,15 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
                 QString s = packageSearchEdit->text();
                 DpkgUtils *dpkgsearch = new DpkgUtils();
                 dpkgsearch->Search(s);
-                connect(dpkgsearch, &DpkgUtils::finished, this, [&](QString text){
+                connect(dpkgsearch, &DpkgUtils::searchFinished, this, [&](QString key, QString text){
+                    if (packageSearchEdit->text().compare(key) != 0) {
+                        // 如果不是当前搜索结果将跳出
+                        return;
+                    }
                     // 为避免卡顿，在结果中最多仅显示 10000 字
                     QString small = text.left(10000);
-                    small.append("\n\n...为避免卡顿，在结果中最多仅显示 10000 字");
+                    if (text.length() > 10000)
+                        small.append("\n\n...为避免卡顿，在结果中最多仅显示 10000 字");
                     tab2_textBrowser->setText(small);
                 });
                 QThreadPool::globalInstance()->start(dpkgsearch);

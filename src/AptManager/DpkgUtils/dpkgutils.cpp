@@ -6,6 +6,7 @@ DpkgUtils::DpkgUtils(QObject *parent) : QObject(parent)
   , s_dpkg("dpkg")
   , s_dpkgQuery("dpkg-query")
   , s_dpkgShlibdeps("dpkg-shlibdeps")
+  , m_dpkgCommandType(Normal)
 {
 
 }
@@ -16,6 +17,9 @@ void DpkgUtils::Search(QString &v)
 
     command = s_dpkg;
     arguments << "--search" << v;
+
+    m_dpkgCommandType = DpkgSearch;
+    m_dpkg_search_key = v;
 }
 
 void DpkgUtils::QueryListFiles(QString &packageName, QString &architecture)
@@ -42,6 +46,9 @@ void DpkgUtils::QueryListFiles(QLatin1String &_packageName, QLatin1String &_arch
 void DpkgUtils::run()
 {
     QString result = CommandUtil::RunCommand(command, arguments);
+    if (m_dpkgCommandType == DpkgSearch) {
+        emit searchFinished(m_dpkg_search_key, result);
+    }
     emit finished(result);
 
 }

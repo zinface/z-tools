@@ -12,6 +12,12 @@ class DpkgUtils : public QObject, public QRunnable
 public:
     explicit DpkgUtils(QObject *parent = nullptr);
 
+    enum DpkgCommandType {
+        Normal,
+        DpkgSearch,
+        DpkgQueryListFiles
+    };
+
     void Search(QString &v);
 
     void QueryListFiles(QString &packageName, QString &architecture);
@@ -20,6 +26,7 @@ public:
 
 signals:
     void finished(QString text);
+    void searchFinished(QString key, QString text);
 
 public slots:
 
@@ -39,6 +46,12 @@ private:
                                     // --listfiles <package>[:architecture]
     QString s_dpkgShlibdeps;    // dpkg-shlibdeps
 
+
+private:
+    DpkgCommandType m_dpkgCommandType;
+
+    // --search key
+    QString m_dpkg_search_key;
 };
 
 #endif // DPKGUTILS_H

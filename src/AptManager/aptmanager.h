@@ -26,6 +26,11 @@ public:
     explicit AptManager(QWidget *parent = nullptr);
 
 private:
+    // QLabel    m_packageCategory;
+    QComboBox *m_packageArchitectureCategory;
+    //QLabel   *m_packageArchitecture;
+    QComboBox *m_packageInstallCategory;
+
     QLabel *m_statusBar;
     QCheckBox *m_refreshCheck;
 

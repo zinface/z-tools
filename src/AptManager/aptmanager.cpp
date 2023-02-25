@@ -12,6 +12,8 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 #include <QTimer>
+#include <QTextBrowser>
+#include <dpkgutils.h>
 
 #include <AptUtils/aptutils.h>
 #include <qboxlayout.h>
@@ -24,6 +26,7 @@
 #include <qwindowdefs.h>
 
 #include <QThread>
+#include <QThreadPool>
 
 QString numSize(qint64 size){
     if (size / 1000 / 1000 < 10){
@@ -139,7 +142,23 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
 
 // 2.1
     QGroupBox *rightBox = new QGroupBox("信息展示");
-    QVBoxLayout *rightBoxLayout = new QVBoxLayout(rightBox);
+    QGridLayout *gridLayout = new QGridLayout(rightBox);
+
+    // 为右侧面板添加一个 QTabWidget 实现多页信息聚合
+    QTabWidget *tabWidget = new QTabWidget(rightBox);
+    gridLayout->addWidget(tabWidget, 0, 0);
+
+    QWidget *tab_1 = new QWidget;
+    QWidget *tab_2 = new QWidget;
+    tabWidget->addTab(tab_1, "软件包信息");
+    tabWidget->addTab(tab_2, "文件列表");
+
+    QGridLayout *tab2_girdLayout = new QGridLayout(tab_2);
+    QTextBrowser *tab2_textBrowser = new QTextBrowser(tab_2);
+    tab2_girdLayout->addWidget(tab2_textBrowser, 0, 0);
+
+
+    QVBoxLayout *rightBoxLayout = new QVBoxLayout(tab_1);
     Rightlayout->addWidget(rightBox);
 
     QLabel *packageLabel = new QLabel("Package:");
@@ -256,6 +275,15 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
 
     connect(m_packageView, &PackageView::currentPackageChanged, [=](QApt::Package *_package){
         package->setText(_package->name());
+
+        /******** 使用 dpkg-query --listfiles <name>[:archtecture] 查询包文件内容 ********/
+        QString packageName = _package->name();
+        QString packageArch = _package->architecture();
+        DpkgUtils *dpkglistfiles = new DpkgUtils();
+        dpkglistfiles->QueryListFiles(packageName, packageArch);
+        connect(dpkglistfiles, &DpkgUtils::finished, tab2_textBrowser, &QTextBrowser::setText);
+        QThreadPool::globalInstance()->start(dpkglistfiles);
+        /******************************************************************************/
         
         if (_package->isInUpdatePhase()) {
             version->setText(QString("%1 --> %2").arg(_package->version()).arg(_package->availableVersion()));

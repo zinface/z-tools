@@ -24,7 +24,7 @@ spark_add_library_realpaths(
     src/AptManager/AptUtils
     src/AptManager/DpkgUtils/CommandUtil
     src/AptManager/DpkgUtils+CommandUtil
-    src/AptManager+AptUtils
+    src/AptManager+AptUtils+DpkgUtils
 )
 
 target_link_QApt(AptUtils)

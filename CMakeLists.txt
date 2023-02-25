@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.5.1)
 
-project(z-tools-aptmanager LANGUAGES CXX VERSION 0.7.4)
+project(z-tools-aptmanager LANGUAGES CXX VERSION 0.7.5)
 
 include(cmake/SparkEnvConfig.cmake)
 include(cmake/SparkMacrosConfig.cmake)

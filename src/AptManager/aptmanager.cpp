@@ -193,6 +193,8 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     // sdescription->setWordWrap(true);
     QLabel *ldescription = new QLabel(" Flatpak installs, manages and runs sandboxed desktop application bundles.\n See the flatpak package for a more comprehensive description.\n .\n This package contains reference documentation for libflatpak0.");
     ldescription->setWordWrap(true);
+    // 鼠标可选取软件包简介内容
+    ldescription->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 
     QGridLayout *packageVerboseLayout = new QGridLayout();
     packageVerboseLayout->addWidget(packageLabel,     0, 0);

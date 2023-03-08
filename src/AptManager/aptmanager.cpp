@@ -268,6 +268,17 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     });
     // 处理实时搜索
     connect(packageSearchEdit, static_cast<void (QLineEdit::*)(const QString &)>(&QLineEdit::textChanged), [=](const QString &text){
+        int index = packageSearchCombo->currentIndex();
+        // 0: 软件包名称
+        // 1: 软件包简介 - 不建议实时操作
+        // 2: 软件包建议
+        // 3: 文件搜索
+
+        // 此处不应调用过于耗时的操作
+        if (index == 1) {
+            return;
+        }
+        
         // 将实时搜索转为搜索按钮操作
         emit packageSearchButton->clicked();
     });

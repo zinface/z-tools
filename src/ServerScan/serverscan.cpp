@@ -215,6 +215,8 @@ void ServerScan::createServerScan()
     mainLayout->addWidget(scanProgressBar);
     mainLayout->addWidget(mHostinfo);
 
+    mHostinfo->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
     setLayout(mainLayout);
 }
 

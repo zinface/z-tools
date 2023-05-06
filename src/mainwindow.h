@@ -17,9 +17,13 @@ class MainWindow : public QWidget
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
+    void switchApkFile(QString apkFile);
+
 private:
     QVBoxLayout *m_mainLayout;
     QTabWidget *m_tabWidget;
+
+    ApkManager *apkManager;
 };
 
 #endif // MAINWINDOW_H

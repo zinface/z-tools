@@ -1,4 +1,5 @@
 #include "apkinfopage.h"
+#include "apkinstallpage.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -25,7 +26,7 @@ ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent)
     m_apkIcon->setText("icon");
     m_apkIcon->setFixedSize(64,64);
     m_apkName->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
-    m_apkPackage->setAlignment(Qt::AlignCenter | Qt::AlignLeft);
+    m_apkPackage->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     m_apkVersion->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     m_apkDescription->setWordWrap(true);
     // m_logText.set
@@ -46,6 +47,12 @@ ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent)
     apkVersion->setText("应用版本:");
     apkVersion->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
+    QPushButton *installBtn = new QPushButton("安装到...");
+    installBtn->setStyleSheet("border: none");
+    connect(installBtn, &QPushButton::clicked, this, [=](){
+        emit onInstall();
+    });
+
     QGridLayout *itemInfoLayout = new QGridLayout;
     itemInfoLayout->addWidget(apkName, 0, 0);
     itemInfoLayout->addWidget(m_apkName, 0, 1);
@@ -53,8 +60,11 @@ ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent)
     itemInfoLayout->addWidget(m_apkPackage, 1, 1);
     itemInfoLayout->addWidget(apkVersion, 2, 0);
     itemInfoLayout->addWidget(m_apkVersion, 2, 1);
+    
+    itemInfoLayout->addWidget(installBtn, 3, 0, 1, 2);
+    
     itemInfoLayout->setSpacing(0);
-    itemInfoLayout->setVerticalSpacing(10);
+    itemInfoLayout->setVerticalSpacing(5);
     itemInfoLayout->setMargin(0);
 
     QHBoxLayout *itemLayout = new QHBoxLayout;
@@ -64,6 +74,7 @@ ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent)
     itemLayout->addStretch();
     itemLayout->setSpacing(10);
     itemLayout->setContentsMargins(0,0,0,0);
+    itemLayout->setAlignment(m_apkIcon, Qt::AlignmentFlag::AlignJustify);
 
     QVBoxLayout *contentLayout = new QVBoxLayout;
     contentLayout->addStretch();
@@ -84,16 +95,16 @@ ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent)
 
     setLayout(centralLayout);
 
-    // setFixedSize(500,420);
+//    setFixedSize(440,300);
 }
 
 
 void ApkInfoPage::setApk(QString &apk) {
-    checkCommandsAapt();
+    Aapt::checkCommandsAapt();
     if (checkApk(apk)) {
         m_apkIcon->setPixmap(QIcon(apkIcon).pixmap(m_apkIcon->size()));
         m_apkName->setText(apkName);
-        m_apkPackage->setText(apkPackage);
+        m_apkPackage->setText(QString("'%1'").arg(apkPackage));
         m_apkVersion->setText(apkVersion);
         // m_logText->setText(apkLog);
         m_apkDescription->setText(apkLog);

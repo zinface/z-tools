@@ -1,5 +1,7 @@
 #include "apkmanager.h"
 #include "apkinfopage.h"
+#include "apkinstallpage.h"
+#include "splashwindow.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -16,10 +18,16 @@
 #include <QApplication>
 #include <QStackedLayout>
 #include <QFrame>
+#include <QCommandLineParser>
+#include <QDebug>
+#include <QThread>
+#include <QTimer>
 
 ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
 ,m_centralLayout(new QStackedLayout)
-,page(new ApkInfoPage)
+,splash(new SplashWindow)
+,infoPage(new ApkInfoPage)
+,installPage(new ApkInstallPage)
 {
     // m_centralLayout->addWidget(QWidget *w);
     QLabel *iconImage = new QLabel;
@@ -45,7 +53,20 @@ ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
     centerWidget->setLayout(centralLayout);
 
     m_centralLayout->addWidget(centerWidget);
-    m_centralLayout->addWidget(page);
+    m_centralLayout->addWidget(splash);
+    m_centralLayout->addWidget(infoPage);
+    m_centralLayout->addWidget(installPage);
+
+
+    connect(splash, &SplashWindow::done, this, [=](){
+        m_centralLayout->setCurrentWidget(infoPage);
+    });
+
+    connect(infoPage, &ApkInfoPage::onInstall, this, [=](){
+        m_centralLayout->setCurrentWidget(installPage);
+    });
+
+
 
     setAcceptDrops(true);
     setFocusPolicy(Qt::StrongFocus);
@@ -53,13 +74,33 @@ ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
     setFixedSize(440,300);
 }
 
+void ApkManager::chooseApk(QString apkPath)
+{
+    this->m_centralLayout->setCurrentWidget(splash);
+    splash->start();
+    this->apkPath = apkPath;
+    qDebug() << QString("chooseApk: %1").arg(apkPath);
+    QThread *delayThread = new QThread(this);
+    connect(delayThread, &QThread::started, [=](){
+        this->infoPage->setApk(this->apkPath);
+        this->installPage->setApk(this->apkPath);
+        delayThread->exit(0);
+    });
+    connect(delayThread, &QThread::finished, delayThread, &QThread::deleteLater);
+
+    QTimer *timer = new QTimer;
+    timer->setInterval(200);
+    connect(timer, SIGNAL(timeout()), delayThread, SLOT(start()));
+    timer->start();
+}
+
 void ApkManager::initUi()
 {
 
-// New Layout
+    // New Layout
 
 
-// Old Layout
+    // Old Layout
     // QLabel *apkPathLabel = new QLabel("apk路径:");
     // apkPathLine = new QLineEdit;
     // apkPathLine->setReadOnly(true);
@@ -96,85 +137,14 @@ void ApkManager::initUi()
 
 }
 
-// void ApkManager::onChoosedApkFile()
-// {
-//     log->clear();
-//     QFile file(currentApkPath);
-
-//     log->append("tmppath: "+QDir::tempPath());
-//     if(file.exists()) {
-//         log->append("find file path: " + currentApkPath);
-//         log->append("find file: " + QFileInfo(file).fileName());
-// //        file.copy(QDir::tempPath()+"/"+QFileInfo(file).fileName());
-//     }
-//     QProcess process;
-//     checkCommandsAapt();
-//     log->append("working dir: " + QFileInfo(file).dir().path());
-//     process.setWorkingDirectory(QFileInfo(file).dir().path());
-// //    currentApkPath.replace(' ',"\\ ");
-// //    process.start("aapt dump badging " + QDir::tempPath()+"/"+QFileInfo(file).fileName());
-// //    process.start("aapt dump badging " + currentApkPath);
-//     process.start(aapt.trimmed(), QStringList() << "dump" << "badging" << QFileInfo(file).fileName());
-//     process.waitForFinished();
-//     targetPath = QFileInfo(file).dir().path();
-//     QByteArray stde = process.readAllStandardError();
-
-//     log->append("exit :" + QString::number(process.exitCode()));
-//     log->append("..........................");
-//     log->append(QString::fromLocal8Bit(stde).trimmed());
-
-//     QByteArray stdo = process.readAllStandardOutput();
-//     QString result = QString::fromLocal8Bit(stdo).trimmed();
-//     QStringList lines = result.split('\n');
-
-// //    log->append(result);
-
-//     QString zh;
-//     QString en;
-
-//     foreach(QString line, lines) {
-// // package: name='cn.androidfun.apkfetch' versionCode='20' versionName='2.5.1' platformBuildVersionName=''
-// // application-label-zh:'提取应用APK安装包'
-//         if(line.startsWith("package: ")) {
-//             QString packagename = line.split(' ').at(1).split("\'").at(1);
-//             QString versionCode = line.split(' ').at(2).split("\'").at(1);
-//             QString versionName = line.split(' ').at(3).split("\'").at(1);
-//             m_apkVersion->setText(versionName);
-//             m_apkPackage->setText(packagename);
-//             log->append("search packagename: " + packagename);
-//             log->append("search versionName: " + versionName);
-//         }
-//         if(line.startsWith("application-label-zh:")) {
-//             QString name = line.split("\'").at(1);
-//             zh = name;
-            
-//         }
-//         if(line.startsWith("application-label:")) {
-//             QString name = line.split("\'").at(1);
-//             en = name;
-            
-//         }
-//     }
-//     if(!zh.isEmpty()) {
-//         m_apkName->setText(zh);
-//     } else {
-//         m_apkName->setText(en);
-//     }
-// }
-
-
-void ApkManager::onApkFileChoose()
+void ApkManager::switchPrevPage()
 {
-    // if(targetPath.isEmpty()) {
-    //     targetPath=QDir::homePath();
-    // }
-    // QString filePath = QFileDialog::getOpenFileName(this, "选择apk文件",targetPath,"apk 文件 (*.apk)");
-    // if (!filePath.endsWith(".apk")) {
-    //     return;
-    // }
-    // currentApkPath = filePath;
-    // apkPathLine->setText(filePath);
-    // onChoosedApkFile();
+    int nextIndex = m_centralLayout->currentIndex() - 1;
+    if (nextIndex == 1){
+        m_centralLayout->setCurrentIndex(0);
+    } else {
+        m_centralLayout->setCurrentIndex(nextIndex);
+    }
 }
 
 void ApkManager::dragEnterEvent(QDragEnterEvent *event) {
@@ -211,17 +181,18 @@ void ApkManager::dropEvent(QDropEvent *event) {
     out.flush();
 
     if (fileList.size() != 0) {
-        page->setApk(fileList[0]);
-
+        chooseApk(fileList[0]);
 
         out << QString("!! --> %1\n").arg(fileList[0]);
-        m_centralLayout->setCurrentIndex(m_centralLayout->count()-1);
+//        m_centralLayout->setCurrentIndex(m_centralLayout->count()-1);
     }
 }
 
 void ApkManager::keyPressEvent(QKeyEvent *event) {
     switch (event->key()) {
-        case Qt::Key_Escape: m_centralLayout->setCurrentIndex(0);   break;
+        case Qt::Key_Escape:
+            switchPrevPage();
+        break;
     default:;
     }
 }

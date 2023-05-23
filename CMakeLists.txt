@@ -28,6 +28,9 @@ spark_add_executable_path(${PROJECT_NAME} src
 )
 target_link_ApkManager(${PROJECT_NAME})
 
+# 构建 zToolsPlugin 扩展
+add_subdirectory(src/zToolsPlugin)
+
 # 安装主程序 z-tools-aptmanager
 spark_install_target(/opt/zTools/bin
     ${PROJECT_NAME})

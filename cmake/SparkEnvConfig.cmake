@@ -6,3 +6,11 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 # set(CMAKE_BUILD_TYPE "Debug")
+
+option(SPARK_DEBUG_MESSAGE "CMake Spark Module Debug Message." OFF)
+
+macro(spark_debug_message)
+    if(SPARK_DEBUG_MESSAGE)
+        message(${ARGN})
+    endif(SPARK_DEBUG_MESSAGE)
+endmacro(spark_debug_message)

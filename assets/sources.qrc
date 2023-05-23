@@ -4,5 +4,6 @@
         <file>resources/apk1.png</file>
         <file>resources/apk3.jpg</file>
         <file>resources/apk4.jpg</file>
+        <file>resources/loading.gif</file>
     </qresource>
 </RCC>

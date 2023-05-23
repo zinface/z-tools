@@ -9,6 +9,7 @@ if(zTools_FOUND)
         ${CMAKE_SOURCE_DIR}/assets
         ${CMAKE_SOURCE_DIR}/src/ApkManager
         ${CMAKE_SOURCE_DIR}/src/ApkManager/aapt
+        ${CMAKE_SOURCE_DIR}/src/ApkManager/utils
     )
     # target_link_qt5(BaseApkView)
 

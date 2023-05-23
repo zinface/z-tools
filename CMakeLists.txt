@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.5.1)
 
-project(z-tools-base-apk-view LANGUAGES CXX VERSION 1.0)
+project(z-tools-base-apk-view LANGUAGES CXX VERSION 1.1)
 
 include(cmake/SparkEnvConfig.cmake)
 include(cmake/SparkMacrosConfig.cmake)
@@ -20,7 +20,8 @@ set(QRC_SOURCES "assets/sources.qrc")
 # 可接受的值为: 路径列表+依赖库A+依赖库B
 spark_add_library_realpaths(
     src/ApkManager/aapt
-    src/ApkManager+aapt
+    src/ApkManager/utils
+    src/ApkManager+aapt+utils
 )
 
 spark_add_executable_path(${PROJECT_NAME} src

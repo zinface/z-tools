@@ -4,41 +4,33 @@
 #include <QWidget>
 #include <QDropEvent>
 
-
-
 class QLabel;
 class QLineEdit;
 class QTextEdit;
 class QStackedLayout;
+class SplashWindow;
 class ApkInfoPage;
+class ApkInstallPage;
 
 class ApkManager : public QWidget
 {
     Q_OBJECT
 public:
     explicit ApkManager(QWidget *parent = nullptr);
+    void chooseApk(QString apkPath);
+
 
 private:
     void initUi();
-
+    void switchPrevPage();
 
     QStackedLayout *m_centralLayout;
-    ApkInfoPage *page;
+    SplashWindow *splash;
+    ApkInfoPage *infoPage;
+    ApkInstallPage *installPage;
 
 private:
-    // QString currentApkPath;
-    // QLineEdit *apkPathLine;
-    QTextEdit *m_logText;
-
-    // QString targetPath;
-    // void onChoosedApkFile();
-
-    // void checkCommandsAapt();
-
-
-private slots:
-    void onApkFileChoose();
-    // void onDropApkFile();
+    QString apkPath;
 
     // QWidget interface
 protected:

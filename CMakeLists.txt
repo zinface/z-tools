@@ -11,6 +11,10 @@ include(cmake/SparkFindQt5Config.cmake)
 include(cmake/SparkMacrosExtendConfig.cmake)
 include(cmake/SparkInstallMacrosConfig.cmake)   # 提供了 spark_install 开头的 macro 宏用于安装 target、file、program、directory、changelog 等内容
 
+# 对模板文件进行填充，并生成填充的文件
+    # 此部分内容为填充项目的的版本信息
+configure_file(cmake/config.h.in 
+    ${CMAKE_BINARY_DIR}/config.h)
 
 # 资源文件路径
 set(QRC_SOURCES "")

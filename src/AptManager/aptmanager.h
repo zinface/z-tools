@@ -36,6 +36,7 @@ private:
 
     QLabel *m_statusBar;
     QCheckBox *m_refreshCheck;
+    QPushButton *m_updateBtn;
 
     AptUtils mAptUtil;
 

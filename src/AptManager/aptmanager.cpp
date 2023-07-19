@@ -48,6 +48,7 @@ QString numSize(qint64 size){
 AptManager::AptManager(QWidget *parent) : QWidget(parent)
   ,m_statusBar(new QLabel)
   ,m_refreshCheck(new QCheckBox("实时刷新"))
+  ,m_updateBtn(new QPushButton("刷新"))
 {
 
     /******* 架构类别 和 结果过滤控制 *******/
@@ -133,8 +134,11 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     // 底部状态布局
     QHBoxLayout *statusBarLayout = new QHBoxLayout;
     statusBarLayout->addWidget(m_statusBar);
-    statusBarLayout->addWidget(m_refreshCheck);
-    statusBarLayout->setAlignment(m_refreshCheck, Qt::AlignmentFlag::AlignRight);
+    // 不再使用实时刷新，非常耗时，改为单次点击按钮
+    // statusBarLayout->addWidget(m_refreshCheck);
+    statusBarLayout->addWidget(m_updateBtn);
+    // m_updateBtn->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
+    statusBarLayout->setAlignment(m_updateBtn, Qt::AlignmentFlag::AlignRight);
 
     // 左侧面板布局
     QVBoxLayout *leftBoxLayout = new QVBoxLayout(leftBox);
@@ -386,6 +390,10 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
             timer->stop();
         }
     });
+    // 处理刷新按钮
+    connect(m_updateBtn, &QPushButton::clicked, [=](){
+        emit packageChange(m_packageView);
+    });
 }
 
 void AptManager::onPackageChange(PackageView *m_packageView) {
@@ -410,7 +418,7 @@ bool AptManager::eventFilter(QObject *watched, QEvent *event)
         }
     }
     return QWidget::eventFilter(watched, event);
-};
+}
 
 
 //    QApt::PackageList plist = m_backend->availablePackages();

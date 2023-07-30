@@ -59,6 +59,7 @@ public:
         FilterPackageName,
         FilterPackageDescription,
         FilterPackageSuggestion,
+        FilterPackageVersion,
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -75,6 +76,7 @@ public slots:
     void packageNameChange(QString text);
     void packageDescriptionChange(QString text);
     void packageSuggestionChange(QString text);
+    void packageVersionChange(QString text);
 
 signals:
     void statusChanged();
@@ -88,6 +90,8 @@ private:
     QStringList currentPackageDescriptions;
     QString currentPackageSuggestion;
     QStringList currentPackageSuggests;
+    QString currentPackageVersion;
+    QStringList currentPackageVersions;
 
     FilteredPackageState filter;
 

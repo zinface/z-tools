@@ -74,6 +74,7 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     packageSearchCombo->addItem("软件包简介",1);
     packageSearchCombo->addItem("软件包建议",2);
     packageSearchCombo->addItem("文件搜索",3);
+    packageSearchCombo->addItem("软件包版本",4);
 
 
     /******** 搜索输入框 和 搜索按钮 ******/
@@ -308,7 +309,10 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
                     tab2_textBrowser->setText(small);
                 });
                 QThreadPool::globalInstance()->start(dpkgsearch);
-            }
+            } break;
+            case 4: {
+                emit m_packageView->setPackageVersion(packageSearchEdit->text()); break;
+            }break;
         }
     });
 

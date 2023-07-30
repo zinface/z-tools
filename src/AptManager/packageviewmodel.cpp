@@ -100,6 +100,16 @@ void PackageViewModel::updateModel()
                     }
                 }
                 break;
+            case FilterPackageVersion:
+                if (currentPackageVersion.isEmpty()) goto exp;
+                for (auto &sep : currentPackageVersions)
+                {
+                    if (! item->version().contains(sep, Qt::CaseInsensitive)) {
+                        contained = false;
+                        goto exp;
+                    }
+                }
+                break;
         }
 
         exp:
@@ -180,5 +190,12 @@ void PackageViewModel::packageSuggestionChange(QString text) {
     currentPackageSuggestion = text;
     currentPackageSuggests = currentPackageSuggestion.split(" ");
     filter = FilterPackageSuggestion;
+    updateModel();
+}
+
+void PackageViewModel::packageVersionChange(QString text) {
+    currentPackageVersion = text;
+    currentPackageVersions = currentPackageVersion.split(" ");
+    filter = FilterPackageVersion;
     updateModel();
 }

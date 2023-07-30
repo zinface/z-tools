@@ -35,6 +35,9 @@ PackageView::PackageView(QWidget *parent) : QListView(parent)
     connect(this,&PackageView::setPackageSuggestion, [=](QString text){
       m_model->packageSuggestionChange(text);
     });
+    connect(this,&PackageView::setPackageVersion, [=](QString text){
+      m_model->packageVersionChange(text);
+    });
     connect(m_packagesListDelegate, &PackagesListDelegate::currentPackageIndexChanged, [=](int index){
       // m_model->data(index);
       emit currentPackageChanged(m_model->package(index));

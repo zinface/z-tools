@@ -13,6 +13,10 @@ public:
     void appendData(const QString& item);
     void setData(QStringList items);
 
+public slots:
+    
+    void enable_pkg(QString pkg);
+    void disable_pkg(QString pkg);
 
 private:
     QStringList m_data;

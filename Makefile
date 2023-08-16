@@ -14,8 +14,12 @@ all:
 	cd build && cmake ..
 	cd build && make -j$(CPUS)
 
-run: all
-	exec $(shell find build/ -maxdepth 1 -type f -executable | grep $(PROJECT_NAME))
+test:
+	cd build && make test
+
+run: all test
+	# exec $(shell find build/ -maxdepth 1 -type f -executable | grep $(PROJECT_NAME))
+	@echo "done."
 
 debug: 
 	mkdir -p build

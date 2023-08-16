@@ -71,3 +71,8 @@ include(cmake/SparkBuildGraphviz.cmake)
 # 注释行(使用方式)
 find_package(DebPackage PATHS ${CMAKE_SOURCE_DIR})
 add_package_descript(cmake/package-deb.descript)
+
+
+enable_testing()
+add_test(NAME xplore COMMAND ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/assets/apks/X-plore.apk WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+# 添加一个名为 xplore 的测试(CTest,CMake内置功能)，在构建目录(BINARY_DIR)中执行可执行文件并传入一个包含在源代码目录下的apk文件路径作为参数

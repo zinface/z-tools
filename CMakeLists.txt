@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.5.1)
 
-project(z-tools-adbmanager LANGUAGES CXX VERSION 0.1)
+project(z-tools-adbmanager LANGUAGES CXX VERSION 0.1.1)
 
 include(cmake/SparkEnvConfig.cmake)
 include(cmake/SparkMacrosConfig.cmake)

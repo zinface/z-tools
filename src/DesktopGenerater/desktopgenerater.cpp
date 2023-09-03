@@ -2,6 +2,7 @@
 #include "desktopexecparamdialog.h"
 #include "desktopextendedgroupbox.h"
 #include "desktopgenerater.h"
+#include "qdebug.h"
 #include "ui_desktopgenerater.h"
 
 #include <QApplication>
@@ -15,7 +16,9 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QPushButton>
+#include <QSettings>
 #include <QStandardPaths>
 #include <QTextEdit>
 #include <QTextStream>
@@ -24,6 +27,8 @@ DesktopGenerater::DesktopGenerater(QWidget *parent) : QWidget(parent)
   ,ui(new Ui::DesktopGenertater)
 {
     ui->setupUi(this);
+
+    setAcceptDrops(true);
 
     initUi();
 
@@ -311,4 +316,50 @@ void DesktopGenerater::initShowContentBox()
     contentGroupBox->addWidget(contentText);
     contentGroupBox->addWidget(copyClipper);
     contentGroupBox->addWidget(saveAsFile);
+}
+
+void DesktopGenerater::dragEnterEvent(QDragEnterEvent *event)
+{
+    const QMimeData *mimeData =  event->mimeData();
+    if (mimeData->hasUrls() && mimeData->urls()[0].isLocalFile() && mimeData->urls()[0].toLocalFile().endsWith(".desktop")) {
+        event->accept();
+    }
+}
+
+void DesktopGenerater::dropEvent(QDropEvent *event)
+{
+    qDebug() << "dropEvent:" << event->mimeData()->urls()[0].toLocalFile();
+
+    event->mimeData()->urls()[0].toLocalFile();
+    QSettings desktopfile(event->mimeData()->urls()[0].toLocalFile(), QSettings::IniFormat);
+
+    qDebug() << desktopfile.allKeys();
+
+    // 使用 toLatin1 是解决 toString 中文变成乱码。
+    QString version    = desktopfile.value("Desktop Entry/Version")     .toString().toLatin1();
+    QString name       = desktopfile.value("Desktop Entry/Name")        .toString().toLatin1();
+    QString name_zh    = desktopfile.value("Desktop Entry/Name[zh_CN]") .toString().toLatin1();
+    QString comment    = desktopfile.value("Desktop Entry/Comment")     .toString().toLatin1();
+    QString type       = desktopfile.value("Desktop Entry/Type")        .toString().toLatin1();
+    QString exec       = desktopfile.value("Desktop Entry/Exec")        .toString().toLatin1();
+    QString icon       = desktopfile.value("Desktop Entry/Icon")        .toString().toLatin1();
+    QString categories = desktopfile.value("Desktop Entry/Categories")  .toString().toLatin1();
+
+    qDebug() << "Version:     " << version;
+    qDebug() << "Name:        " << name;
+    qDebug() << "Name[zh_CN]: " << name_zh;
+    qDebug() << "Comment:     " << comment;
+    qDebug() << "Type:        " << type;
+    qDebug() << "Exec:        " << exec;
+    qDebug() << "Icon:        " << icon;
+    qDebug() << "Categories:  " << categories;
+
+    contentVersion->setText(version);
+    contentName->setText(name);
+    contentNameZhCn->setText(name_zh);
+    contentComment->setText(comment);
+    contentTypeComb->setCurrentText(type);
+    contentExec->setText(exec);
+    contentIcon->setText(icon);
+    contentCategoriesComb->setCurrentText(categories);
 }

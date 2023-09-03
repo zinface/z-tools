@@ -2,6 +2,7 @@
 #define DESKTOPGENERATER_H
 
 #include <QDir>
+#include <QDragEnterEvent>
 #include <QWidget>
 
 class QLabel;
@@ -124,6 +125,11 @@ private:
 
     Ui::DesktopGenertater *ui;
 
+
+    // QWidget interface
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 };
 
 #endif // DESKTOPGENERATER_H

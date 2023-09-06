@@ -149,6 +149,22 @@ void ServerScan::onScanStart()
         }
     }
 
+    if (startIp == "" && endIp == "") {
+        servers.clear();
+
+        foreach(QHostAddress address, QNetworkInterface::allAddresses()){
+            QString ipAddr = address.toString();
+            QTextStream(stdout) << QString("我的 IP 地址: %1\n").arg(ipAddr);
+            auto localSplit = ipAddr.split(".");
+            if (localSplit.count() == 4) {
+                QString prefixIp = QString("%1.%2.%3").arg(localSplit[0]).arg(localSplit[1]).arg(localSplit[2]);
+                for (int i = 1; i < 254; ++i) {
+                    servers.append(QString("%1.%2").arg(prefixIp).arg(i));
+                }
+            }
+        }
+    }
+
     QStringList result;
     foreach (QString server, servers) {
         foreach (int port, ports){

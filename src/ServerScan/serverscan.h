@@ -60,7 +60,7 @@ private:
     QLabel *mHostinfo;
 
 private:
-    void createServerScan();
+    void initUI();
     QList<int> rangeIntList(int x, int y);
 
 

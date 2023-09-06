@@ -26,7 +26,8 @@ ServerScan::ServerScan(QWidget *parent) : QWidget(parent)
   ,mScanButton(new QPushButton("扫描"))
   ,mHostinfo(new QLabel())
 {
-    createServerScan();
+    initUI();
+//    initRegExp();
 
     QRegExp rxIp("((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)");
     QRegExp rxPort("[\\d,-]{0,}");
@@ -200,7 +201,7 @@ void ServerScan::remoteStartChanged()
     }
 }
 
-void ServerScan::createServerScan()
+void ServerScan::initUI()
 {
     m_remoteStart->setPlaceholderText("0.0.0.0");
     m_remoteEnd->setPlaceholderText("0.0.0.0");

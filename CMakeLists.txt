@@ -41,12 +41,19 @@ spark_install_file(/opt/zTools/Components/ServerScan/resources/icon
 include(cmake/SparkDesktopMacros.cmake)
 # 内容默认应用名称: Name= 应与项目名称相同
 spark_desktop_macros(
+    # 应用名称: Name=
     "${PROJECT_NAME}"
+    # 应用名称: Name[zh_CN]=
     "端口扫描(tcp)"
+    # 应用说明: Comment=
     "致力生产工具，简单明确需求"
+    # 应用类型: Type=
     "Application"
+    # 执行程序: Exec=
     "/opt/zTools/bin/z-tools-scanport"
+    # 图标路径: Icon=
     "/opt/zTools/Components/ServerScan/resources/icon/z-Tools.svg"
+    # 应用分类: Category=
     "Development"
 )
 

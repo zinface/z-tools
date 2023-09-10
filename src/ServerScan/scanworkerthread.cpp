@@ -1,5 +1,6 @@
 #include "scanworkerthread.h"
 
+#include <QFile>
 #include <QTcpSocket>
 
 ScanWorkerThread::ScanWorkerThread()
@@ -32,15 +33,26 @@ void ScanWorkerThread::setWorkParam(QString server, QList<int> ports)
 {
     this->host = server;
     this->ports.append(ports);
-//    QTcpSocket tcp;
-//    tcp.connectToHost(server, port);
-//    bool connected = tcp.waitForConnected(50);
-//    if (connected) {
-//        mutex.lock();
-//// m_model.setStringList(m_model.stringList() << _server+":"+QString::number(_port));
-//        onConnected(server+":"+QString::number(port));
-//        mutex.unlock();
-    //    }
+}
+
+QString ScanWorkerThread::getProtocal(int port)
+{
+    QString protocal("[tcp/*]");
+    QFile f("/etc/services");
+    if (f.exists() && f.open(QIODevice::ReadOnly)) {
+        char buffer[100];
+        int len = 0;
+        bool found = false;
+        while(!found && (len = f.readLine(buffer, 100))>0) {
+            QStringList localSplit = QString(buffer).split(QRegExp("\\s{1,}"));
+            if (localSplit.length()>=2 && QString("%1/tcp").arg(port).compare(localSplit.at(1))==0) {
+                protocal = QString("[tcp/%1]").arg(localSplit.at(0));
+                found = true;
+            }
+        }
+        f.close();
+    }
+    return protocal;
 }
 
 int ScanWorkerThread::status()

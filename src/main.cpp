@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     qApp->setStyle(QStyleFactory::create("fusion"));
 #endif
     QApplication a(argc, argv);
-    a.setApplicationName("ScanPort 端口扫描 - v0.1.2");
+    a.setApplicationName("ScanPort 端口扫描 - v0.1.3");
     MainWindow wm;
     wm.show();
     QDesktopWidget *desktop = QApplication::desktop();

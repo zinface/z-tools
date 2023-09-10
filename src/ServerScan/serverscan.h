@@ -56,6 +56,7 @@ private:
     QPushButton *mScanButton;
 
     QListWidget m_resuleView;
+    QMenu *m_resuleView_menu;
 
     QLabel *mHostinfo;
 

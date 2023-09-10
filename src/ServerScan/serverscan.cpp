@@ -12,6 +12,9 @@
 #include <QStringListModel>
 #include <QTcpSocket>
 #include <QThread>
+#include <QMenu>
+#include <QApplication>
+#include <QClipboard>
 
 ServerScan::ServerScan(QWidget *parent) : QWidget(parent)
   ,scanProgressBar(new QProgressBar)
@@ -238,6 +241,38 @@ void ServerScan::initUI()
     mainLayout->addWidget(mHostinfo);
 
     mHostinfo->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+// [1 自定义右键菜单]
+    m_resuleView.setContextMenuPolicy(Qt::CustomContextMenu);
+    m_resuleView_menu = new QMenu();
+
+    m_resuleView_menu->addAction("复制", [this](){
+        QClipboard *clipboard = qApp->clipboard();
+        auto item = m_resuleView.currentItem();
+        QString text = item->text();
+        clipboard->setText(text);
+    });
+    m_resuleView_menu->addAction("复制(IP)", [this](){
+        QClipboard *clipboard = qApp->clipboard();
+        auto item = m_resuleView.currentItem();
+        QString text = QString("%1")
+                            .arg(item->data(Qt::UserRole).toString());
+        clipboard->setText(text);
+    });
+    m_resuleView_menu->addAction("复制(IP:PORT)", [this](){
+        QClipboard *clipboard = qApp->clipboard();
+        auto item = m_resuleView.currentItem();
+        QString text = QString("%1:%2")
+                            .arg(item->data(Qt::UserRole).toString())
+                            .arg(item->data(Qt::UserRole+1).toInt());
+        clipboard->setText(text);
+    });
+    connect(&m_resuleView, &QListWidget::customContextMenuRequested, [this](const QPoint &pos){
+        if (m_resuleView.selectedItems().count() > 0) {
+            m_resuleView_menu->popup(QCursor::pos());
+        }
+    });
+// [1]
 
     setLayout(mainLayout);
 }

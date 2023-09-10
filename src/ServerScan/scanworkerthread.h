@@ -45,7 +45,7 @@ public:
 
 
 signals:
-    void onConnected(QString result);
+    void onConnected(QString host, int port, QString protocal);
     void onFinished(ScanWorkerThread *s);
 
 private:

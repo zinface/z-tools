@@ -170,7 +170,7 @@ void ServerScan::onScanStart()
     foreach (QString server, servers) {
         foreach (int port, ports){
             ScanWorkerThread *localScanWorkerThread = new ScanWorkerThread(server, port);
-            connect(localScanWorkerThread, SIGNAL(onConnected(QString)), this, SLOT(onConnected(QString)));
+            connect(localScanWorkerThread, SIGNAL(onConnected(QString, int, QString)), this, SLOT(onConnected(QString, int, QString)));
             pool.addThreadTask(localScanWorkerThread);
         }
     }
@@ -179,9 +179,14 @@ void ServerScan::onScanStart()
     pool.doStart();
 }
 
-void ServerScan::onConnected(QString result)
+void ServerScan::onConnected(QString host, int port, QString protocal)
 {
-    m_resuleView.addItem(result);
+    QListWidgetItem *item = new QListWidgetItem;
+    item->setData(Qt::DisplayRole, QString("%1:%2 %3").arg(host).arg(port).arg(protocal));
+    item->setData(Qt::UserRole, host);
+    item->setData(Qt::UserRole+1, port);
+    item->setData(Qt::UserRole+2, protocal);
+    m_resuleView.addItem(item);
 }
 
 void ServerScan::onScanThreadChanged()

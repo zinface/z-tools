@@ -29,7 +29,7 @@ public:
 
 private slots:
     void onScanStart();
-    void onConnected(QString result);
+    void onConnected(QString host, int port, QString protocal);
     void onScanThreadChanged();
     void onScanThreadNumChanged(int);
 

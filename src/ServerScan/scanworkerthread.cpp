@@ -68,7 +68,7 @@ void ScanWorkerThread::run()
         bool connected = tcp.waitForConnected(1000);
         if (connected) {
             mutex.lock();
-            emit onConnected(host+":"+QString::number(port));
+            emit onConnected(host, port, getProtocal(port));
             mutex.unlock();
         }
     }

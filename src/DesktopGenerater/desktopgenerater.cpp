@@ -340,10 +340,25 @@ void DesktopGenerater::dropEvent(QDropEvent *event)
     QString name       = desktopfile.value("Desktop Entry/Name")        .toString().toLatin1();
     QString name_zh    = desktopfile.value("Desktop Entry/Name[zh_CN]") .toString().toLatin1();
     QString comment    = desktopfile.value("Desktop Entry/Comment")     .toString().toLatin1();
+    QString genericname= desktopfile.value("Desktop Entry/GenericName") .toString().toLatin1();
     QString type       = desktopfile.value("Desktop Entry/Type")        .toString().toLatin1();
     QString exec       = desktopfile.value("Desktop Entry/Exec")        .toString().toLatin1();
     QString icon       = desktopfile.value("Desktop Entry/Icon")        .toString().toLatin1();
     QString categories = desktopfile.value("Desktop Entry/Categories")  .toString().toLatin1();
+
+    if (exec.contains('%')) {
+        qDebug() << "_exec:        " << exec;
+
+        int _index = exec.indexOf('%');
+        m_currentParam = exec.mid(_index);
+        exec = exec.left(_index);
+        this->ui->execParamChoose->setText(m_currentParam);
+    } else {
+        m_currentParam = "";
+        execParamChoose->setText("参数设定");
+    }
+
+    if (comment.isEmpty()) comment = genericname;
 
     qDebug() << "Version:     " << version;
     qDebug() << "Name:        " << name;
@@ -351,6 +366,7 @@ void DesktopGenerater::dropEvent(QDropEvent *event)
     qDebug() << "Comment:     " << comment;
     qDebug() << "Type:        " << type;
     qDebug() << "Exec:        " << exec;
+    qDebug() << "ExecParam:   " << m_currentParam;
     qDebug() << "Icon:        " << icon;
     qDebug() << "Categories:  " << categories;
 
@@ -362,4 +378,6 @@ void DesktopGenerater::dropEvent(QDropEvent *event)
     contentExec->setText(exec);
     contentIcon->setText(icon);
     contentCategoriesComb->setCurrentText(categories);
+
+    onGeneraterContent();
 }

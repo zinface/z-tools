@@ -39,6 +39,8 @@ Maintainer: zinface <zinface@163.com>
 Homepage: 
 # 软件包建议
 Recommends: 
+# 软件冲突
+Conflicts: 
 # 软件包描述信息
 Descrition: 简介部分
  Linux toolbox under development

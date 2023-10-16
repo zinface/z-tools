@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.5.1)
 
-project(z-tools-desktop-generater LANGUAGES CXX VERSION 1.2)
+project(z-tools-desktop-generater LANGUAGES CXX VERSION 1.2.1)
 
 include(cmake/SparkEnvConfig.cmake)
 include(cmake/SparkMacrosConfig.cmake)

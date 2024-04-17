@@ -21,22 +21,21 @@ set(QRC_SOURCES "")
 
 spark_find_library(QApt libqapt)
 
+spark_add_executable_source(${PROJECT_NAME}
+    ${QRC_SOURCES}
+)
+
 # 基于传入的项进行构建
 # 可接受的值为: 路径列表
 # 可接受的值为: 路径列表+依赖库A+依赖库B
-spark_add_library_realpaths(
-    src/AptManager/AptUtils
-    src/AptManager/DpkgUtils/CommandUtil
-    src/AptManager/DpkgUtils+CommandUtil
-    src/AptManager+AptUtils+DpkgUtils
+spark_add_target_realpaths(ALL
+    s:src/AptManager/AptUtils
+    s:src/AptManager/DpkgUtils/CommandUtil
+    s:src/AptManager/DpkgUtils+CommandUtil
+    s:src/AptManager+AptUtils+DpkgUtils
+    t:${PROJECT_NAME}:src+AptManager
 )
-
 target_link_QApt(AptUtils)
-
-spark_add_executable_path(${PROJECT_NAME} src
-    ${QRC_SOURCES}
-)
-target_link_AptManager(${PROJECT_NAME})
 
 # 安装主程序 z-tools-aptmanager
 spark_install_target(/opt/zTools/bin
@@ -50,21 +49,30 @@ spark_install_file(/opt/zTools/Components/APTManager/resources/icon
 include(cmake/SparkDesktopMacros.cmake)
 # 内容默认应用名称: Name= 应与项目名称相同
 spark_desktop_macros(
+    # 应用名称: Name=
     "${PROJECT_NAME}"
+    # 应用名称: Name[zh_CN]=
     "软件包查看器(apt)"
+    # 应用说明: Comment=
     "致力生产工具，简单明确需求"
+    # 应用类型: Type=
     "Application"
+    # 执行程序: Exec=
     "/opt/zTools/bin/z-tools-aptmanager"
+    # 图标路径: Icon=
     "/opt/zTools/Components/APTManager/resources/icon/z-Tools.svg"
+    # 应用分类: Categories=
     "Development"
+    # MIME类型: MimeType=
 )
+
 
 # 安装 desktop 文件
 spark_install_file(/usr/share/applications
-    ${DESKTOP_FILE})
+    ${SPARK_DESKTOP_FILE})
 
 include(cmake/SparkBuildGraphviz.cmake)
 
 # 注释行(使用方式)
-find_package(DebPackage PATHS ${CMAKE_SOURCE_DIR})
-add_package_descript(cmake/package-deb.descript)
+find_package(SparkDebPackage PATHS ${CMAKE_SOURCE_DIR})
+add_package_descript(cmake/spark-deb-package.descript)

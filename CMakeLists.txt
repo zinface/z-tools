@@ -24,11 +24,12 @@ spark_add_executable_source(${PROJECT_NAME}
 # 可接受的值为: 路径列表+依赖库A+依赖库B
 spark_add_executable_path(${PROJECT_NAME}
     src
-    src/manager
-    src/utils
-    src/view
-    src/view/model
-    src/view/delegate
+    # src/manager
+    # src/utils
+    # src/view
+    # src/view/model
+    # src/view/delegate
+    src/*/*/*
 )
 target_link_QApt(${PROJECT_NAME})
 target_link_qt(${PROJECT_NAME})

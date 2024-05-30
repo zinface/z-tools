@@ -1,13 +1,12 @@
-
-#include "mainwindow.h"
-
 #include <QApplication>
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMainWindow>
 #include <QScreen>
-#include <aptmanager.h>
+
 #include "config.h"
+#include "mainwindow.h"
+#include "view/aptmanager.h"
 
 void moveCenter(QWidget &wm) {
     QScreen *screen = QApplication::screenAt(QCursor::pos());

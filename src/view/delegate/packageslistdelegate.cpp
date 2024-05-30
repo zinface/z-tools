@@ -1,5 +1,5 @@
 #include "packageslistdelegate.h"
-#include "packageviewmodel.h"
+#include "view/model/packageviewmodel.h"
 
 #include <QApplication>
 #include <QCheckBox>

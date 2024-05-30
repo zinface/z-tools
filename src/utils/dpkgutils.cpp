@@ -1,6 +1,5 @@
 #include "dpkgutils.h"
-
-#include <CommandUtil/CommandUtil.h>
+#include "CommandUtil.h"
 
 DpkgUtils::DpkgUtils(QObject *parent) : QObject(parent)
   , s_dpkg("dpkg")

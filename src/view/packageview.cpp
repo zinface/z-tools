@@ -1,9 +1,9 @@
-#include "packageslistdelegate.h"
 #include "packageview.h"
-#include "packageviewmodel.h"
 
 #include <QHeaderView>
-#include <qobjectdefs.h>
+
+#include <view/model/packageviewmodel.h>
+#include <view/delegate/packageslistdelegate.h>
 
 PackageView::PackageView(QWidget *parent) : QListView(parent)
   ,m_model(new PackageViewModel)

@@ -2,11 +2,8 @@
 #define SEARCHPACKAGE_H
 
 #include <QWidget>
-
 #include <QApt/Backend>
-
-#include <AptUtils/aptutils.h>
-//#include <QApt/Transaction>
+#include <utils/aptutils.h>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;

@@ -1,6 +1,7 @@
 #include "aptmanager.h"
+#include "utils/dpkgutils.h"
 #include "packageview.h"
-#include "packageviewmodel.h"
+#include "view/model/packageviewmodel.h"
 
 #include <QComboBox>
 #include <QDebug>
@@ -13,9 +14,8 @@
 #include <QVBoxLayout>
 #include <QTimer>
 #include <QTextBrowser>
-#include <dpkgutils.h>
 
-#include <AptUtils/aptutils.h>
+#include "utils/aptutils.h"
 #include <qboxlayout.h>
 #include <qcombobox.h>
 #include <qframe.h>

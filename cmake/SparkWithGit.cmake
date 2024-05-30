@@ -16,7 +16,7 @@ function(spark_framework_from_git)
         if(NOT EXISTS "${SPARK_FRAMEWORK_TO}")
             execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${SPARK_FRAMEWORK_TO}")
         endif(NOT EXISTS "${SPARK_FRAMEWORK_TO}")
-        
+
         foreach(SPARK_COMPONENT IN LISTS SPARK_COMPONENTS)
             # execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${SPARK_PREFIX}.${SPARK_COMPONENT}'"
             #     WORKING_DIRECTORY ${SPARK_FRAMEWORK_TO})
@@ -33,24 +33,34 @@ function(spark_framework_from_git)
     if(NOT EXISTS "${SPARK_FRAMEWORK_TO}/.gitignore")
         file(WRITE "${SPARK_FRAMEWORK_TO}/.gitignore" "spark.*/\n.gitignore")
     endif(NOT EXISTS "${SPARK_FRAMEWORK_TO}/.gitignore")
-    
+
     # 方案二： ../.gitignore
     # if(NOT EXISTS "${SPARK_FRAMEWORK_TO}/../.gitignore")
     #     file(WRITE "${SPARK_FRAMEWORK_TO}/../.gitignore" "_spark/\n.gitignore")
     # endif(NOT EXISTS "${SPARK_FRAMEWORK_TO}/../.gitignore")
-    
+
 endfunction(spark_framework_from_git)
 
-macro(spark_include )
+macro(spark_include)
     set(_spark_files ${ARGN})
     foreach(_spark_file IN LISTS _spark_files)
+        if(EXISTS "${_spark_file}")
+            include(${_spark_file})
+            continue()
+        endif(EXISTS "${_spark_file}")
         file(GLOB_RECURSE _file RELATIVE "${SPARK_FRAMEWORK_TO}" ${_spark_file})
-        if(EXISTS "${SPARK_FRAMEWORK_TO}/${_file}")
-            message("FOUND: ${SPARK_FRAMEWORK_TO}/${_file}")
-            include("${SPARK_FRAMEWORK_TO}/${_file}")
-        endif(EXISTS "${SPARK_FRAMEWORK_TO}/${_file}")
+        list(FILTER _file EXCLUDE REGEX "\\.\\.")
+        
+        if(NOT "${_file}" STREQUAL "")
+            if(EXISTS "${SPARK_FRAMEWORK_TO}/${_file}")
+                message("FOUND: ${SPARK_FRAMEWORK_TO}/${_file}")
+                include("${SPARK_FRAMEWORK_TO}/${_file}")
+            endif(EXISTS "${SPARK_FRAMEWORK_TO}/${_file}")
+        else()
+            message(WARNING "NOT FOUND: ${_spark_file}")
+        endif(NOT "${_file}" STREQUAL "")
     endforeach(_spark_file IN LISTS _spark_files)
-endmacro(spark_include _spark_file)
+endmacro(spark_include)
 
 
 # 引入的所有 Spark 构建模块
@@ -59,18 +69,47 @@ spark_framework_from_git(
         http://gitee.com/zinface/
     COMPONENTS
         spark.assets-icon
-        spark.build-graphviz
-        spark.cmake-info
-        spark.deb-package
-        spark.framework
-        spark.env 
+        spark.env
         spark.macros
-        spark.macros-extend
-        spark.find-library
         spark.find-qt5
         spark.find-qt6
         spark.find-dtk
+        spark.find-library
+        spark.macros-extend
+        spark.build-graphviz
+
+        spark.framework
+        spark.cmake-info
+        spark.external-project
+
         spark.translator-macro
+        spark.install-macros
         spark.desktop-macro
+        spark.deb-package
         spark.appimage-macros-online
+)
+
+# include(cmake/SparkWithGit.cmake)
+
+# 用于 spark_include 引入相关的列表项，每一项都是可引用的构建模块
+spark_include(
+    SparkEnvConfig.cmake
+    SparkMacrosConfig.cmake
+    SparkFindQt5Config.cmake
+    # SparkFindQt6Config.cmake
+    # SparkFindDtkConfig.cmake
+    SparkFindLibraries.cmake
+    SparkMacrosExtendConfig.cmake
+
+    SparkFramework.cmake
+    # SparkCMakeInfoAfterConfig.cmake
+    # SparkCMakeInfoBeforeConfig.cmake
+    # SparkExternalProject.cmake
+
+    # SparkTranslatorConfig.cmake
+    SparkInstallMacrosConfig.cmake
+    SparkBuildGraphviz.cmake
+    SparkDesktopMacros.cmake
+    SparkDebPackageConfig.cmake
+    # SparkAppimageConfig.cmake
 )

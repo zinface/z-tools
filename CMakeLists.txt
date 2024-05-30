@@ -3,24 +3,7 @@ cmake_minimum_required(VERSION 3.5.1)
 
 project(z-tools-aptmanager LANGUAGES CXX VERSION 0.7.9)
 
-include(cmake/SparkInstallMacrosConfig.cmake)   # 提供了 spark_install 开头的 macro 宏用于安装 target、file、program、directory、changelog 等内容
 include(cmake/SparkWithGit.cmake)
-spark_include(
-    # SparkCMakeInfoAfterConfig.cmake
-    # SparkBuildGraphviz.cmake
-    SparkEnvConfig.cmake
-    SparkMacrosConfig.cmake
-    SparkFindLibraries.cmake
-    SparkFindQt5Config.cmake
-    # SparkFindQt6Config.cmake
-    # SparkFindDtkConfig.cmake
-    SparkMacrosExtendConfig.cmake
-    # SparkTranslatorConfig.cmake
-    SparkDesktopMacros.cmake
-    # SparkAppimageConfig.cmake
-    # SparkFramework.cmake
-    # SparkDebPackageConfig.cmake
-)
 
 # 对模板文件进行填充，并生成填充的文件
     # 此部分内容为填充项目的的版本信息
@@ -39,14 +22,16 @@ spark_add_executable_source(${PROJECT_NAME}
 # 基于传入的项进行构建
 # 可接受的值为: 路径列表
 # 可接受的值为: 路径列表+依赖库A+依赖库B
-spark_add_target_realpaths(ALL
-    s:src/AptManager/AptUtils
-    s:src/AptManager/DpkgUtils/CommandUtil
-    s:src/AptManager/DpkgUtils+CommandUtil
-    s:src/AptManager+AptUtils+DpkgUtils
-    t:${PROJECT_NAME}:src+AptManager
+spark_add_executable_path(${PROJECT_NAME}
+    src
+    src/manager
+    src/utils
+    src/view
+    src/view/model
+    src/view/delegate
 )
-target_link_QApt(AptUtils)
+target_link_QApt(${PROJECT_NAME})
+target_link_qt(${PROJECT_NAME})
 
 # 安装主程序 z-tools-aptmanager
 spark_install_target(/opt/zTools/bin
@@ -77,12 +62,9 @@ spark_desktop_macros(
     # MIME类型: MimeType=
 )
 
-
 # 安装 desktop 文件
 spark_install_file(/usr/share/applications
     ${SPARK_DESKTOP_FILE})
-
-spark_include(cmake/SparkBuildGraphviz.cmake)
 
 # 注释行(使用方式)
 spark_include(SparkDebPackageConfig.cmake)

@@ -119,24 +119,30 @@ void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QList
 
     emit currentFileNameChanged(current->text());
 
-    QPixmap temp, pic(current->text());
-    QIcon ico = current->icon();
+    bool item_icon_empty = current->icon().isNull();
 
-    if (pic.width() < m_image_label->width() && pic.height() < m_image_label->height())
+    QPixmap pixmap(current->text());
+    // 存储一份图片数据用于复制操作
+    m_currentPic = pixmap;
+
+    if (item_icon_empty)
     {
-        temp = pic;
+        // 缩放一下可降低内存使用量
+        current->setIcon(pixmap.scaled(QSize(50,50)));
+    }
+
+    QSize render = m_image_label->size();
+
+    if (pixmap.width() < render.width() && pixmap.height() < render.height())
+    {
+        pixmap = pixmap;
     }
     else
     {
-        temp = pic.scaled(QSize(m_image_label->width(), m_image_label->height()), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        pixmap = pixmap.scaled(render, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
-    m_image_label->setPixmap(temp);
-    m_currentPic = pic;
 
-    if (ico.isNull())
-    {
-        current->setIcon(pic);
-    }
+    m_image_label->setPixmap(pixmap);
 }
 
 void ImageView::on_label_customContextMenuRequested(const QPoint &pos)

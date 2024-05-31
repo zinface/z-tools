@@ -1,13 +1,18 @@
 
 #include "imageview.h"
 #include "ui_imageview.h"
+#include "utils/dbusutil.h"
 
+#include <QApplication>
+#include <QClipboard>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QMenu>
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <moveeater.h>
@@ -109,6 +114,7 @@ void ImageView::on_listWidget_itemEntered(QListWidgetItem *item)
 
 void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
 {
+    m_currentPic = QPixmap();
     if (!current) return;
 
     QPixmap temp, pic(current->text());
@@ -130,3 +136,24 @@ void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QList
         current->setIcon(pic);
     }
 }
+
+void ImageView::on_label_customContextMenuRequested(const QPoint &pos)
+{
+    QMenu menu(this);
+    menu.addAction("复制", [this]()
+    {
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setPixmap(m_currentPic.copy());
+    });
+
+    menu.addAction("打开文件位置", [this]()
+    {
+        DBusUtil::showFileLocation(ui->listWidget->currentItem()->text());
+    });
+
+    if (m_currentPic.isNull() == false)
+    {
+        menu.exec(QCursor::pos());
+    }
+}
+

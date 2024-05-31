@@ -30,6 +30,8 @@ private slots:
     void on_listWidget_itemEntered(QListWidgetItem *item);
     void on_listWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
+    void on_label_customContextMenuRequested(const QPoint &pos);
+
 private:
     Ui::ImageView *ui;
     QLineEdit *m_dirpath_lineedit;

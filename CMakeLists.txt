@@ -12,6 +12,9 @@ spark_add_executable_path(${PROJECT_NAME}
 )
 target_link_qt5(${PROJECT_NAME})
 
+spark_add_links_qt5(DBus)
+target_link_qt5_dbus(${PROJECT_NAME})
+
 spark_framework_include_with_git(${PROJECT_NAME}
     https://gitee.com/spark-framework-libs/spark-framework-features
     FEATURES eaters)

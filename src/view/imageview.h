@@ -29,8 +29,10 @@ private slots:
     void on_e_dirpath_textChanged(const QString &arg1);
     void on_listWidget_itemEntered(QListWidgetItem *item);
     void on_listWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-
     void on_label_customContextMenuRequested(const QPoint &pos);
+
+signals:
+    void currentFileNameChanged(const QString &filename);
 
 private:
     Ui::ImageView *ui;

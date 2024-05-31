@@ -117,6 +117,8 @@ void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QList
     m_currentPic = QPixmap();
     if (!current) return;
 
+    emit currentFileNameChanged(current->text());
+
     QPixmap temp, pic(current->text());
     QIcon ico = current->icon();
 

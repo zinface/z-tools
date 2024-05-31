@@ -101,7 +101,7 @@ spark_include(
 #     SparkFindLibraries.cmake
     SparkMacrosExtendConfig.cmake
 
-#     SparkFramework.cmake
+    SparkFramework.cmake
 #     SparkCMakeInfoAfterConfig.cmake
 #     SparkCMakeInfoBeforeConfig.cmake
 #     SparkExternalProject.cmake

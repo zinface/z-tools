@@ -12,6 +12,9 @@ spark_add_executable_path(${PROJECT_NAME}
 )
 target_link_qt5(${PROJECT_NAME})
 
+spark_framework_include_with_git(${PROJECT_NAME}
+    https://gitee.com/spark-framework-libs/spark-framework-features
+    FEATURES eaters)
 
 set(component "imagesbrowser")
 

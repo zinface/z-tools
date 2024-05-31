@@ -8,10 +8,10 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName("z-ToolBox");
+    a.setApplicationName("z-tools-fake-component");
+
     MainWindow wm;
     wm.show();
-    QDesktopWidget *desktop = QApplication::desktop();
-    wm.move((desktop->width() - wm.width()) /2,(desktop->height() - wm.height()) /2);
+
     return a.exec();
 }

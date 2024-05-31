@@ -2,22 +2,21 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QStackedWidget>
-#include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QVBoxLayout;
-QT_END_NAMESPACE
+namespace Ui {
+class MainWindow;
+}
 
-class MainWindow : public QWidget
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
 
 private:
-    QVBoxLayout *m_mainLayout;
-    QTabWidget *m_tabWidget;
+    Ui::MainWindow *ui;
 };
 
 #endif // MAINWINDOW_H

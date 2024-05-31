@@ -36,14 +36,14 @@ Priority: optional
 # 软件包依赖
 Depends: 
 # 软件包维护者(组织或个人)
-Maintainer: Individual developer <packages@email.com>
+Maintainer: zinface <zinface@163.com>
 # 软件包主页
-Homepage: 
+Homepage: https://gitee.com/zinface/z-tools/tree/imagebrowser-dev
 # 软件包建议
 Recommends: 
 # 软件冲突
 Conflicts: 
 # 软件包描述信息
-Descrition: 简介部分
- 详细描述部分
+Descrition: 图片浏览器
+ 用来浏览指定目录下及子目录下所有 jpg, png, svg 图片
 

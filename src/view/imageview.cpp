@@ -36,8 +36,13 @@ ImageView::~ImageView()
     delete ui;
 }
 
-QFileInfoList ImageView::loadFileInfos(QString path)
+QFileInfoList ImageView::loadFileInfos(QString path, int depth)
 {
+    int m_depth = depth++;
+    if (m_depth > ui->sp_maxdepth->value())
+    {
+        return QFileInfoList();
+    }
     // QTextStream(stdout) << QString("%1\n").arg(path);
     m_currentpaht = path;
     QDir currentDir(path);
@@ -51,7 +56,7 @@ QFileInfoList ImageView::loadFileInfos(QString path)
         QFileInfo info  = infoList.at(i);
         if (info.isDir())
         {
-            tempList.append(loadFileInfos(info.absoluteFilePath()));
+            tempList.append(loadFileInfos(info.absoluteFilePath(), depth));
         }
     }
     return tempList;
@@ -59,7 +64,6 @@ QFileInfoList ImageView::loadFileInfos(QString path)
 
 
 QFileInfoList allinfos;
-
 void ImageView::on_e_dirpath_textChanged(const QString &arg1)
 {
     m_image_list->clear();
@@ -126,4 +130,3 @@ void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QList
         current->setIcon(pic);
     }
 }
-

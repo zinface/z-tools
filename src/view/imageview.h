@@ -23,7 +23,7 @@ public:
     explicit ImageView(QWidget *parent = nullptr);
     ~ImageView();
 
-    QFileInfoList loadFileInfos(QString path);
+    QFileInfoList loadFileInfos(QString path, int depth = 1);
 
 private slots:
     void on_e_dirpath_textChanged(const QString &arg1);

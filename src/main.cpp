@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName("图片浏览器 - v0.4");
+    a.setApplicationName("图片浏览器 - v0.4.1");
 
     MainWindow wm;
     wm.show();

@@ -27,26 +27,6 @@ spark_include(
 #     SparkAppimageConfig.cmake
 )
 
-# Archive build control
-set(BUILD_TYPE "${BUILD_TYPE}")
-if(BUILD_TYPE STREQUAL "TGZ")
-    include(cmake/BuildSourceTgz.cmake)
-else()
-    if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
-        include(cmake/BundleGenerater.cmake)
-    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-        # include(cmake/DebGenerater.cmake)
-        spark_include(SparkDebPackageConfig.cmake)
-        add_package_descript(cmake/spark-deb-package.descript)
-        spark_install_program(/opt/zTools/bin
-            ${PROJECT_NAME})
-        spark_install_file(/opt/zTools/Components/resources/icon
-            resources/z-Tools.svg)
-        spark_install_file(/usr/share/applications
-            resources/z-tools-filetransfer.desktop)
-    endif()
-endif()
-
 set(QRC_SOURCES "resources/images.qrc")
 
 spark_add_executable_source(${PROJECT_NAME} ${QRC_SOURCES})
@@ -90,3 +70,24 @@ spark_add_target_realpaths(ALL
     # s:Components/FileTransferManager/FileDirectory/DirUtils
     # t:FileDirectory:Components/FileTransferManager/FileDirectory+FileTransferManager+DirUtils
 )
+
+
+# Archive build control
+set(BUILD_TYPE "${BUILD_TYPE}")
+if(BUILD_TYPE STREQUAL "TGZ")
+    include(cmake/BuildSourceTgz.cmake)
+else()
+    if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+        include(cmake/BundleGenerater.cmake)
+    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+        # include(cmake/DebGenerater.cmake)
+        spark_include(SparkDebPackageConfig.cmake)
+        add_package_descript(cmake/spark-deb-package.descript)
+        spark_install_program(/opt/zTools/bin
+            ${PROJECT_NAME})
+        spark_install_file(/opt/zTools/Components/resources/icon
+            resources/z-Tools.svg)
+        spark_install_file(/usr/share/applications
+            resources/z-tools-filetransfer.desktop)
+    endif()
+endif()

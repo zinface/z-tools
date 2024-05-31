@@ -107,7 +107,7 @@ spark_include(
 #     SparkExternalProject.cmake
 
 #     SparkTranslatorConfig.cmake
-#     SparkInstallMacrosConfig.cmake
+    SparkInstallMacrosConfig.cmake
     SparkBuildGraphviz.cmake
     SparkDesktopMacros.cmake
     SparkDebPackageConfig.cmake

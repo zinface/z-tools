@@ -7,8 +7,8 @@ ifneq ("$(OSID)", "")
 SUFFIX=_$(OSID)$(OSRELEASE)
 endif
 
-PROJECT_NAME=template
-PACKAGE_NAME=template
+PROJECT_NAME=z-tools-imagesbrowser
+PACKAGE_NAME=z-tools-imagesbrowser
 
 all:
 	mkdir -p build

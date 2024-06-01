@@ -17,7 +17,7 @@ public:
     explicit ScreenUtils(QObject *parent=nullptr);
 
     /**
-     * @brief  移动到指定的屏幕中心
+     * @brief  移动到指定的屏幕中心、右上、左上、右下、左下
      * @note   
      * @param  &window: 
      * @param  *screen: 
@@ -25,6 +25,9 @@ public:
      */
     static void moveScreenCenter(QWidget &window, QScreen *screen);
     static void moveScreenTopRight(QWidget &window, QScreen *screen);
+    static void moveScreenTopLeft(QWidget &window, QScreen *screen);
+    static void moveScreenBottomRight(QWidget &window, QScreen *screen);
+    static void moveScreenBottomLeft(QWidget &window, QScreen *screen);
 
     /**
      * @brief  移动到主屏幕中心
@@ -33,6 +36,7 @@ public:
      * @retval None
      */
     static void movePrimaryScreenCenter(QWidget &window);
+
     /**
      * @brief  移动到屏幕中心
      * @note   
@@ -52,8 +56,7 @@ public:
      */
     static void moveCenterForCursor(QWidget &window);
 
-
-    void moveMouseCenter(QWidget &wm);
+    static void moveMouseCenter(QWidget &wm);
 };
 
 #endif  //!__ScreenUtils__H__

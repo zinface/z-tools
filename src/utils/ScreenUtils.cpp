@@ -31,12 +31,63 @@ void ScreenUtils::moveScreenTopRight(QWidget &window, QScreen *screen) {
     int width = screenRect.width();
     int height = screenRect.height();
 
-    int wm_x = (width - window.width());
-    int wm_y = 0;
+    // 补尝偏移
+    int retaste_x = (width - window.width());
+    int retaste_y = 0;
 
-    window.move(x + wm_x, y + wm_y);
+    window.move(x + retaste_x, y + retaste_y);
 }
 
+void ScreenUtils::moveScreenTopLeft(QWidget &window, QScreen *screen)
+{
+    QRect screenRect = screen->geometry();
+
+    //  获取屏幕的位置信息，计算出相对位置
+    int x = screenRect.x();
+    int y = screenRect.y();
+    int width = screenRect.width();
+    int height = screenRect.height();
+
+    // 补尝偏移
+    int retaste_x = 0;
+    int retaste_y = 0;
+
+    window.move(x + retaste_x, y + retaste_y);
+}
+
+void ScreenUtils::moveScreenBottomRight(QWidget &window, QScreen *screen)
+{
+    QRect screenRect = screen->geometry();
+
+    //  获取屏幕的位置信息，计算出相对位置
+    int x = screenRect.x();
+    int y = screenRect.y();
+    int width = screenRect.width();
+    int height = screenRect.height();
+
+    // 补尝偏移
+    int retaste_x = width - window.width();
+    int retaste_y = height - window.height();
+
+    window.move(x + retaste_x, y + retaste_y);
+}
+
+void ScreenUtils::moveScreenBottomLeft(QWidget &window, QScreen *screen)
+{
+    QRect screenRect = screen->geometry();
+
+    //  获取屏幕的位置信息，计算出相对位置
+    int x = screenRect.x();
+    int y = screenRect.y();
+    int width = screenRect.width();
+    int height = screenRect.height();
+
+    // 补尝偏移
+    int retaste_x = 0;
+    int retaste_y = height - window.height();
+
+    window.move(x + retaste_x, y + retaste_y);
+}
 
 void ScreenUtils::movePrimaryScreenCenter(QWidget &window) {
     QScreen *screen = QGuiApplication::primaryScreen();  // 主屏幕

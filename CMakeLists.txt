@@ -33,12 +33,13 @@ spark_desktop_macros(
     # 应用类型: Type=
     "Application"
     # 执行程序: Exec=
-    "/opt/zTools/bin/z-tools-${component}"
+    "/opt/zTools/bin/z-tools-${component} %f"
     # 图标路径: Icon=
     "/opt/zTools/Components/${component}/resource/icon.png"
     # 应用分类: Categories=
     "Graphics"
     # MIME类型: MimeType=
+    # "inode/directory" 由于一些原因，不添加此类项(例如一些Linux发行版本会将它当成文件管理器)
 )
 
 spark_install_target(/opt/zTools/bin

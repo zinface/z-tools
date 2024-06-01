@@ -67,6 +67,10 @@ QFileInfoList ImageView::loadFileInfos(QString path, int depth)
     return tempList;
 }
 
+void ImageView::setDefaultPath(const QString &path)
+{
+    ui->e_dirpath->setText(path);
+}
 
 QFileInfoList allinfos;
 int avaliables;

@@ -16,6 +16,8 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void loaderDirectory(const QString &dirpath);
+
 private:
     Ui::MainWindow *ui;
 };

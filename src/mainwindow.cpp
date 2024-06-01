@@ -21,3 +21,8 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::loaderDirectory(const QString &dirpath)
+{
+    ui->widget->setDefaultPath(dirpath);
+}

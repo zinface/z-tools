@@ -24,6 +24,7 @@ public:
     ~ImageView();
 
     QFileInfoList loadFileInfos(QString path, int depth = 1);
+    void setDefaultPath(const QString &path);
 
 private slots:
     void on_e_dirpath_textChanged(const QString &arg1);

@@ -11,9 +11,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ScreenUtils::moveCenterForCursor(*this);
 
-    connect(ui->widget, &ImageView::currentFileNameChanged, this, [this](const QString & filename)
+    connect(ui->widget, &ImageView::messageEvent, this, [this](const QString & message)
     {
-        ui->statusbar->showMessage("正在预览: " + filename);
+        ui->statusbar->showMessage(message);
     });
 }
 

@@ -69,10 +69,12 @@ QFileInfoList ImageView::loadFileInfos(QString path, int depth)
 
 
 QFileInfoList allinfos;
+int avaliables;
 void ImageView::on_e_dirpath_textChanged(const QString &arg1)
 {
     m_image_list->clear();
     allinfos.clear();
+    avaliables = 0;
 
     QString path = m_dirpath_lineedit->text();
     QFileInfo filepath(path);
@@ -97,6 +99,8 @@ void ImageView::on_e_dirpath_textChanged(const QString &arg1)
             if (avaliable())
             {
                 m_image_list->addItem(item);
+                avaliables++;
+                emit messageEvent(QString("发现 %1 张图片").arg(avaliables));
             }
         }
     }
@@ -117,7 +121,7 @@ void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QList
     m_currentPic = QPixmap();
     if (!current) return;
 
-    emit currentFileNameChanged(current->text());
+    emit messageEvent("正在预览: " + current->text());
 
     bool item_icon_empty = current->icon().isNull();
 
@@ -131,7 +135,7 @@ void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QList
         current->setIcon(pixmap.scaled(QSize(50,50)));
     }
 
-    QSize render = m_image_label->size();
+    QSize render = m_image_label->size() - QSize(9,9);
 
     if (pixmap.width() < render.width() && pixmap.height() < render.height())
     {
@@ -163,5 +167,10 @@ void ImageView::on_label_customContextMenuRequested(const QPoint &pos)
     {
         menu.exec(QCursor::pos());
     }
+}
+
+void ImageView::on_sp_maxdepth_valueChanged(int arg1)
+{
+    on_e_dirpath_textChanged(ui->e_dirpath->text());
 }
 

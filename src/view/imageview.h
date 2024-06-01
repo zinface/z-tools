@@ -31,8 +31,10 @@ private slots:
     void on_listWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
     void on_label_customContextMenuRequested(const QPoint &pos);
 
+    void on_sp_maxdepth_valueChanged(int arg1);
+
 signals:
-    void currentFileNameChanged(const QString &filename);
+    void messageEvent(const QString &message);
 
 private:
     Ui::ImageView *ui;

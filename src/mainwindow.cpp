@@ -15,6 +15,10 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         ui->statusbar->showMessage(message);
     });
+
+    ui->widget->setWindowHandler(this->windowHandle());
+
+    loaderDirectory("/home/zinface/Pictures/微信 - deepin 论坛版主群/");
 }
 
 MainWindow::~MainWindow()

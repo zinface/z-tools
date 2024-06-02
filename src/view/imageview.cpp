@@ -1,6 +1,7 @@
 
 #include "imageview.h"
 #include "ui_imageview.h"
+#include "utils/ScreenUtils.h"
 #include "utils/dbusutil.h"
 
 #include <QApplication>
@@ -13,11 +14,16 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMenu>
+#include <QScreen>
 #include <QTextStream>
 #include <QVBoxLayout>
+#include <QWheelEvent>
+#include <QWindow>
 #include <moveeater.h>
 #include <scalewheeleater.h>
 
+int bx = 0, by = 0;
+double pw = 0, ph = 0;
 ImageView::ImageView(QWidget *parent) : QWidget(parent)
     , ui(new Ui::ImageView)
 {
@@ -25,16 +31,46 @@ ImageView::ImageView(QWidget *parent) : QWidget(parent)
 
     m_dirpath_lineedit = ui->e_dirpath;
     m_image_list = ui->listWidget;
-    m_image_label = ui->label;
+    m_image_label = new QLabel;
 
-    new MoveEater(m_image_label);
-    (new ScaleWheelEater(m_image_label, m_image_label, [this](QWheelEvent * event, QSize before, QSize after)
-    {
-        if (m_currentPic.isNull() == false)
-        {
-            m_image_label->setPixmap(m_currentPic.scaled(QSize(m_image_label->width(), m_image_label->height()), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        }
-    }))->setRatio(40);
+//    new MoveEater(m_image_label);
+//    (new ScaleWheelEater(m_image_label, m_image_label, [this](QWheelEvent * event, QSize before, QSize after)
+//    {
+//        const QPixmap *pixmap = m_image_label->pixmap();
+//        if (pixmap && pixmap->isNull() == false) {
+//            qreal ratio = ScreenUtils::ratio(this);
+//            pw = pixmap->width() * ratio;
+//            ph = pixmap->height() * ratio;
+//        }
+//        bx = m_image_label->x();
+//        by = m_image_label->y();
+//    },
+//    [this](QWheelEvent * event, QSize before, QSize after)
+//    {
+//        if (m_currentPic.isNull() == false)
+//        {
+//            QPixmap pixmap = m_currentPic;
+//            qreal ratio = ScreenUtils::ratio(this);
+//            pixmap.setDevicePixelRatio(ratio);
+//            QSize render = after * ratio;
+
+//            pixmap = pixmap.scaled(render, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+//            m_image_label->setPixmap(pixmap);
+//        }
+
+//        QPointF oldpos = event->position();
+//        QPointF newpos;
+
+//        double sw = double(after.width()) / double(before.width());
+//        qreal sh = double(after.height()) / double(before.height());
+
+//        newpos.setX(oldpos.x() * sw);
+//        newpos.setY(oldpos.y() * sh);
+
+//        auto pos = newpos - oldpos;
+//        m_image_label->move(-pos.x() + bx, -pos.y() + by);
+
+//    }))->setRatio(40);
 }
 ImageView::~ImageView()
 {
@@ -108,9 +144,10 @@ void ImageView::on_e_dirpath_textChanged(const QString &arg1)
             }
         }
     }
+
     if (m_image_list->item(0) != nullptr)
     {
-        m_image_list->setCurrentItem(0);
+        m_image_list->setCurrentRow(0);
     }
 }
 
@@ -139,18 +176,7 @@ void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QList
         current->setIcon(pixmap.scaled(QSize(50,50)));
     }
 
-    QSize render = m_image_label->size() - QSize(9,9);
-
-    if (pixmap.width() < render.width() && pixmap.height() < render.height())
-    {
-        pixmap = pixmap;
-    }
-    else
-    {
-        pixmap = pixmap.scaled(render, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    }
-
-    m_image_label->setPixmap(pixmap);
+    refresh();
 }
 
 void ImageView::on_label_customContextMenuRequested(const QPoint &pos)
@@ -176,5 +202,34 @@ void ImageView::on_label_customContextMenuRequested(const QPoint &pos)
 void ImageView::on_sp_maxdepth_valueChanged(int arg1)
 {
     on_e_dirpath_textChanged(ui->e_dirpath->text());
+}
+
+void ImageView::refresh()
+{
+    if (m_currentPic.isNull())
+        return;
+
+//    QPixmap pixmap = m_currentPic;
+//    qreal ratio = ScreenUtils::ratio(this);
+//    pixmap.setDevicePixelRatio(ratio);
+
+//    QSize render = m_image_label->size() * ratio - QSize(9,9);
+
+//    if (pixmap.width() < render.width() && pixmap.height() < render.height())
+//    {
+//        pixmap = pixmap;
+//    }
+//    else
+//    {
+//        pixmap = pixmap.scaled(render, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+//    }
+
+//    m_image_label->setPixmap(pixmap);
+    ui->widget->setPixmap(m_currentPic);
+}
+
+void ImageView::setWindowHandler(QWindow *newWindowHandler)
+{
+    m_windowHandler = newWindowHandler;
 }
 

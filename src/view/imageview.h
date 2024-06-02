@@ -26,6 +26,8 @@ public:
     QFileInfoList loadFileInfos(QString path, int depth = 1);
     void setDefaultPath(const QString &path);
 
+    void setWindowHandler(QWindow *newWindowHandler);
+
 private slots:
     void on_e_dirpath_textChanged(const QString &arg1);
     void on_listWidget_itemEntered(QListWidgetItem *item);
@@ -33,6 +35,8 @@ private slots:
     void on_label_customContextMenuRequested(const QPoint &pos);
 
     void on_sp_maxdepth_valueChanged(int arg1);
+
+    void refresh();
 
 signals:
     void messageEvent(const QString &message);
@@ -44,6 +48,8 @@ private:
     QLabel *m_image_label;
     QString m_currentpaht;
     QPixmap m_currentPic;
+
+    QWindow *m_windowHandler;
 };
 
 #endif // IMAGEVIEW_H

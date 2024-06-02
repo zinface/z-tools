@@ -6,7 +6,7 @@ include(cmake/SparkWithGit.cmake)
 
 spark_add_executable_path(${PROJECT_NAME}
     src
-    src/*/*
+    src/*/*/*
     
     ${QRC_SOURCES}
 )

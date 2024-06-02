@@ -57,6 +57,8 @@ public:
     static void moveCenterForCursor(QWidget &window);
 
     static void moveMouseCenter(QWidget &wm);
+
+    static qreal ratio(QWidget *widget);
 };
 
 #endif  //!__ScreenUtils__H__

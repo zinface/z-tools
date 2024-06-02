@@ -136,3 +136,18 @@ void ScreenUtils::moveMouseCenter(QWidget &wm) {
     qDebug() << screen->geometry();
     qDebug() << QCursor::pos();
 }
+
+qreal ScreenUtils::ratio(QWidget *widget)
+{
+    QWindow *window = widget->windowHandle();
+    QScreen *screen = nullptr;
+    qreal ratio = 1;
+
+    screen = window ? window->screen()
+                    : QGuiApplication::primaryScreen();;
+
+    ratio = screen ? screen->devicePixelRatio()
+                   : 1;
+
+    return ratio;
+}

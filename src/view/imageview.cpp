@@ -173,13 +173,13 @@ void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QList
     if (item_icon_empty)
     {
         // 缩放一下可降低内存使用量
-        current->setIcon(pixmap.scaled(QSize(50,50)));
+        current->setIcon(pixmap.scaled(QSize(50, 50)));
     }
 
     refresh();
 }
 
-void ImageView::on_label_customContextMenuRequested(const QPoint &pos)
+void ImageView::on_widget_customContextMenuRequested(const QPoint &pos)
 {
     QMenu menu(this);
     menu.addAction("复制", [this]()

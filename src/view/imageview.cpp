@@ -34,6 +34,8 @@ ImageView::ImageView(QWidget *parent) : QWidget(parent)
     m_image_list = ui->listWidget;
     m_image_label = new QLabel;
 
+    connect(ui->widget, &SuperImage::messageEvent, this, &ImageView::messageEvent);
+
 //    static int bx = 0, by = 0;
 //    static double pw = 0, ph = 0;
 

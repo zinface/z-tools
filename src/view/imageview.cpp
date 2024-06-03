@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -22,8 +23,8 @@
 #include <moveeater.h>
 #include <scalewheeleater.h>
 
-int bx = 0, by = 0;
-double pw = 0, ph = 0;
+#define ITEM_DATA_PATH 990
+
 ImageView::ImageView(QWidget *parent) : QWidget(parent)
     , ui(new Ui::ImageView)
 {
@@ -32,6 +33,9 @@ ImageView::ImageView(QWidget *parent) : QWidget(parent)
     m_dirpath_lineedit = ui->e_dirpath;
     m_image_list = ui->listWidget;
     m_image_label = new QLabel;
+
+//    static int bx = 0, by = 0;
+//    static double pw = 0, ph = 0;
 
 //    new MoveEater(m_image_label);
 //    (new ScaleWheelEater(m_image_label, m_image_label, [this](QWheelEvent * event, QSize before, QSize after)
@@ -126,8 +130,6 @@ void ImageView::on_e_dirpath_textChanged(const QString &arg1)
         {
             QFileInfo info  = allinfos.at(i);
             QString filename = info.fileName();
-            //            QListWidgetItem *item = new QListWidgetItem(filename);
-            QListWidgetItem *item = new QListWidgetItem(info.absoluteFilePath());
             QString suffix = info.suffix();
             auto avaliable = [ = ]
             {
@@ -138,12 +140,29 @@ void ImageView::on_e_dirpath_textChanged(const QString &arg1)
             };
             if (avaliable())
             {
+                QListWidgetItem *item = new QListWidgetItem();
+                QString filepath = info.absoluteFilePath();
+                item->setData(ITEM_DATA_PATH, info.absoluteFilePath());
+
+                filepath.replace(arg1, "");
+                if (filepath[0] == '/' && filepath.length() > 2)
+                {
+                    filepath.prepend(".");
+                }
+                else
+                {
+                    filepath.prepend("./");
+                }
+                item->setText(filepath);
+
                 m_image_list->addItem(item);
                 avaliables++;
                 emit messageEvent(QString("发现 %1 张图片").arg(avaliables));
             }
         }
     }
+
+    filtering_items(ui->e_find->text());
 
     if (m_image_list->item(0) != nullptr)
     {
@@ -162,11 +181,11 @@ void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QList
     m_currentPic = QPixmap();
     if (!current) return;
 
-    emit messageEvent("正在预览: " + current->text());
+    emit messageEvent("正在预览: " + current->data(ITEM_DATA_PATH).toString());
 
     bool item_icon_empty = current->icon().isNull();
 
-    QPixmap pixmap(current->text());
+    QPixmap pixmap(current->data(ITEM_DATA_PATH).toString());
     // 存储一份图片数据用于复制操作
     m_currentPic = pixmap;
 
@@ -190,7 +209,7 @@ void ImageView::on_widget_customContextMenuRequested(const QPoint &pos)
 
     menu.addAction("打开文件位置", [this]()
     {
-        DBusUtil::showFileLocation(ui->listWidget->currentItem()->text());
+        DBusUtil::showFileLocation(ui->listWidget->currentItem()->data(ITEM_DATA_PATH).toString());
     });
 
     if (m_currentPic.isNull() == false)
@@ -209,27 +228,76 @@ void ImageView::refresh()
     if (m_currentPic.isNull())
         return;
 
-//    QPixmap pixmap = m_currentPic;
-//    qreal ratio = ScreenUtils::ratio(this);
-//    pixmap.setDevicePixelRatio(ratio);
-
-//    QSize render = m_image_label->size() * ratio - QSize(9,9);
-
-//    if (pixmap.width() < render.width() && pixmap.height() < render.height())
-//    {
-//        pixmap = pixmap;
-//    }
-//    else
-//    {
-//        pixmap = pixmap.scaled(render, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-//    }
-
-//    m_image_label->setPixmap(pixmap);
     ui->widget->setPixmap(m_currentPic);
 }
 
 void ImageView::setWindowHandler(QWindow *newWindowHandler)
 {
     m_windowHandler = newWindowHandler;
+}
+
+void ImageView::on_e_find_textChanged(const QString &arg1)
+{
+    filtering_items(arg1);
+}
+
+void ImageView::filtering_items(const QString &content)
+{
+    int i = 0;
+    while (QListWidgetItem *item = m_image_list->item(i++))
+    {
+        if (content.isEmpty())
+        {
+            item->setHidden(false);
+            continue;
+        }
+
+        if (item->text().contains(content, Qt::CaseInsensitive))
+        {
+            item->setHidden(false);
+        }
+        else
+        {
+            item->setHidden(true);
+        }
+    }
+}
+
+void ImageView::keyPressEvent(QKeyEvent *event)
+{
+    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_C)
+    {
+        if (ui->listWidget->hasFocus())
+        {
+            if (auto item = ui->listWidget->currentItem())
+            {
+                QString filepath = item->data(ITEM_DATA_PATH).toString();
+                QClipboard *clipboard = QGuiApplication::clipboard();
+                clipboard->setText(filepath);
+                emit messageEvent(QString("已复制: %1").arg(filepath));
+            }
+        }
+
+        if (ui->widget->hasFocus())
+        {
+            if (auto item = ui->listWidget->currentItem())
+            {
+                QString filepath = item->data(ITEM_DATA_PATH).toString();
+                QClipboard *clipboard = QGuiApplication::clipboard();
+                clipboard->setPixmap(filepath);
+                emit messageEvent(QString("已复制图片数据"));
+            }
+        }
+    }
+
+    if (event->key() == Qt::Key_Up)
+    {
+        ui->listWidget->setCurrentRow(ui->listWidget->currentRow() - 1);
+    }
+
+    if (event->key() == Qt::Key_Down)
+    {
+        ui->listWidget->setCurrentRow(ui->listWidget->currentRow() + 1);
+    }
 }
 

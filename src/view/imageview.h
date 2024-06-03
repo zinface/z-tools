@@ -38,6 +38,9 @@ private slots:
 
     void refresh();
 
+    void on_e_find_textChanged(const QString &arg1);
+    void filtering_items(const QString &content);
+
 signals:
     void messageEvent(const QString &message);
 
@@ -50,6 +53,10 @@ private:
     QPixmap m_currentPic;
 
     QWindow *m_windowHandler;
+
+    // QWidget interface
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 };
 
 #endif // IMAGEVIEW_H

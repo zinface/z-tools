@@ -29,7 +29,11 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLineEdit" name="e_dirpath"/>
+      <widget class="QLineEdit" name="e_dirpath">
+       <property name="placeholderText">
+        <string>输入需要索引图片的路径</string>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -69,12 +73,32 @@
       </layout>
      </item>
      <item>
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3"/>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="e_find">
+       <property name="placeholderText">
+        <string>输入要筛选匹配的关键词</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QListWidget" name="listWidget"/>
      </item>
     </layout>
    </item>
    <item>
     <widget class="SuperImage" name="widget" native="true">
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
      <property name="contextMenuPolicy">
       <enum>Qt::CustomContextMenu</enum>
      </property>

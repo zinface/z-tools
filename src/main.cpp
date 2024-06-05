@@ -29,7 +29,10 @@ int main(int argc, char *argv[])
     if (!args.isEmpty()) {
         QUrl url(args.first());
         QString localPath = url.toLocalFile();
-        wm.loaderDirectory(localPath);
+        if (localPath.isEmpty() == false)
+            wm.loaderDirectory(localPath);
+        else
+            wm.loaderDirectory(args.first());
     }
     wm.show();
 

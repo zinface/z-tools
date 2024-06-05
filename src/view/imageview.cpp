@@ -23,12 +23,36 @@
 #include <moveeater.h>
 #include <scalewheeleater.h>
 
+#include <manager/loadermanager.h>
+
 #define ITEM_DATA_PATH 990
 
 ImageView::ImageView(QWidget *parent) : QWidget(parent)
     , ui(new Ui::ImageView)
+    , manager(new LoaderManager)
 {
     ui->setupUi(this);
+
+    manager = new LoaderManager;
+    connect(manager, &LoaderManager::Thumbnail, this, [this](const QString &current, const QPixmap &pixmap){
+        for (int var = 0; var < ui->listWidget->count(); ++var) {
+            if (auto item = ui->listWidget->item(var)) {
+                if (item->text() == current) {
+                    item->setIcon(pixmap);
+                    return;
+                }
+            }
+        }
+    });
+    connect(manager, &LoaderManager::IndexThumbnail, this, [this](int i, const QString &current, const QPixmap &pixmap){
+        if (auto item = ui->listWidget->item(i)) {
+            if (item->text() == current) {
+                item->setIcon(pixmap);
+                return;
+            }
+        }
+    });
+    manager->start();
 
     m_dirpath_lineedit = ui->e_dirpath;
     m_image_list = ui->listWidget;
@@ -80,6 +104,9 @@ ImageView::ImageView(QWidget *parent) : QWidget(parent)
 }
 ImageView::~ImageView()
 {
+    if (manager) manager->stop();
+    if (manager) manager->deleteLater();
+    manager = nullptr;
     delete ui;
 }
 
@@ -118,6 +145,7 @@ QFileInfoList allinfos;
 int avaliables;
 void ImageView::on_e_dirpath_textChanged(const QString &arg1)
 {
+    manager->setWorkStop(true);
     m_image_list->clear();
     allinfos.clear();
     avaliables = 0;
@@ -127,6 +155,7 @@ void ImageView::on_e_dirpath_textChanged(const QString &arg1)
     if (filepath.exists() && filepath.isReadable() && filepath.isDir())
     {
         allinfos = loadFileInfos(path);
+        manager->setWorkStop(false);
 
         for (int i = 0; i < allinfos.size(); i++)
         {
@@ -145,17 +174,22 @@ void ImageView::on_e_dirpath_textChanged(const QString &arg1)
                 QListWidgetItem *item = new QListWidgetItem();
                 QString filepath = info.absoluteFilePath();
                 item->setData(ITEM_DATA_PATH, info.absoluteFilePath());
+//                item->setIcon(QPixmap(filepath).scaled(QSize(50, 50)));
 
-                filepath.replace(arg1, "");
-                if (filepath[0] == '/' && filepath.length() > 2)
+                QString viewText = filepath;
+
+                viewText.replace(arg1, "");
+                if (viewText[0] == '/' && viewText.length() > 2)
                 {
-                    filepath.prepend(".");
+                    viewText.prepend(".");
                 }
                 else
                 {
-                    filepath.prepend("./");
+                    viewText.prepend("./");
                 }
-                item->setText(filepath);
+                item->setText(viewText);
+//                emit manager->requestThumbnail(viewText, filepath);
+                emit manager->requestIndexThumbnail(avaliables, viewText, filepath);
 
                 m_image_list->addItem(item);
                 avaliables++;
@@ -181,21 +215,20 @@ void ImageView::on_listWidget_itemEntered(QListWidgetItem *item)
 void ImageView::on_listWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
 {
     m_currentPic = QPixmap();
-    if (!current) return;
-
-    emit messageEvent("正在预览: " + current->data(ITEM_DATA_PATH).toString());
-
-    bool item_icon_empty = current->icon().isNull();
+    if (!current)
+        return;
 
     QPixmap pixmap(current->data(ITEM_DATA_PATH).toString());
     // 存储一份图片数据用于复制操作
     m_currentPic = pixmap;
 
-    if (item_icon_empty)
+    if (current->icon().isNull() == false)
     {
         // 缩放一下可降低内存使用量
         current->setIcon(pixmap.scaled(QSize(50, 50)));
     }
+
+    emit messageEvent("正在预览: " + current->data(ITEM_DATA_PATH).toString());
 
     refresh();
 }

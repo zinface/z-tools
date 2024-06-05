@@ -12,6 +12,8 @@ class QListWidget;
 class QLabel;
 QT_END_NAMESPACE
 
+
+class LoaderManager;
 namespace Ui
 {
     class ImageView;
@@ -53,6 +55,7 @@ private:
     QPixmap m_currentPic;
 
     QWindow *m_windowHandler;
+    LoaderManager *manager;
 
     // QWidget interface
 protected:

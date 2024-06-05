@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName("图片浏览器 - v0.4.3");
+    a.setApplicationName("图片浏览器 - v0.4.4");
 
     QCommandLineParser parser;
     parser.setApplicationDescription("图片浏览器");

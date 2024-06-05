@@ -155,6 +155,7 @@ void ImageView::on_e_dirpath_textChanged(const QString &arg1)
     if (filepath.exists() && filepath.isReadable() && filepath.isDir())
     {
         allinfos = loadFileInfos(path);
+
         manager->setWorkStop(false);
 
         for (int i = 0; i < allinfos.size(); i++)

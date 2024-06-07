@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14.0)
 
-project(z-tools-imagesbrowser VERSION 0.4.4 LANGUAGES CXX)
+project(z-tools-imagesbrowser VERSION 0.4.4.1 LANGUAGES CXX)
 
 include(cmake/SparkWithGit.cmake)
 

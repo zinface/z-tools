@@ -17,7 +17,7 @@ target_link_qt5_dbus(${PROJECT_NAME})
 
 spark_framework_include_with_git(${PROJECT_NAME}
     https://gitee.com/spark-framework-libs/spark-framework-features
-    FEATURES eaters)
+    FEATURES eaters dbusutil screenutil version)
 
 set(component "imagesbrowser")
 

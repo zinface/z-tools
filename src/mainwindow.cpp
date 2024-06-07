@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <utils/ScreenUtils.h>
+#include <screenutil.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ScreenUtils::moveCenterForCursor(*this);
+    ScreenUtil::moveCenterForCursor(*this);
 
     connect(ui->widget, &ImageView::messageEvent, this, [this](const QString & message)
     {

@@ -6,10 +6,12 @@
 #include <QCommandLineParser>
 #include <QUrl>
 
+#include <version.h>
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName("图片浏览器 - v0.4.4");
+    a.setApplicationName("图片浏览器 - v" PROJECT_VERSION);
 
     QCommandLineParser parser;
     parser.setApplicationDescription("图片浏览器");

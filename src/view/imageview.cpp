@@ -1,8 +1,8 @@
 
 #include "imageview.h"
 #include "ui_imageview.h"
-#include "utils/ScreenUtils.h"
-#include "utils/dbusutil.h"
+#include "screenutil.h"
+#include "dbusutil.h"
 
 #include <QApplication>
 #include <QClipboard>

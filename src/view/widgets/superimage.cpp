@@ -7,7 +7,7 @@
 #include <wheeleater.h>
 #include <mouseeater.h>
 
-#include <utils/ScreenUtils.h>
+#include <screenutil.h>
 
 SuperImage::SuperImage(QWidget *parent)
     : QWidget{parent}
@@ -117,7 +117,7 @@ void SuperImage::paintEvent(QPaintEvent *event)
     painter.restore();
 
     // 再绘制剩下的图片
-    qreal ratio = ScreenUtils::ratio(this);
+    qreal ratio = ScreenUtil::ratio(this);
 
     QRect event_rect = event->rect();
     QSize event_size = event->rect().size() - QSize(5, 5);

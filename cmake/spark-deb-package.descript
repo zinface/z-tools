@@ -34,7 +34,7 @@ Section: devel
 # 软件包优先级[required|important|stantard|optional|extra]
 Priority: optional
 # 软件包依赖
-Depends: aapt
+Depends:
 # 软件包维护者(组织或个人)
 Maintainer: zinface <zinface@163.com>
 # 软件包主页

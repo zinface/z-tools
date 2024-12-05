@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=open-system-applications
+Name[zh_CN]=打开系统应用图标目录
+Comment=
+Type=Application
+Exec=xdg-open /usr/share/applications 
+Icon=dde
+Categories=AudioVideo
+
+# Generated from the DesktopGenerater component of the z-Tools toolkit

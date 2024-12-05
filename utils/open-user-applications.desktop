@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=open-user-applications
+Name[zh_CN]=打开用户应用图标目录
+Comment=
+Type=Application
+Exec=xdg-open ~/.local/share/applications 
+Icon=dde
+Categories=AudioVideo
+
+# Generated from the DesktopGenerater component of the z-Tools toolkit

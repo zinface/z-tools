@@ -57,8 +57,11 @@ spark_desktop_macros(
 
 # 安装 desktop 文件
 spark_install_file(/usr/share/applications
-    ${DESKTOP_FILE})
+    ${DESKTOP_FILE}
+    utils/open-system-applications.desktop
+    utils/open-user-applications.desktop)
 
+ # 生成依赖关系图
 include(cmake/SparkBuildGraphviz.cmake)
 
 # 注释行(使用方式)

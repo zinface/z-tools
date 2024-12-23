@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.14.0)
 project(z-tools-imagesbrowser VERSION 0.4.4.1 LANGUAGES CXX)
 
 include(cmake/SparkWithGit.cmake)
+spark_initialize_modules()
 
 spark_add_executable_path(${PROJECT_NAME}
     src

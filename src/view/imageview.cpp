@@ -20,6 +20,7 @@
 #include <QVBoxLayout>
 #include <QWheelEvent>
 #include <QWindow>
+#include <deepinappearance.h>
 #include <moveeater.h>
 #include <scalewheeleater.h>
 
@@ -246,6 +247,11 @@ void ImageView::on_widget_customContextMenuRequested(const QPoint &pos)
     menu.addAction("打开文件位置", [this]()
     {
         DBusUtil::showFileLocation(ui->listWidget->currentItem()->data(ITEM_DATA_PATH).toString());
+    });
+
+    menu.addAction("设置为壁纸(deepin)", [this]()
+    {
+        DeepinAppearance::setBackGround(ui->listWidget->currentItem()->data(ITEM_DATA_PATH).toString());
     });
 
     if (m_currentPic.isNull() == false)

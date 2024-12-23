@@ -20,6 +20,9 @@ spark_framework_include_with_git(${PROJECT_NAME}
     https://gitee.com/spark-framework-libs/spark-framework-features
     FEATURES eaters dbusutil screenutil version)
 
+spark_framework_include_with_git(${PROJECT_NAME}
+    https://gitee.com/zinface/qt.deepin-wallpaper-quiksetting)
+
 set(component "imagesbrowser")
 
 spark_include(SparkDesktopMacros.cmake)

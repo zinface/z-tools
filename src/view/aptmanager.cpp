@@ -59,6 +59,7 @@ AptManager::AptManager(QWidget *parent) : QWidget(parent)
     m_packageArchCategory->addItem("i386", PackageViewModel::ONLY_I386);
     m_packageArchCategory->addItem("amd64", PackageViewModel::ONLY_AMD64);
     m_packageArchCategory->addItem("arm64", PackageViewModel::ONLY_ARM64);
+    m_packageArchCategory->addItem("loong64", PackageViewModel::ONLY_Loong64);
 
     QComboBox *packageInstalledCategory = new QComboBox(this);
     packageInstalledCategory->addItem("全部", PackageViewModel::ALL);

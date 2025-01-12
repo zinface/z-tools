@@ -152,6 +152,10 @@ void PackageViewModel::updateModel()
             if (item->architecture().compare("arm64") == 0) {
                 m_data.append(item);
             };break;
+        case ONLY_Loong64:
+            if (item->architecture().compare("loong64") == 0) {
+                m_data.append(item);
+            };break;
         }
     }
 

@@ -6,17 +6,20 @@
 
 class QLabel;
 
-class ApkInfoPage : public QWidget, Aapt {
+class ApkInfoPage : public QWidget {
     Q_OBJECT
 public:
     explicit ApkInfoPage(QWidget *parent = nullptr);
 
     void setApk(QString &apk);
 
+    void setAapt(Aapt *newAapt);
+
 signals:
     void onInstall();
 
 private:
+    Aapt *m_aapt;
     QLabel *m_apkIcon;
     QLabel *m_apkName;
     QLabel *m_apkPackage;

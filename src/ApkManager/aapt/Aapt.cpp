@@ -1,4 +1,5 @@
 #include "Aapt.h"
+#include "qapplication.h"
 #include <QProcess>
 #include <QInputDialog>
 #include <qfileinfo.h>
@@ -12,12 +13,8 @@ void Aapt::checkCommandsAapt() {
     process.start(QString("which"), QStringList() << aapt);
     process.waitForFinished();
     if (process.exitCode() != 0) {
-        QInputDialog dialog;
-        dialog.setLabelText("指定aapt程序位置");
-        if (dialog.exec() == QDialog::Accepted) {
-            aapt = dialog.textValue();
-            checkCommandsAapt();
-        }
+        aapt = QInputDialog::getText(nullptr, "", "指定aapt程序位置");
+        checkCommandsAapt();
     }
 }
 

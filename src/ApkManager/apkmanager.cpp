@@ -28,6 +28,7 @@ ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
     , splash(new SplashWindow)
     , infoPage(new ApkInfoPage)
     , installPage(new ApkInstallPage)
+    , m_aapt(new Aapt)
 {
     // m_centralLayout->addWidget(QWidget *w);
     QLabel *iconImage = new QLabel;
@@ -66,7 +67,7 @@ ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
         m_centralLayout->setCurrentWidget(installPage);
     });
 
-
+    infoPage->setAapt(m_aapt);
 
     setAcceptDrops(true);
     setFocusPolicy(Qt::StrongFocus);
@@ -82,6 +83,7 @@ ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
  */
 void ApkManager::chooseApk(QString apkPath)
 {
+    m_aapt->checkCommandsAapt();
     // 当前是一个加载界面
     this->m_centralLayout->setCurrentWidget(splash);
     // 并且启动加载动画

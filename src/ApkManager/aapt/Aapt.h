@@ -19,7 +19,4 @@ public:
     QString apkLog;
 };
 
-
-
-
 #endif  //!__AAPT__H__

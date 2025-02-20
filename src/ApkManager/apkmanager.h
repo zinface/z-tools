@@ -1,6 +1,7 @@
 #ifndef APKMANAGER_H
 #define APKMANAGER_H
 
+#include "Aapt.h"
 #include <QWidget>
 #include <QDropEvent>
 
@@ -30,6 +31,7 @@ private:
     ApkInstallPage *installPage;
 
 private:
+    Aapt *m_aapt;
     QString apkPath;
 
     // QWidget interface

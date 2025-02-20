@@ -100,15 +100,19 @@ ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent)
 
 
 void ApkInfoPage::setApk(QString &apk) {
-    Aapt::checkCommandsAapt();
-    if (checkApk(apk)) {
-        if (!QIcon(apkIcon).isNull()) {
-            m_apkIcon->setPixmap(QIcon(apkIcon).pixmap(m_apkIcon->size()));
+    if (m_aapt->checkApk(apk)) {
+        if (!QIcon(m_aapt->apkIcon).isNull()) {
+            m_apkIcon->setPixmap(QIcon(m_aapt->apkIcon).pixmap(m_apkIcon->size()));
         }
-        m_apkName->setText(apkName);
-        m_apkPackage->setText(QString("'%1'").arg(apkPackage));
-        m_apkVersion->setText(apkVersion);
+        m_apkName->setText(m_aapt->apkName);
+        m_apkPackage->setText(QString("'%1'").arg(m_aapt->apkPackage));
+        m_apkVersion->setText(m_aapt->apkVersion);
         // m_logText->setText(apkLog);
-        m_apkDescription->setText(apkLog);
+        m_apkDescription->setText(m_aapt->apkLog);
     }
+}
+
+void ApkInfoPage::setAapt(Aapt *newAapt)
+{
+    m_aapt = newAapt;
 }

@@ -9,18 +9,25 @@
 #include <apkmanager.h>
 
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
-  ,m_mainLayout(new QVBoxLayout(this))
-  ,m_tabWidget(new QTabWidget(this))
-  ,apkManager(new ApkManager)
-
+    , m_tabWidget(new QTabWidget(this))
+    , apkManager(new ApkManager)
+    , m_mainLayout(new QVBoxLayout(this))
 {
+    setLayout(new QVBoxLayout(this));
 
-    m_tabWidget->addTab(apkManager, "apk文件查看器");
+    init();
+}
 
+void MainWindow::init() 
+{
+    initTab();
     m_mainLayout->addWidget(m_tabWidget);
-    setLayout(m_mainLayout);
-//    layout()->setSizeConstraint(QLayout::SetFixedSize);
     layout()->setSizeConstraint(QLayout::SetDefaultConstraint);
+}
+
+void MainWindow::initTab()
+{
+    m_tabWidget->addTab(apkManager, "apk文件查看器");
 }
 
 /**

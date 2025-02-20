@@ -1,23 +1,11 @@
 #include "mainwindow.h"
+#include "screenutil.h"
 
 #include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QMainWindow>
 #include <QStyleFactory>
-#include <QScreen>
-
-void moveCenter(QWidget &wm) {
-    QScreen *screen = QApplication::screenAt(QCursor::pos());
-
-
-    auto desktop = screen->geometry();
-    
-    auto afterX = (desktop.width() - wm.width())/ 2;
-    auto afterY = (desktop.height() - wm.height()) /2;
-    
-    wm.move(afterX + desktop.x(), afterY + desktop.y());
-}
+#include <version.h>
 
 int main(int argc, char *argv[])
 {
@@ -25,11 +13,12 @@ int main(int argc, char *argv[])
     qApp->setStyle(QStyleFactory::create("Fusion"));
 #endif
     QApplication a(argc, argv);
-    a.setApplicationName("apk文件查看器 - v1.0");
+    a.setApplicationName("base-apk-viewer");
+    a.setApplicationDisplayName("apk文件查看器 - v" PROJECT_VERSION "(" BUILD_DATE ")");
     MainWindow wm;
     wm.show();
     
-    moveCenter(wm);
+    ScreenUtil::moveCenter(wm);
 
     // 对可能传入的 apk 文件路径进行操作
     if (argc > 1) {

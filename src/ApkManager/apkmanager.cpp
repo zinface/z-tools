@@ -24,10 +24,10 @@
 #include <QTimer>
 
 ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
-,m_centralLayout(new QStackedLayout)
-,splash(new SplashWindow)
-,infoPage(new ApkInfoPage)
-,installPage(new ApkInstallPage)
+    , m_centralLayout(new QStackedLayout)
+    , splash(new SplashWindow)
+    , infoPage(new ApkInfoPage)
+    , installPage(new ApkInstallPage)
 {
     // m_centralLayout->addWidget(QWidget *w);
     QLabel *iconImage = new QLabel;

@@ -17,6 +17,8 @@ class MainWindow : public QWidget
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
+    void init();
+    void initTab();
     void switchApkFile(QString apkFile);
 
 private:

@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.5.1)
 
-project(z-tools-base-apk-view LANGUAGES CXX VERSION 1.1)
+project(z-tools-base-apk-view LANGUAGES CXX VERSION 1.1.0)
 
 include(cmake/SparkWithGit.cmake)
 spark_initialize_modules()

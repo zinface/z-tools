@@ -4,16 +4,7 @@ cmake_minimum_required(VERSION 3.5.1)
 project(z-tools-base-apk-view LANGUAGES CXX VERSION 1.1)
 
 include(cmake/SparkWithGit.cmake)
-
-spark_include(
-    SparkEnvConfig.cmake
-    SparkMacrosConfig.cmake
-    SparkFindLibraries.cmake
-    SparkFindQt5Config.cmake
-    # SparkFindQt6Config.cmake
-    SparkMacrosExtendConfig.cmake
-    SparkInstallMacrosConfig.cmake
-)
+spark_initialize_modules()
 
 # 资源文件路径
 set(QRC_SOURCES "assets/sources.qrc")
@@ -31,6 +22,10 @@ spark_add_executable_path(${PROJECT_NAME} src
     ${QRC_SOURCES}
 )
 target_link_ApkManager(${PROJECT_NAME})
+
+spark_framework_include_with_git(${PROJECT_NAME}
+    https://gitee.com/spark-framework-libs/spark-framework-features
+    FEATURES screenutil version)
 
 # 构建 zToolsPlugin 扩展
 add_subdirectory(src/zToolsPlugin)
@@ -50,7 +45,7 @@ spark_desktop_macros(
     # 应用名称: Name=
     "${PROJECT_NAME}"
     # 应用名称: Name[zh_CN]=
-    "APK信息查看器(aapt)"
+    "APK信息查看器(apk)"
     # 应用说明: Comment=
     "致力生产工具，简单明确需求"
     # 应用类型: Type=

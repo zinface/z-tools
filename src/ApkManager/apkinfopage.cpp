@@ -102,7 +102,9 @@ ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent)
 void ApkInfoPage::setApk(QString &apk) {
     Aapt::checkCommandsAapt();
     if (checkApk(apk)) {
-        m_apkIcon->setPixmap(QIcon(apkIcon).pixmap(m_apkIcon->size()));
+        if (!QIcon(apkIcon).isNull()) {
+            m_apkIcon->setPixmap(QIcon(apkIcon).pixmap(m_apkIcon->size()));
+        }
         m_apkName->setText(apkName);
         m_apkPackage->setText(QString("'%1'").arg(apkPackage));
         m_apkVersion->setText(apkVersion);

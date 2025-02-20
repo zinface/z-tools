@@ -19,11 +19,16 @@ ApkInstallPage::ApkInstallPage(QWidget *parent) : QWidget(parent)
     setWindowTitle("安装 apk");
     logLabel->setWordWrap(true);
 
-    QGroupBox *uengineBox = new QGroupBox("UEngine");
-    QHBoxLayout *uengineLayout = new QHBoxLayout(uengineBox);
+    QGroupBox *uengine_groupbox = new QGroupBox("UEngine");
+    QHBoxLayout *uengine_groupbox_layout = new QHBoxLayout(uengine_groupbox);
 
-    uengineBtn = new QPushButton("安装到 UEngine");
-    uengineLayout->addWidget(uengineBtn);
+    uengine_install_button = new QPushButton("安装到 UEngine");
+    uengine_groupbox_layout->addWidget(uengine_install_button);
+
+    QGroupBox *adb_groupgbox = new QGroupBox("Adb");
+    QHBoxLayout *adb_groupgbox_layout = new QHBoxLayout(adb_groupgbox);
+    QPushButton *adb_install_button = new QPushButton("adb install");
+    adb_groupgbox_layout->addWidget(adb_install_button);
 
     QVBoxLayout *centralLayout = new QVBoxLayout;
     centralLayout->addStretch();
@@ -37,18 +42,20 @@ ApkInstallPage::ApkInstallPage(QWidget *parent) : QWidget(parent)
     centralLayout->setContentsMargins(0,10,0,0);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->addWidget(uengineBox);
+    mainLayout->addWidget(uengine_groupbox);
+    mainLayout->addWidget(adb_groupgbox);
     mainLayout->addLayout(centralLayout);
     mainLayout->addStretch();
 
     if (UEngine().checkCommandUEngine()) {
-        uengineBtn->setEnabled(true);
+        uengine_install_button->setEnabled(true);
     } else {
-        uengineBtn->setEnabled(false);
-        uengineBtn->setText("未安装 uengine");
+        uengine_install_button->setEnabled(false);
+        uengine_install_button->setText("未安装 uengine");
     }
 
-    connect(uengineBtn, &QPushButton::clicked, this, &ApkInstallPage::onInstallToEngine);
+    connect(uengine_install_button, &QPushButton::clicked, this, &ApkInstallPage::slot_install_uengine);
+    connect(adb_install_button, &QPushButton::clicked, this, &ApkInstallPage::slot_install_adb);
     connect(uengine, &UEngine::logChanged, this, &ApkInstallPage::onInstallLog);
     connect(uengine, &UEngine::finished, this, &ApkInstallPage::onInstalled);
 
@@ -60,10 +67,10 @@ void ApkInstallPage::setApk(QString apkPath) {
     this->apkPath = apkPath;
 }
 
-void ApkInstallPage::onInstallToEngine()
+void ApkInstallPage::slot_install_uengine()
 {
-    uengineBtn->setText("安装中...");
-    uengineBtn->setEnabled(false);
+    uengine_install_button->setText("安装中...");
+    uengine_install_button->setEnabled(false);
 
 
     progressLabel->setMovie(movie);
@@ -77,6 +84,23 @@ void ApkInstallPage::onInstallToEngine()
     uengine->doAsyncInstall(apkPath);
 }
 
+void ApkInstallPage::slot_install_adb()
+{
+//    QProcess process;
+//    process.start("adb", QStringList() << "install" << apkPath);
+//    process.waitForFinished();
+    QProcess *process = new QProcess(this);
+    connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus) {
+        if (exitStatus == QProcess::NormalExit && exitCode == 0) {
+            QMessageBox::information(this, "Success", "APK installed successfully.", QMessageBox::Close);
+        } else {
+            QMessageBox::warning(this, "Error", "Failed to install APK.", QMessageBox::Close);
+        }
+        process->deleteLater();
+    });
+    process->start("adb", QStringList() << "install" << apkPath);
+}
+
 void ApkInstallPage::onInstallLog(QString log)
 {
     logLabel->setText(logLabel->text() + log);
@@ -85,8 +109,8 @@ void ApkInstallPage::onInstallLog(QString log)
 
 void ApkInstallPage::onInstalled(int exitCode)
 {
-    uengineBtn->setText("安装到 UEngine");
-    uengineBtn->setEnabled(true);
+    uengine_install_button->setText("安装到 UEngine");
+    uengine_install_button->setEnabled(true);
 
     progressLabel->hide();
     movie->stop();

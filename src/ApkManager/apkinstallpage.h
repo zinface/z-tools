@@ -20,12 +20,13 @@ public:
 signals:
 
 public slots:
-    void onInstallToEngine();
+    void slot_install_uengine();
+    void slot_install_adb();
     void onInstallLog(QString log);
     void onInstalled(int exitCode);
 
 private:
-    QPushButton *uengineBtn;
+    QPushButton *uengine_install_button;
 
 private:
     QString apkPath;

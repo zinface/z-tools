@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>535</width>
-    <height>647</height>
+    <height>749</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -23,292 +23,6 @@
    <property name="sizeConstraint">
     <enum>QLayout::SetNoConstraint</enum>
    </property>
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Desktop Entry</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="1" colspan="2">
-       <widget class="QLineEdit" name="contentVersion">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="placeholderText">
-         <string>1.0</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="fileContentNameLabel">
-        <property name="text">
-         <string>搜索的名称:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1" colspan="2">
-       <widget class="QLineEdit" name="contentComment">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="placeholderText">
-         <string>例如：创建简单的 desktop 图标文件</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1" colspan="2">
-       <widget class="QLineEdit" name="contentUrl">
-        <property name="placeholderText">
-         <string>例如：https://www.bing.com</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="fileContentVersionLabel">
-        <property name="text">
-         <string>文件版本:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QLineEdit" name="contentExec">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="placeholderText">
-         <string>例如：/usr/bin/desktopGenerater %f</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="fileContentCommentLabel">
-        <property name="text">
-         <string>文件说明:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" colspan="2">
-       <widget class="QLineEdit" name="contentName">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="placeholderText">
-         <string>例如：DesktopGenertaer(适用于字母搜索)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1" colspan="2">
-       <widget class="QComboBox" name="contentCategoriesComb">
-        <item>
-         <property name="text">
-          <string>AudioVideo</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Audio</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Video</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Development</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Education</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Game</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Graphics</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Network</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Office</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Science</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Settings</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>System</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Utility</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="fileContentNameZhCnLabel">
-        <property name="text">
-         <string>显示的名称:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="fileContentCategoriesLabel">
-        <property name="text">
-         <string>程序分类:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1" colspan="2">
-       <widget class="QLineEdit" name="contentNameZhCn">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="placeholderText">
-         <string>例如：桌面图标生成器</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="fileContentTypeLabel">
-        <property name="text">
-         <string>文件类型:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="fileFolderComb">
-        <item>
-         <property name="text">
-          <string>~/.local/share/applications</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="folderChoose">
-        <property name="text">
-         <string>选择路径</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1" colspan="2">
-       <widget class="QComboBox" name="contentTypeComb">
-        <item>
-         <property name="text">
-          <string>Application</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Link</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Directory(未实现)</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="fileContentIconLabel">
-        <property name="text">
-         <string>图标文件选择:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="fileContentExecLabel">
-        <property name="text">
-         <string>执行文件选择:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QPushButton" name="execParamChoose">
-          <property name="text">
-           <string>参数设定</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="execFileChoose">
-          <property name="text">
-           <string>选择文件</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="fileContentUrlLabel">
-        <property name="text">
-         <string>Url链接:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QLineEdit" name="contentIcon">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="placeholderText">
-         <string>例如：apper</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="fileFolderLabel">
-        <property name="text">
-         <string>文件路径存放:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLabel" name="contentIconPreview">
-          <property name="text">
-           <string>ICON</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="iconFileChoose">
-          <property name="text">
-           <string>选择图标</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="DesktopExtendedGroupBox" name="contentGroupBox">
      <property name="enabled">
@@ -388,6 +102,315 @@ li.checked::marker { content: &quot;\2612&quot;; }
          </widget>
         </item>
        </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Desktop Entry</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="fileFolderLabel">
+        <property name="text">
+         <string>文件路径存放:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QComboBox" name="fileFolderComb">
+          <item>
+           <property name="text">
+            <string>~/.local/share/applications</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="folderChoose">
+          <property name="text">
+           <string>选择路径</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="fileContentVersionLabel">
+        <property name="text">
+         <string>文件版本:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="contentVersion">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>1.0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="fileContentNameLabel">
+        <property name="text">
+         <string>搜索的名称:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="contentName">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>例如：DesktopGenertaer(适用于字母搜索)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="fileContentNameZhCnLabel">
+        <property name="text">
+         <string>显示的名称:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QLineEdit" name="contentNameZhCn">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>例如：桌面图标生成器</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_bamf_dialog">
+          <property name="text">
+           <string>bamf</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="fileContentCommentLabel">
+        <property name="text">
+         <string>文件说明:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="contentComment">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>例如：创建简单的 desktop 图标文件</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="fileContentTypeLabel">
+        <property name="text">
+         <string>文件类型:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QComboBox" name="contentTypeComb">
+        <item>
+         <property name="text">
+          <string>Application</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Link</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Directory(未实现)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="fileContentExecLabel">
+        <property name="text">
+         <string>执行文件选择:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLineEdit" name="contentExec">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>例如：/usr/bin/desktopGenerater %f</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="execParamChoose">
+            <property name="text">
+             <string>参数设定</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="execFileChoose">
+            <property name="text">
+             <string>选择文件</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="fileContentUrlLabel">
+        <property name="text">
+         <string>Url链接:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLineEdit" name="contentUrl">
+        <property name="placeholderText">
+         <string>例如：https://www.bing.com</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="fileContentIconLabel">
+        <property name="text">
+         <string>图标文件选择:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QLineEdit" name="contentIcon">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>例如：apper</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="contentIconPreview">
+            <property name="text">
+             <string>ICON</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="iconFileChoose">
+            <property name="text">
+             <string>选择图标</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="fileContentCategoriesLabel">
+        <property name="text">
+         <string>程序分类:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QComboBox" name="contentCategoriesComb">
+        <item>
+         <property name="text">
+          <string>AudioVideo</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Audio</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Video</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Development</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Education</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Game</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Graphics</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Network</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Office</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Science</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Settings</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>System</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Utility</string>
+         </property>
+        </item>
+       </widget>
       </item>
      </layout>
     </widget>

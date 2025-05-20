@@ -6,6 +6,8 @@ project(z-tools-desktop-generater LANGUAGES CXX VERSION 1.2.2)
 include(cmake/SparkWithGit.cmake)
 spark_initialize_modules()
 
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS DBus REQUIRED)
+
 # 资源文件路径
 set(QRC_SOURCES "src/DesktopGenerater/desktop.qrc")
 
@@ -13,13 +15,23 @@ set(QRC_SOURCES "src/DesktopGenerater/desktop.qrc")
 # 可接受的值为: 路径列表
 # 可接受的值为: 路径列表+依赖库A+依赖库B
 spark_add_library_realpaths(
-    src/DesktopGenerater
+    intros/gens
+    src/DesktopGenerater/dialog+gens
+    src/DesktopGenerater+dialog
+)
+target_link_libraries(gens
+    Qt${QT_VERSION_MAJOR}::DBus
 )
 
-spark_add_executable_path(${PROJECT_NAME} src
+spark_add_executable_path(${PROJECT_NAME}
+    src
     ${QRC_SOURCES}
 )
 target_link_DesktopGenerater(${PROJECT_NAME})
+target_link_gens(${PROJECT_NAME})
+
+# 部分测试
+add_subdirectory(tests)
 
 # 安装主程序 z-tools-aptmanager
 spark_install_target(/opt/zTools/bin

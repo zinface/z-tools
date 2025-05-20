@@ -130,6 +130,8 @@ private:
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
+private slots:
+    void on_btn_bamf_dialog_clicked();
 };
 
 #endif // DESKTOPGENERATER_H

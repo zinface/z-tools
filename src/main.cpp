@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMainWindow>
+#include <bamfdialog.h>
 
 #include <QScreen>
 
@@ -22,6 +23,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setApplicationName("桌面图标生成器 - v1.2.1");
+
+    qRegisterMetaType<Application>("Application");
+
     MainWindow wm;
     wm.show();
     

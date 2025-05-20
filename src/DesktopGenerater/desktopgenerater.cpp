@@ -22,6 +22,7 @@
 #include <QStandardPaths>
 #include <QTextEdit>
 #include <QTextStream>
+#include <bamfdialog.h>
 
 DesktopGenerater::DesktopGenerater(QWidget *parent) : QWidget(parent)
   ,ui(new Ui::DesktopGenertater)
@@ -283,6 +284,7 @@ void DesktopGenerater::initContentWidgets()
     fileContentVersionLabel = ui->fileContentVersionLabel;
     fileContentNameLabel = ui->fileContentNameLabel;
     fileContentNameZhCnLabel = ui->fileContentNameZhCnLabel;
+
     fileContentCommentLabel = ui->fileContentCommentLabel;
     fileContentTypeLabel = ui->fileContentTypeLabel;
     fileContentUrlLabel = ui->fileContentUrlLabel;
@@ -381,3 +383,16 @@ void DesktopGenerater::dropEvent(QDropEvent *event)
 
     onGeneraterContent();
 }
+
+void DesktopGenerater::on_btn_bamf_dialog_clicked()
+{
+    BamfDialog dialog;
+    connect(&dialog,&BamfDialog::onApplicationSelected, this, [this](Application app){
+        ui->contentName->setText(app.name());
+        ui->contentNameZhCn->setText(app.name());
+        ui->contentIcon->setText(app.icon());
+        ui->contentExec->setText(app.symLink());
+    });
+    dialog.exec();
+}
+

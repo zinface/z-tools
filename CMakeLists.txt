@@ -59,11 +59,13 @@ spark_desktop_macros(
     "/opt/zTools/Components/DesktopGenerater/resources/icon/z-Tools.svg"
     # 应用分类: Category=
     "Development"
+    # MIME类型: MimeType=
+    ""
 )
 
 # 安装 desktop 文件
 spark_install_file(/usr/share/applications
-    ${DESKTOP_FILE}
+    ${SPARK_DESKTOP_FILE}
     utils/open-system-applications.desktop
     utils/open-user-applications.desktop)
 

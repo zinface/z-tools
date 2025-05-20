@@ -3,14 +3,8 @@ cmake_minimum_required(VERSION 3.5.1)
 
 project(z-tools-desktop-generater LANGUAGES CXX VERSION 1.2.2)
 
-include(cmake/SparkEnvConfig.cmake)
-include(cmake/SparkMacrosConfig.cmake)
-include(cmake/SparkFindLibraries.cmake)
-include(cmake/SparkFindQt5Config.cmake)
-# include(cmake/SparkFindQt6Config.cmake)
-include(cmake/SparkMacrosExtendConfig.cmake)
-include(cmake/SparkInstallMacrosConfig.cmake)   # 提供了 spark_install 开头的 macro 宏用于安装 target、file、program、directory、changelog 等内容
-
+include(cmake/SparkWithGit.cmake)
+spark_initialize_modules()
 
 # 资源文件路径
 set(QRC_SOURCES "src/DesktopGenerater/desktop.qrc")
@@ -36,7 +30,7 @@ spark_install_file(/opt/zTools/Components/DesktopGenerater/resources/icon
     ${CMAKE_SOURCE_DIR}/assets/z-Tools.svg)
 
 # 生成 z-tools-aptmanager.desktop 文件
-include(cmake/SparkDesktopMacros.cmake)
+spark_include(cmake/SparkDesktopMacros.cmake)
 # 内容默认应用名称: Name= 应与项目名称相同
 spark_desktop_macros(
     # 应用名称: Name=    
@@ -62,7 +56,7 @@ spark_install_file(/usr/share/applications
     utils/open-user-applications.desktop)
 
  # 生成依赖关系图
-include(cmake/SparkBuildGraphviz.cmake)
+spark_include(cmake/SparkBuildGraphviz.cmake)
 
 # 注释行(使用方式)
 find_package(SparkDebPackage PATHS ${CMAKE_SOURCE_DIR})

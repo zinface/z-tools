@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
 
             View view("org.ayatana.bamf", path, QDBusConnection::sessionBus());
             auto name = view.name();
+            auto icon = view.icon();
 
             // name.waitForFinished();
             // qDebug() << "Name:" << name;
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
                 auto parentPath = parent.path();
 
                 qDebug() << "Name:" << name;
+                qDebug() << "icon:" << icon;
                 qDebug() << "parentName:" << parentName;
                 qDebug() << "parentIcon:" << parentIcon;
                 qDebug() << "parentPath:" << parentPath;

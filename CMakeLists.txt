@@ -30,6 +30,10 @@ spark_add_executable_path(${PROJECT_NAME}
 target_link_DesktopGenerater(${PROJECT_NAME})
 target_link_gens(${PROJECT_NAME})
 
+spark_framework_include_with_git(${PROJECT_NAME} 
+    https://gitee.com/spark-framework-libs/spark-framework-features
+    FEATURES version screenutil)
+
 # 部分测试
 add_subdirectory(tests)
 

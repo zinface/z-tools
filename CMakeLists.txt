@@ -34,6 +34,18 @@ spark_add_executable_path(${PROJECT_NAME}
 target_link_QApt(${PROJECT_NAME})
 target_link_qt(${PROJECT_NAME})
 
+# 示例集合
+option(ENABLE_BUILD_EXAMPLES "Enable Build Examples." OFF)
+if(ENABLE_BUILD_EXAMPLES)
+    include(examples/dev.cmake)
+endif(ENABLE_BUILD_EXAMPLES)
+
+# 测试集合
+option(ENABLE_BUILD_TESTS "Enable Build Tests." OFF)
+if(ENABLE_BUILD_TESTS)
+    add_subdirectory(tests)
+endif(ENABLE_BUILD_TESTS)
+
 # 安装主程序 z-tools-aptmanager
 spark_install_target(/opt/zTools/bin
     ${PROJECT_NAME})

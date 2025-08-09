@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# 1.初始化示例目录:
+# mkdir -p examples && touch examples/.gitkeep
+
+# 2.添加到 CMakeLists.txt
+# # 示例集合
+# option(ENABLE_BUILD_EXAMPLES "Enable Build Examples." OFF)
+# if(ENABLE_BUILD_EXAMPLES)
+#     include(examples/dev.cmake)
+# endif(ENABLE_BUILD_EXAMPLES)
+# 
+# # 测试集合
+# option(ENABLE_BUILD_TESTS "Enable Build Tests." OFF)
+# if(ENABLE_BUILD_TESTS)
+#     add_subdirectory(tests)
+# endif(ENABLE_BUILD_TESTS) 
+#
+
 set -e
 
 # 0. 进入当前脚本所在目录

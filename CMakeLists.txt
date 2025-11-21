@@ -23,27 +23,56 @@ set(QRC_SOURCES "assets/sources.qrc")
 # 基于传入的项进行构建
 # 可接受的值为: 路径列表
 # 可接受的值为: 路径列表+依赖库A+依赖库B
-spark_add_library_realpaths(
+#spark_add_library_realpaths(
+#    src/config
+#    src/ApkManager/aapt+config
+#    src/ApkManager/utils
+#    src/ApkManager+aapt+utils
+#)
+
+spark_add_executable_path(${PROJECT_NAME}
+    src
+    src/config
+    src/ApkManager
     src/ApkManager/aapt
     src/ApkManager/utils
-    src/ApkManager+aapt+utils
-)
-
-spark_add_executable_path(${PROJECT_NAME} src
     ${QRC_SOURCES}
 )
-target_link_ApkManager(${PROJECT_NAME})
+#target_link_ApkManager(${PROJECT_NAME})
+target_link_qt(${PROJECT_NAME})
+spark_add_links_qt(Concurrent Svg)
+target_link_qt_concurrent(${PROJECT_NAME})
+target_link_qt_svg(${PROJECT_NAME})
 
 spark_framework_include_with_git(${PROJECT_NAME}
     https://gitee.com/spark-framework-libs/spark-framework-features
-    FEATURES screenutil version)
+    FEATURES screenutil version baseutil dbusutil)
+
+spark_framework_include_with_git(${PROJECT_NAME}
+    https://gitee.com/spark-framework-libs/z-tools-libs)
+
+#spark_framework_include(${PROJECT_NAME}
+#    /home/zinface/Desktop/repo.z-tools/z-tools-adbmanager/spark.cmake)
 
 # 构建 zToolsPlugin 扩展
 add_subdirectory(src/zToolsPlugin)
 
+# 示例集合
+option(ENABLE_BUILD_EXAMPLES "Enable Build Examples." OFF)
+if(ENABLE_BUILD_EXAMPLES)
+    include(examples/dev.cmake)
+endif(ENABLE_BUILD_EXAMPLES)
+
 # 安装主程序 z-tools-aptmanager
 spark_install_target(/opt/zTools/bin
     ${PROJECT_NAME})
+
+# 安装依赖工具 adb/aapt
+spark_install_directory(/opt/zTools/Components/BaseApkView/assets
+    assets/tools
+    assets/apks
+
+    USE_SOURCE_PERMISSIONS)
 
 # 安装 icon 文件
 spark_install_file(/opt/zTools/Components/BaseApkView/resources/icon
@@ -68,7 +97,7 @@ spark_desktop_macros(
     # 应用分类: Category=
     "Development"
     # MIME类型: MimeType=
-    "application/vnd.android.package-archive"
+    "application/vnd.android.package-archive;application/x-troff-man"
 )
 
 # 安装 desktop 文件

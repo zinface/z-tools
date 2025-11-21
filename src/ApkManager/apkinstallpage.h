@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QDropEvent>
 #include <QLabel>
+#include <QTemporaryDir>
 #include <QTextEdit>
 #include <QWidget>
 
@@ -14,18 +15,23 @@ class ApkInstallPage : public QWidget
 {
     Q_OBJECT
 public:
+    friend class ApkInfoPage;
     explicit ApkInstallPage(QWidget *parent = nullptr);
     void setApk(QString apkPath);
+
+    bool adbOk();
+    bool uengineOk();
 
 signals:
 
 public slots:
-    void slot_install_uengine();
     void slot_install_adb();
+    void slot_install_uengine();
     void onInstallLog(QString log);
     void onInstalled(int exitCode);
 
 private:
+    QPushButton *adb_install_button;
     QPushButton *uengine_install_button;
 
 private:
@@ -35,9 +41,11 @@ private:
     QLabel *logLabel;
     QMovie *movie;
 
-    // QWidget interface
-//protected:
-//    void keyPressEvent(QKeyEvent *event) override;
+    QTemporaryDir tempDir;
+
+
+private:
+    QString copyFileWithProgress(const QString& sourcePath, const QString& destPath, QWidget* parent = nullptr);
 };
 
 

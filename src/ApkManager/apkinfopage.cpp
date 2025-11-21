@@ -1,5 +1,6 @@
 #include "apkinfopage.h"
 #include "apkinstallpage.h"
+#include "qdebug.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -14,6 +15,7 @@
 #include <QMimeData>
 #include <QTextStream>
 #include <QApplication>
+#include <QPainter>
 
 ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent) 
   ,m_apkIcon(new QLabel)
@@ -23,86 +25,96 @@ ApkInfoPage::ApkInfoPage(QWidget *parent) : QWidget(parent)
   ,m_apkDescription(new QLabel)
 {
 
+    // visible infomations
     m_apkIcon->setText("icon");
     m_apkIcon->setFixedSize(64,64);
     m_apkName->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
     m_apkPackage->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     m_apkVersion->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     m_apkDescription->setWordWrap(true);
-    // m_logText.set
 
-
+    // detail
     QLabel *apkName = new QLabel;
-    // apkName;
     apkName->setText("应用名称:");
     apkName->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
 
     QLabel *apkPackage = new QLabel;
-    // apkPackage;
     apkPackage->setText("应用包名:");
     apkPackage->setAlignment(Qt::AlignCenter | Qt::AlignLeft);
 
     QLabel *apkVersion = new QLabel;
-    // apkVersion;
     apkVersion->setText("应用版本:");
     apkVersion->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
-    QPushButton *installBtn = new QPushButton("安装到...");
-    installBtn->setStyleSheet("border: none");
-    connect(installBtn, &QPushButton::clicked, this, [=](){
-        emit onInstall();
+    QGridLayout *detailLayout = new QGridLayout();
+    detailLayout->setMargin(0);
+    detailLayout->setSpacing(0);
+    detailLayout->setVerticalSpacing(5);
+    detailLayout->addWidget(apkName, 0, 0);
+    detailLayout->addWidget(m_apkName, 0, 1);
+    detailLayout->addWidget(apkPackage, 1, 0);
+    detailLayout->addWidget(m_apkPackage, 1, 1);
+    detailLayout->addWidget(apkVersion, 2, 0);
+    detailLayout->addWidget(m_apkVersion, 2, 1);
+
+    // icon
+    QHBoxLayout *iconInfoLayout = new QHBoxLayout;
+    iconInfoLayout->addStretch();
+    iconInfoLayout->addWidget(m_apkIcon);
+    iconInfoLayout->addLayout(detailLayout);
+    iconInfoLayout->addStretch();
+    iconInfoLayout->setSpacing(10);
+    iconInfoLayout->setContentsMargins(0,0,0,0);
+    iconInfoLayout->setAlignment(m_apkIcon, Qt::AlignmentFlag::AlignJustify);
+
+    // install
+    QPushButton *installAdbBtn = new QPushButton("安装到 ADB");
+    connect(installAdbBtn, &QPushButton::clicked, this, [=](){
+        emit installAdb();
     });
+    installAdbBtn->setStyleSheet("padding: 2px;");
 
-    QGridLayout *itemInfoLayout = new QGridLayout;
-    itemInfoLayout->addWidget(apkName, 0, 0);
-    itemInfoLayout->addWidget(m_apkName, 0, 1);
-    itemInfoLayout->addWidget(apkPackage, 1, 0);
-    itemInfoLayout->addWidget(m_apkPackage, 1, 1);
-    itemInfoLayout->addWidget(apkVersion, 2, 0);
-    itemInfoLayout->addWidget(m_apkVersion, 2, 1);
-    
-    itemInfoLayout->addWidget(installBtn, 3, 0, 1, 2);
-    
-    itemInfoLayout->setSpacing(0);
-    itemInfoLayout->setVerticalSpacing(5);
-    itemInfoLayout->setMargin(0);
+    QPushButton *installUEngineBtn = new QPushButton("安装到 Uengine");
+    connect(installUEngineBtn, &QPushButton::clicked, this, [=](){
+        emit installUengine();
+    });
+    installUEngineBtn->setStyleSheet("padding: 2px;");
 
-    QHBoxLayout *itemLayout = new QHBoxLayout;
-    itemLayout->addStretch();
-    itemLayout->addWidget(m_apkIcon);
-    itemLayout->addLayout(itemInfoLayout);
-    itemLayout->addStretch();
-    itemLayout->setSpacing(10);
-    itemLayout->setContentsMargins(0,0,0,0);
-    itemLayout->setAlignment(m_apkIcon, Qt::AlignmentFlag::AlignJustify);
+    QPushButton *installBtn = new QPushButton("安装到...");
+    connect(installBtn, &QPushButton::clicked, this, [=](){
+        emit installPage();
+    });
+    installBtn->setStyleSheet("padding: 2px;");
 
-    QVBoxLayout *contentLayout = new QVBoxLayout;
-    contentLayout->addStretch();
-    contentLayout->addLayout(itemLayout);
-    contentLayout->addSpacing(30);
-    contentLayout->addStretch();
-    contentLayout->addWidget(m_apkDescription);
-    // contentLayout->addWidget(m_logText);
-    // contentLayout->setSpacing(0);
-    contentLayout->setMargin(0);
+    QHBoxLayout *installLayout = new QHBoxLayout;
+    // installLayout->addWidget(installAdbBtn);
+    // installLayout->addWidget(installUEngineBtn);
+    installLayout->addSpacerItem(new QSpacerItem(0,0));
+    installLayout->addWidget(installBtn);
+    installLayout->addSpacerItem(new QSpacerItem(0,0));
+    installLayout->setStretch(0, 1);
+    installLayout->setStretch(1, 3);
+    installLayout->setStretch(2, 1);
+    detailLayout->addLayout(installLayout, 3, 0, 1, 2);
 
-    QHBoxLayout *centralLayout = new QHBoxLayout;
-    centralLayout->addStretch();
-    centralLayout->addLayout(contentLayout);
-    centralLayout->addStretch();
-    centralLayout->setSpacing(0);
-    centralLayout->setContentsMargins(50, 20, 50, 20);
+    // Panel
+    QVBoxLayout *panelLayout = new QVBoxLayout;
+    panelLayout->addStretch();
+    panelLayout->addLayout(iconInfoLayout);
+    panelLayout->addStretch();
+    panelLayout->addWidget(m_apkDescription);
+    panelLayout->setMargin(0);
+    panelLayout->setContentsMargins(50, 20, 50, 20);
 
-    setLayout(centralLayout);
+    setLayout(panelLayout);
 
 //    setFixedSize(440,300);
 }
 
-
 void ApkInfoPage::setApk(QString &apk) {
     if (m_aapt->checkApk(apk)) {
-        if (!QIcon(m_aapt->apkIcon).isNull()) {
-            m_apkIcon->setPixmap(QIcon(m_aapt->apkIcon).pixmap(m_apkIcon->size()));
+        if (!QIcon(m_aapt->tmpAppIcon).isNull()) {
+            m_apkIcon->setPixmap(QIcon(m_aapt->tmpAppIcon).pixmap(m_apkIcon->size()));
         }
         m_apkName->setText(m_aapt->apkName);
         m_apkPackage->setText(QString("'%1'").arg(m_aapt->apkPackage));
@@ -116,3 +128,15 @@ void ApkInfoPage::setAapt(Aapt *newAapt)
 {
     m_aapt = newAapt;
 }
+
+void ApkInfoPage::paintEvent(QPaintEvent *event)
+{
+    // [1] 绘制面板
+    QWidget::paintEvent(event);
+
+    // [2] 绘制快捷键提示
+    QPainter painter(this);
+    QRectF frect = painter.boundingRect(event->rect(), hotKey);
+    painter.drawText(event->rect().bottomRight() - frect.bottomRight(), hotKey);
+}
+

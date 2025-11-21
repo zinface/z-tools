@@ -7,6 +7,8 @@
 #include <QStyleFactory>
 #include <version.h>
 
+//#include "adbutils.h"
+
 int main(int argc, char *argv[])
 {
 #ifdef Q_OS_MACOS
@@ -35,6 +37,19 @@ int main(int argc, char *argv[])
         QString arg(argv[1]);
         wm.switchApkFile(arg);
     }
+#endif
 
-    return a.exec();
+//    auto devices = AdbUtils::GetDevices();
+//    qDebug() << devices;
+//    if (!devices.isEmpty()) {
+//        qInfo() << "Brand:" << AdbUtils::GetBrand(devices.at(0)).trimmed();
+//        qInfo() << "Model:" << AdbUtils::GetModel(devices.at(0)).trimmed();
+//        qInfo() << "Manufacturer:" << AdbUtils::GetManufacturer(devices.at(0)).trimmed();
+//        qInfo() << "AndroidApiLevel:" << AdbUtils::GetAndroidApiLevel(devices.at(0)).trimmed();
+//        qInfo() << "AndroidVersion:" << AdbUtils::GetAndroidVersion(devices.at(0)).trimmed();
+//        qInfo() << "AndroidWmSize:" << AdbUtils::GetAndroidWmSize(devices.at(0)).trimmed();
+//        // AdbUtils::GetAndroidPackages();
+//    }
+
+     return a.exec();
 }

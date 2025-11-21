@@ -15,10 +15,10 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
 {
     setLayout(new QVBoxLayout(this));
 
-    init();
+    initUI();
 }
 
-void MainWindow::init() 
+void MainWindow::initUI()
 {
     initTab();
     m_mainLayout->addWidget(m_tabWidget);
@@ -38,7 +38,9 @@ void MainWindow::switchApkFile(const QString &apkFile)
 {
     QFileInfo apkInfo(apkFile);
     // 如果该文件存在并且是一个 apk 文件
-    if (apkInfo.exists() && apkInfo.isFile() && apkFile.endsWith(".apk")) {
+    if (apkInfo.exists()
+        && apkInfo.isFile()
+        && (apkFile.endsWith(".apk") || (apkFile.contains(".apk") && apkFile.endsWith(".1") ))) {
         apkManager->chooseApk(apkFile);
     }
 }

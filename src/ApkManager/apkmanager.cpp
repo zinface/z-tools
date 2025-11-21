@@ -1,7 +1,8 @@
 #include "apkmanager.h"
+#include "apkhelper.h"
 #include "apkinfopage.h"
 #include "apkinstallpage.h"
-#include "splashwindow.h"
+#include "splashpage.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -22,10 +23,13 @@
 #include <QDebug>
 #include <QThread>
 #include <QTimer>
+#include <QtConcurrent>
+#include <QScrollArea>
+#include <QMessageBox>
 
 ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
     , m_centralLayout(new QStackedLayout)
-    , splash(new SplashWindow)
+    , splashPage(new SplashPage)
     , infoPage(new ApkInfoPage)
     , installPage(new ApkInstallPage)
     , m_aapt(new Aapt)
@@ -54,17 +58,23 @@ ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
     centerWidget->setLayout(centralLayout);
 
     m_centralLayout->addWidget(centerWidget);
-    m_centralLayout->addWidget(splash);
+    m_centralLayout->addWidget(splashPage);
     m_centralLayout->addWidget(infoPage);
     m_centralLayout->addWidget(installPage);
 
 
-    connect(splash, &SplashWindow::done, this, [=](){
+    connect(splashPage, &SplashPage::done, this, [=](){
         m_centralLayout->setCurrentWidget(infoPage);
     });
 
-    connect(infoPage, &ApkInfoPage::onInstall, this, [=](){
+    connect(infoPage, &ApkInfoPage::installPage, this, [=](){
         m_centralLayout->setCurrentWidget(installPage);
+    });
+    connect(infoPage, &ApkInfoPage::installAdb, this, [=](){
+        installPage->slot_install_adb();
+    });
+    connect(infoPage, &ApkInfoPage::installUengine, this, [=](){
+        installPage->slot_install_uengine();
     });
 
     infoPage->setAapt(m_aapt);
@@ -85,27 +95,33 @@ void ApkManager::chooseApk(QString apkPath)
 {
     m_aapt->checkCommandsAapt();
     // 当前是一个加载界面
-    this->m_centralLayout->setCurrentWidget(splash);
+    this->m_centralLayout->setCurrentWidget(splashPage);
     // 并且启动加载动画
-    splash->start();
+    splashPage->start();
 
     this->apkPath = apkPath;
     qDebug() << QString("chooseApk: %1").arg(apkPath);
 
     // 使用一个线程来处理任务，这个过程将会持续动画
     // 但也为了每次都在分析得非常快，所以加了一个 QTimer 来启动线程
-    QThread *delayThread = new QThread(this);
-    connect(delayThread, &QThread::started, [=](){
+    // fix: 使用 concurrent
+//    QThread *delayThread = new QThread(this);
+//    connect(delayThread, &QThread::started, [=](){
+//        this->infoPage->setApk(this->apkPath);
+//        this->installPage->setApk(this->apkPath);
+//        delayThread->exit(0);
+//    });
+//    connect(delayThread, &QThread::finished, delayThread, &QThread::deleteLater);
+
+//    QTimer *timer = new QTimer;
+//    timer->setInterval(200);
+//    connect(timer, SIGNAL(timeout()), delayThread, SLOT(start()));
+//    timer->start();
+
+    QtConcurrent::run([this](){
         this->infoPage->setApk(this->apkPath);
         this->installPage->setApk(this->apkPath);
-        delayThread->exit(0);
     });
-    connect(delayThread, &QThread::finished, delayThread, &QThread::deleteLater);
-
-    QTimer *timer = new QTimer;
-    timer->setInterval(200);
-    connect(timer, SIGNAL(timeout()), delayThread, SLOT(start()));
-    timer->start();
 }
 
 void ApkManager::initUi()
@@ -189,8 +205,6 @@ void ApkManager::dropEvent(QDropEvent *event) {
         return event->ignore();
     }
 
-    QTextStream out(stdout);
-
     // return event->accept();   
 
     QStringList fileList;
@@ -198,28 +212,86 @@ void ApkManager::dropEvent(QDropEvent *event) {
     {
         if (url.isLocalFile()) {
             QFileInfo info (url.toLocalFile());
-            out << QString("--> %1\n").arg(url.toLocalFile());
+            qDebug().noquote() << "-->" << url.toLocalFile();
             if (info.isFile() && info.suffix() == "apk") {
                 fileList << url.toLocalFile();
             }
         }
     }
-    out.flush();
 
     if (fileList.size() != 0) {
         chooseApk(fileList[0]);
 
-        out << QString("!! --> %1\n").arg(fileList[0]);
+        qDebug().noquote() << "!! -->" << fileList[0];
 //        m_centralLayout->setCurrentIndex(m_centralLayout->count()-1);
     }
 }
 
 void ApkManager::keyPressEvent(QKeyEvent *event) {
-    switch (event->key()) {
-        // 在按下了 Esc 键时，回退到上一个界面
-        case Qt::Key_Escape:
-            switchPrevPage();
-        break;
-    default:;
+    // 在按下了 Esc 键时，回退到上一个界面
+    if (event->key() == Qt::Key_Escape) {
+        switchPrevPage();
+    }
+
+    // [Ctrl +l] 显示信息
+    if (m_centralLayout->currentWidget() == infoPage
+        && ((event->modifiers() | Qt::Key_Control) && (event->key() == Qt::Key_L))) {
+
+        QWidget *widget = new QWidget();
+        QLabel *label = new QLabel(m_aapt->dump_badging(apkPath));
+        QVBoxLayout *layout = new QVBoxLayout(widget);
+        label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        layout->addWidget(label);
+
+        auto area = new QScrollArea;
+        area->setWidget(widget);
+        area->show();
+
+        ApkHelper::ApkInfo info = ApkHelper::parseApkInfo(m_aapt, apkPath);
+        area->setWindowTitle(info.packageName + "/" +info.mainActivity);
+    }
+
+    // [Ctrl + i] 安装程序
+    if (m_centralLayout->currentWidget() == infoPage
+        && ((event->modifiers() | Qt::Key_Control) && (event->key() == Qt::Key_I))) {
+        // # 1
+        // ApkHelper::ApkInfo info = ApkHelper::parseApkInfo(m_aapt, apkPath);
+        // QProcess::startDetached("adb", {"install", apkPath});
+
+        // # 2
+        installPage->slot_install_adb();
+    }
+
+    // [Ctrl + r] 启动程序
+    if (m_centralLayout->currentWidget() == infoPage
+        && ((event->modifiers() | Qt::Key_Control) && (event->key() == Qt::Key_R))) {
+        ApkHelper::ApkInfo info = ApkHelper::parseApkInfo(m_aapt, apkPath);
+
+        if (info.mainActivity.isEmpty()) {
+            QMessageBox::warning(this, "无法启动", "未检索到应用的 MainActivity");
+            return;
+        }
+
+        // # 1
+        // QProcess::startDetached("adb", {"shell", "am", "start", "-n", info.packageName+"/"+info.mainActivity});
+
+        // # 2
+        QProcess process;
+        QString command = QString("am start -n %1/%2")
+                         .arg(info.packageName)
+                         .arg(info.mainActivity);
+
+        process.start("adb", {"shell", command});
+
+        if (process.waitForFinished(5000)) {
+            QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
+            if (output.contains("Error")) {
+                QMessageBox::warning(this, "启动失败", output);
+            } else {
+                QMessageBox::information(this, "成功", "应用启动成功");
+            }
+        } else {
+            QMessageBox::warning(this, "错误", "启动命令执行超时");
+        }
     }
 }

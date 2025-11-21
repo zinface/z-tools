@@ -17,7 +17,7 @@ class MainWindow : public QWidget
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
-    void init();
+    void initUI();
     void initTab();
 
 public slots:

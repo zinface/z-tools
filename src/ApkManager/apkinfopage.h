@@ -12,11 +12,12 @@ public:
     explicit ApkInfoPage(QWidget *parent = nullptr);
 
     void setApk(QString &apk);
-
     void setAapt(Aapt *newAapt);
 
 signals:
-    void onInstall();
+    void installPage();
+    void installAdb();
+    void installUengine();
 
 private:
     Aapt *m_aapt;
@@ -25,6 +26,12 @@ private:
     QLabel *m_apkPackage;
     QLabel *m_apkVersion;
     QLabel *m_apkDescription;
+
+    QString hotKey = "安装:ctrl+i | 运行:ctrl+r | 信息:ctrl+l";
+
+    // QWidget interface
+protected:
+    void paintEvent(QPaintEvent *event) override;
 };
 
 #endif  //!__APKINFOPAGE__H__

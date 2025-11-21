@@ -9,7 +9,7 @@ class QLabel;
 class QLineEdit;
 class QTextEdit;
 class QStackedLayout;
-class SplashWindow;
+class SplashPage;
 class ApkInfoPage;
 class ApkInstallPage;
 
@@ -26,7 +26,7 @@ private:
     void switchPrevPage();
 
     QStackedLayout *m_centralLayout;
-    SplashWindow *splash;
+    SplashPage *splashPage;
     ApkInfoPage *infoPage;
     ApkInstallPage *installPage;
 

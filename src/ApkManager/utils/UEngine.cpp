@@ -1,7 +1,6 @@
 #include "UEngine.h"
 
 #include <QFileInfo>
-#include <QProcess>
 #include <QThread>
 #include <QTime>
 
@@ -21,10 +20,7 @@ UEngine::~UEngine()
 bool UEngine::checkCommandUEngine()
 {
     emit logChanged(QString("1.检查是否已安装 UEngine.\n"));
-    QProcess process;
-    process.start(QString("which"), QStringList() << "uengine");
-    process.waitForFinished();
-    return process.exitCode() == 0;
+    return whichOk("uengine");
 }
 
 bool UEngine::checkCommandReady()
@@ -41,8 +37,7 @@ bool UEngine::checkCommandReady()
 
 bool UEngine::checkApkFile(QString apkFile)
 {
-    QFileInfo fileInfo(apkFile);
-    if (fileInfo.exists() && fileInfo.isFile()) {
+    if (fileOk(apkFile)) {
         emit logChanged(QString("有效\n"));
         return true;
     } else {
@@ -51,17 +46,31 @@ bool UEngine::checkApkFile(QString apkFile)
     }
 }
 
-int UEngine::doSyncInstall(QString apkPath)
+bool UEngine::whichOk(const QString &program)
+{
+    QProcess process;
+    process.start(QString("which"), {program});
+    process.waitForFinished();
+    return process.exitCode() == 0;
+}
+
+bool UEngine::fileOk(const QString &filePath)
+{
+    QFileInfo fileInfo(filePath);
+    return fileInfo.exists() && fileInfo.isFile();
+}
+
+int UEngine::doSyncInstall(const QString &apkPath)
 {
     return doInstall(Sync, apkPath);
 }
 
-void UEngine::doAsyncInstall(QString apkPath)
+void UEngine::doAsyncInstall(const QString &apkPath)
 {
     doInstall(Async, apkPath);
 }
 
-int UEngine::doInstall(UEngine::InstallType type, QString apkPath)
+int UEngine::doInstall(UEngine::InstallType type, const QString &apkPath)
 {
     logs.clear();
     QStringList cmdArgs = QStringList() << "install"
@@ -72,12 +81,12 @@ int UEngine::doInstall(UEngine::InstallType type, QString apkPath)
         return -1;
     }
 
-    emit logChanged(QString("2.检查 Android 系统是否成功启动.\n"));
+    emit logChanged(QString("2.检查 UEngine 系统是否成功启动.\n"));
     checkCommandReady();
     return -1;
 
 //// 2. check android os ready
-//    emit logChanged(QString("2.检查 Android 系统是否成功启动.\n"));
+//    emit logChanged(QString("2.检查 UEngine 系统是否成功启动.\n"));
 //    if (!checkCommandReady()) {
 //        return -1;
 //    }

@@ -14,6 +14,7 @@ else()
     add_compile_definitions(
         EXAMPLE_DATA_DIRECTORY="${CMAKE_SOURCE_DIR}/examples/data/"
         DEBUG_APK_FILE="${CMAKE_SOURCE_DIR}/assets/apks/X-plore.apk"
+        DEBUG_LINUX_AAPT="${CMAKE_SOURCE_DIR}/assets/tools/build-tools/35.0.0/aapt")
 endif(CMAKE_BUILD_TYPE MATCHES "Release")
 
 # 资源文件路径

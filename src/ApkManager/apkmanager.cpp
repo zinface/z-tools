@@ -281,11 +281,13 @@ void ApkManager::keyPressEvent(QKeyEvent *event) {
                          .arg(info.packageName)
                          .arg(info.mainActivity);
 
+        process.setProcessChannelMode(QProcess::MergedChannels); // 合并标准输出和错误输出
         process.start("adb", {"shell", command});
 
         if (process.waitForFinished(5000)) {
-            QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
-            if (output.contains("Error")) {
+            QString output = QString::fromLocal8Bit(process.readAll());
+            if (output.contains("Error") ||  output.contains("exception", Qt::CaseInsensitive)
+                || process.exitCode() != 0) {
                 QMessageBox::warning(this, "启动失败", output);
             } else {
                 QMessageBox::information(this, "成功", "应用启动成功");

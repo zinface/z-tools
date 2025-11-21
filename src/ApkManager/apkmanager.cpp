@@ -26,6 +26,7 @@
 #include <QtConcurrent>
 #include <QScrollArea>
 #include <QMessageBox>
+#include <screenutil.h>
 
 ApkManager::ApkManager(QWidget *parent) : QWidget(parent)
     , m_centralLayout(new QStackedLayout)
@@ -246,6 +247,7 @@ void ApkManager::keyPressEvent(QKeyEvent *event) {
         auto area = new QScrollArea;
         area->setWidget(widget);
         area->show();
+        ScreenUtil::moveCenterMiddleUp(*area);
 
         ApkHelper::ApkInfo info = ApkHelper::parseApkInfo(m_aapt, apkPath);
         area->setWindowTitle(info.packageName + "/" +info.mainActivity);

@@ -34,7 +34,7 @@ void MainWindow::initTab()
  * @brief 选中一个 apk 文件
  * @param apkFile
  */
-void MainWindow::switchApkFile(QString apkFile)
+void MainWindow::switchApkFile(const QString &apkFile)
 {
     QFileInfo apkInfo(apkFile);
     // 如果该文件存在并且是一个 apk 文件

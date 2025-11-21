@@ -19,7 +19,9 @@ public:
 
     void init();
     void initTab();
-    void switchApkFile(QString apkFile);
+
+public slots:
+    void switchApkFile(const QString &apkFile);
 
 private:
     QVBoxLayout *m_mainLayout;

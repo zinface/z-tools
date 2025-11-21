@@ -20,6 +20,16 @@ int main(int argc, char *argv[])
     
     ScreenUtil::moveCenter(wm);
 
+#ifdef QT_DEBUG
+    char *apk = getenv("DEBUG_APK_FILE");
+    if (apk) {
+        QMetaObject::invokeMethod(&wm, "switchApkFile", Q_ARG(QString, apk));
+    } else {
+        #ifdef DEBUG_APK_FILE
+            QMetaObject::invokeMethod(&wm, "switchApkFile", Q_ARG(QString, DEBUG_APK_FILE));
+        #endif  // DEBUG_APK_FILE
+    }
+#else
     // 对可能传入的 apk 文件路径进行操作
     if (argc > 1) {
         QString arg(argv[1]);

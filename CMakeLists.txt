@@ -6,6 +6,16 @@ project(z-tools-base-apk-view LANGUAGES CXX VERSION 1.1.0)
 include(cmake/SparkWithGit.cmake)
 spark_initialize_modules()
 
+# 控制 qDebug 行为
+if(CMAKE_BUILD_TYPE MATCHES "Release")
+    add_compile_definitions(QT_NO_WARNING_OUTPUT=1 QT_NO_DEBUG_OUTPUT=1)
+else()
+    # 在开发过程中使用 examples 进行测试时的示例数据目录
+    add_compile_definitions(
+        EXAMPLE_DATA_DIRECTORY="${CMAKE_SOURCE_DIR}/examples/data/"
+        DEBUG_APK_FILE="${CMAKE_SOURCE_DIR}/assets/apks/X-plore.apk"
+endif(CMAKE_BUILD_TYPE MATCHES "Release")
+
 # 资源文件路径
 set(QRC_SOURCES "assets/sources.qrc")
 

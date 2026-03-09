@@ -23,6 +23,11 @@ spark_add_executable_path(${PROJECT_NAME} src
 )
 target_link_ServerScan(${PROJECT_NAME})
 
+# 引入构建基础的 version 
+spark_framework_include_with_git(${PROJECT_NAME}
+    https://gitee.com/spark-framework-libs/spark-framework-features
+    FEATURES version)
+
 # 安装主程序 z-tools-aptmanager
 spark_install_target(/opt/zTools/bin
     ${PROJECT_NAME})

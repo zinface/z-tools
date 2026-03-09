@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
   ,m_tabWidget(new QTabWidget(this))
 
 {
-    m_tabWidget->addTab(new ServerScan, "服务端口扫描");
+    m_tabWidget->addTab(new ServerScan(this), "服务端口扫描");
 
     m_mainLayout->addWidget(m_tabWidget);
     setLayout(m_mainLayout);

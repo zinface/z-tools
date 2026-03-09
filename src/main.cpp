@@ -5,6 +5,7 @@
 #include <QDesktopWidget>
 #include <QMainWindow>
 #include <QStyleFactory>
+#include "version.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +14,8 @@ int main(int argc, char *argv[])
     qApp->setStyle(QStyleFactory::create("fusion"));
 #endif
     QApplication a(argc, argv);
-    a.setApplicationName("ScanPort 端口扫描 - v0.1.3");
+    a.setApplicationName("z-tools-scanport");
+    a.setApplicationDisplayName("ScanPort 端口扫描 - " PROJECT_VERSION);
     MainWindow wm;
     wm.show();
     QDesktopWidget *desktop = QApplication::desktop();

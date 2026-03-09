@@ -285,6 +285,14 @@ void ServerScan::onConnected(QString host, int port, QString protocal)
     item->setData(Qt::UserRole, host);
     item->setData(Qt::UserRole+1, port);
     item->setData(Qt::UserRole+2, protocal);
+
+    // 标识出当前机器
+    foreach(QHostAddress address, QNetworkInterface::allAddresses()){
+        QString ipAddr = address.toString();
+        if (host == ipAddr) {
+            item->setData(Qt::DisplayRole, QString("%1:%2 %3 (本机)").arg(host).arg(port).arg(protocal));
+        }
+    }
     m_resuleView.addItem(item);
 }
 

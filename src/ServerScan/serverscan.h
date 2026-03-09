@@ -27,6 +27,15 @@ class ServerScan : public QWidget
 public:
     explicit ServerScan(QWidget *parent = nullptr);
 
+private:
+    QRegExp rxIP;
+    QRegExp rxPort;
+//    QRegExpValidator rv;
+//    QRegExpValidator;
+    void initUI();
+    void initLocalIpAddress();
+    QList<int> rangeIntList(int x, int y);
+
 private slots:
     void onScanStart();
     void onConnected(QString host, int port, QString protocal);
@@ -49,21 +58,16 @@ private:
 private:
     QLabel *m_remoteStartLab;
     QLabel *m_remoteEndLab;
-    QLabel *mServerPortLab;
+    QLabel *m_serverPortLab;
     QLabel *threadNumLab;
 
-    QLineEdit *mServerPort;
-    QPushButton *mScanButton;
+    QLineEdit *m_serverPort;
+    QPushButton *m_scanButton;
 
     QListWidget m_resuleView;
     QMenu *m_resuleView_menu;
 
     QLabel *mHostinfo;
-
-private:
-    void initUI();
-    QList<int> rangeIntList(int x, int y);
-
 
 //    ScanWorkerThread *m_ScanWorker;
 };

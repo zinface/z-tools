@@ -1,33 +1,10 @@
 
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.5.1...3.22)
 
 project(z-tools-scanport LANGUAGES CXX VERSION 0.1.3)
 
 include(cmake/SparkWithGit.cmake)
-
-# 用于 spark_include 引入相关的列表项，每一项都是可引用的构建模块
-spark_include(
-    SparkEnvConfig.cmake
-    SparkMacrosConfig.cmake
-    SparkFindQt5Config.cmake
-    # SparkFindQt6Config.cmake
-    # SparkFindDtkConfig.cmake
-    SparkFindLibraries.cmake
-    SparkMacrosExtendConfig.cmake
-
-    # SparkFramework.cmake
-    # SparkCMakeInfoAfterConfig.cmake
-    # SparkCMakeInfoBeforeConfig.cmake
-    # SparkExternalProject.cmake
-
-    # SparkTranslatorConfig.cmake
-    SparkInstallMacrosConfig.cmake
-    # SparkBuildGraphviz.cmake
-    # SparkDesktopMacros.cmake
-    # SparkDebPackageConfig.cmake
-    # SparkAppimageConfig.cmake
-)
-
+spark_initialize_modules()
 
 # 资源文件路径
 set(QRC_SOURCES "")

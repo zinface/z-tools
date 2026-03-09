@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.5.1...3.22)
 
-project(z-tools-scanport LANGUAGES CXX VERSION 0.1.3)
+project(z-tools-scanport LANGUAGES CXX VERSION 0.1.4)
 
 include(cmake/SparkWithGit.cmake)
 spark_initialize_modules()

@@ -59,20 +59,20 @@ BamfDialog::~BamfDialog()
 void BamfDialog::loadApplications()
 {
     Matcher matcher("org.ayatana.bamf", "/org/ayatana/bamf/matcher", QDBusConnection::sessionBus());
-    auto paths = matcher.WindowPaths();
-    paths.waitForFinished();
+    auto windowPaths = matcher.WindowPaths();
+    windowPaths.waitForFinished();
 
-    if (paths.isValid()) {
+    if (windowPaths.isValid()) {
         // qDebug() << paths.value();
-        foreach  (auto path, paths.value()) {
-            qDebug() << "Window:" << path;
-            Window window("org.ayatana.bamf", path, QDBusConnection::sessionBus());
+        foreach  (auto windowPath, windowPaths.value()) {
+            qDebug() << "Window:" << windowPath;
+            Window window("org.ayatana.bamf", windowPath, QDBusConnection::sessionBus());
             auto pid = window.GetPid();
             pid.waitForFinished();
             QFileInfo file(QString("/proc/%1/exe").arg(pid));
             qDebug() << "PID:" << pid.value() << file.symLinkTarget();
 
-            View view("org.ayatana.bamf", path, QDBusConnection::sessionBus());
+            View view("org.ayatana.bamf", windowPath, QDBusConnection::sessionBus());
             auto name = view.name();
             // name.waitForFinished();
             // qDebug() << "Name:" << name;

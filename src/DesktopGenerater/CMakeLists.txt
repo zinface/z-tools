@@ -6,10 +6,15 @@ find_package(Qt5Core)
 find_package(Qt5Widgets)
 find_package(Qt5Network)
 
+add_library(utils
+    "utils/linuxprocutils.cpp" "utils/linuxprocutils.h"
+)
+target_link_libraries(utils Qt5::Core Qt5::Widgets Qt5::Network)
+
 add_library(${MODULE_NAME}
     "desktopgenerater.cpp" "desktopgenerater.h" "desktopgenerater.ui"
     "desktopexecparamdialog.cpp" "desktopexecparamdialog.h"
     "desktopcustomecontent.cpp" "desktopcustomecontent.h"
-    "desktopextendedgroupbox.cpp" "desktopextendedgroupbox.h")
-
-target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets Qt5::Network)
+    "desktopextendedgroupbox.cpp" "desktopextendedgroupbox.h"
+)
+target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Widgets Qt5::Network utils)

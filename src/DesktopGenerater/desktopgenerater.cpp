@@ -4,6 +4,7 @@
 #include "desktopgenerater.h"
 #include "qdebug.h"
 #include "ui_desktopgenerater.h"
+#include "utils/linuxprocutils.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -394,5 +395,64 @@ void DesktopGenerater::on_btn_bamf_dialog_clicked()
         ui->contentExec->setText(app.symLink());
     });
     dialog.exec();
+
+    check_appimage_exec();
+}
+
+void DesktopGenerater::check_appimage_exec()
+{
+    // check AppImage File
+    QString execPath = contentExec->text();
+    QString iconPath = contentIcon->text();
+
+    if (execPath.startsWith("/tmp/.mount")) {
+        QMessageBox::Button buttons = QMessageBox::warning(this, "警告",
+                                                           "该可执行文件路径为 AppImage 临时文件!\n" + contentExec->text() + "\n"
+                                                               "是否尝试转换它?",
+                                                           QMessageBox::Yes | QMessageBox::No);
+        if (buttons & QMessageBox::Yes) {
+
+            QList<MountInfo> mountInfos = LinuxProcUtils::parseMounts();
+
+            MountInfo info;
+            bool isOk = false;
+
+            foreach (MountInfo mountInfo, mountInfos) {
+                if (mountInfo.target.startsWith("/tmp/.mount_")
+                    && execPath.startsWith(mountInfo.target)) {
+                    info = mountInfo;
+                    isOk = true;
+                    break;
+                }
+            }
+
+            if (isOk) {
+                QMap<qint64, QString> retMap =
+                    LinuxProcUtils::pgrepWithCmd(info.source);
+
+                isOk = false;
+                for (QMap<qint64, QString>::Iterator iter = retMap.begin();iter != retMap.end(); iter++) {
+                    QString appImagePath = iter.value();
+                    if (!appImagePath.isEmpty()) {
+                        QString newIconPath = appImagePath + ".png";
+                        QFile::copy(iconPath, newIconPath);
+
+                        contentExec->setText(appImagePath);
+                        contentIcon->setText(newIconPath);
+
+                        isOk = true;
+                        break;
+                    }
+                }
+
+                if (!isOk) {
+                    QMessageBox::warning(this, "警告", "未找到 AppImage 文件路径");
+                } else {
+                    QMessageBox::warning(this, "成功", "已找到并转换为 AppImage 文件和路径");
+                }
+            }
+        }
+        return;
+    }
 }
 

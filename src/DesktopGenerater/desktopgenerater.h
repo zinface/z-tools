@@ -132,6 +132,8 @@ protected:
     void dropEvent(QDropEvent *event) override;
 private slots:
     void on_btn_bamf_dialog_clicked();
+
+    void check_appimage_exec();
 };
 
 #endif // DESKTOPGENERATER_H

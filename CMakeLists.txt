@@ -17,7 +17,9 @@ set(QRC_SOURCES "src/DesktopGenerater/desktop.qrc")
 spark_add_library_realpaths(
     intros/gens
     src/DesktopGenerater/dialog+gens
-    src/DesktopGenerater+dialog
+
+    src/DesktopGenerater/utils
+    src/DesktopGenerater+dialog+utils
 )
 target_link_libraries(gens
     Qt${QT_VERSION_MAJOR}::DBus
@@ -73,7 +75,7 @@ spark_install_file(/usr/share/applications
     utils/open-system-applications.desktop
     utils/open-user-applications.desktop)
 
- # 生成依赖关系图
+# 生成依赖关系图
 spark_include(cmake/SparkBuildGraphviz.cmake)
 
 # 注释行(使用方式)
